@@ -189,47 +189,6 @@
 }
 
 
-/* Infinite Scroll Styles */
-
-/* Infinite Scrolling for Gallery and Providers */
-.gallery-track, #providers-track {
-  display: flex;
-  gap: 24px;
-  width: max-content;
-  animation: infinite-scroll 40s linear infinite;
-}
-
-@keyframes infinite-scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.gallery-img {
-  flex: 0 0 auto;
-}
-
-.gallery-img img {
-  border-radius: 12px;
-}
-
-.provider-logo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  flex: 0 0 auto;
-}
-
-.provider-logo img {
-  filter: none;
-}
-
-.provider-logo p {
-  font-size: 14px;
-  color: var(--t2);
-}
-
-
 /* ══ FEATURES BENTO ══ */
     .bento { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-top: 52px; }
     @media (max-width: 880px) { .bento { grid-template-columns: 1fr 1fr; } }
@@ -418,33 +377,23 @@
 
 <!-- HERO -->
 
-
 <div class="hero">
   <div class="hero-glow"></div>
   <h1 class="hero-title reveal" style="font-size: 3rem;">L'IA au service de votre quotidien</h1>
   <div class="gallery-wrap" style="margin-top: 20px; margin-bottom: 60px;">
     <div class="gallery-track" id="hero-gallery-track">
-      <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
-      <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
-      <div class="gallery-img"><img src="exemples/3.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
-      <div class="gallery-img"><img src="exemples/4.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
-      <div class="gallery-img"><img src="exemples/5.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
-      <div class="gallery-img"><img src="exemples/6.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
-      <div class="gallery-img"><img src="exemples/7.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
-      <div class="gallery-img"><img src="exemples/8.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
-      <div class="gallery-img"><img src="exemples/9.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
-      <div class="gallery-img"><img src="exemples/10.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
-      <div class="gallery-img"><img src="exemples/11.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
-      <div class="gallery-img"><img src="exemples/12.png" alt="" draggable="false" style="width: 250px; height: auto;"></div>
+      <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/3.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/4.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/5.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/6.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/7.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/8.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/9.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/10.png" alt="" draggable="false"></div>
     </div>
   </div>
-  <p class="hero-sub reveal d2">WikiMind est une suite complète d'outils intelligents pour apprendre, créer et s'organiser. Propulsé par les meilleurs modèles d'IA du marché.</p>
-  <div class="hero-ctas reveal d3">
-    <a href="#apps" class="btn-primary">Explorer les apps <i class="fa-solid fa-arrow-down" style="font-size:11px;"></i></a>
-    <a href="https://chpalitom09-bot.github.io/Wikimind-5/" class="btn-ghos">Découvrir WikiMind 5</a>
-  </div>
-</div>
-
   <p class="hero-sub reveal d2">WikiMind est une suite complète d'outils intelligents pour apprendre, créer et s'organiser. Propulsé par les meilleurs modèles d'IA du marché.</p>
   <div class="hero-ctas reveal d3">
     <a href="#apps" class="btn-primary">Explorer les apps <i class="fa-solid fa-arrow-down" style="font-size:11px;"></i></a>
@@ -463,23 +412,19 @@
 
 <!-- PROVIDERS -->
 
-
 <div class="providers-strip">
   <div class="providers-inner">
     <p class="providers-label reveal">Alimenté par</p>
     <div class="providers-row reveal d1" id="providers-track">
-      <div class="provider-logo"><img src="providers/groqlogo.png" alt="Groq" style="height: 60px;"><p>Groq</p></div>
-      <div class="provider-logo"><img src="providers/mistrallogo.png" alt="Mistral" style="height: 60px;"><p>Mistral</p></div>
-      <div class="provider-logo"><img src="providers/cerebraslogo.png" alt="Cerebras" style="height: 60px;"><p>Cerebras</p></div>
-      <div class="provider-logo"><img src="providers/sambanovalogo.png" alt="SambaNova" style="height: 60px;"><p>SambaNova</p></div>
-      <div class="provider-logo"><img src="providers/coherelogo.png" alt="Cohere" style="height: 60px;"><p>Cohere</p></div>
-      <div class="provider-logo"><img src="providers/pollinationai.png" alt="Pollinations AI" style="height: 60px;"><p>Pollinations AI</p></div>
-      <div class="provider-logo"><img src="providers/openailogo.png" alt="OpenAI" style="height: 60px;"><p>OpenAI</p></div>
-      <div class="provider-logo"><img src="providers/firebaselogo.png" alt="Firebase" style="height: 60px;"><p>Firebase</p></div>
+      <div class="provider-logo"><img src="providers/groqlogo.png" alt="Groq"><p>Groq</p></div>
+      <div class="provider-logo"><img src="providers/mistrallogo.png" alt="Mistral"><p>Mistral</p></div>
+      <div class="provider-logo"><img src="providers/cerebraslogo.png" alt="Cerebras"><p>Cerebras</p></div>
+      <div class="provider-logo"><img src="providers/sambanovalogo.png" alt="SambaNova"><p>SambaNova</p></div>
+      <div class="provider-logo"><img src="providers/coherelogo.png" alt="Cohere"><p>Cohere</p></div>
+      <div class="provider-logo"><img src="providers/pollinationai.png" alt="Pollinations AI"><p>Pollinations AI</p></div>
+      <div class="provider-logo"><img src="providers/openailogo.png" alt="OpenAI"><p>OpenAI</p></div>
+      <div class="provider-logo"><img src="providers/firebaselogo.png" alt="Firebase"><p>Firebase</p></div>
     </div>
-  </div>
-</div>
-
   </div>
 </div>
 
@@ -833,5 +778,20 @@
   }
 </script>
 
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const carousels = document.querySelectorAll('.carousel-container');
+    carousels.forEach(carousel => {
+        setInterval(() => {
+            const firstItem = carousel.querySelector('.carousel-item');
+            if (firstItem) {
+                carousel.appendChild(firstItem.cloneNode(true));
+                carousel.removeChild(firstItem);
+            }
+        }, 3000);
+    });
+});
+</script>
 </body>
 </html>
