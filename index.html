@@ -119,73 +119,104 @@
     .providers-strip { padding: 56px 32px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
     .providers-inner { max-width: 1160px; margin: 0 auto; }
     .providers-label { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--t3); text-align: center; margin-bottom: 28px; }
-    .providers-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; }
+    .providers-row { display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 24px; }
     .provider-chip { display: flex; align-items: center; gap: 8px; padding: 9px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; font-size: 13px; font-weight: 600; color: var(--t2); letter-spacing: -.005em; transition: border-color .2s, color .2s, background .2s; }
     .provider-chip:hover { border-color: var(--border-h); color: #fff; background: rgba(255,255,255,0.06); }
     .provider-dot { width: 6px; height: 6px; border-radius: 50%; }
 
     /* New Styles */
 
-.gallery-wrap {
+.gallery-wrap-old {
   overflow: hidden;
   width: 100%;
 }
 
-.gallery-track {
+.gallery-track-old {
   display: flex;
   gap: 16px;
-  animation: scroll 30s linear infinite;
+  animation: gscroll 30s linear infinite;
 }
 
-@keyframes scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.gallery-img {
+.gallery-img-old {
   flex: 0 0 auto;
   width: 200px;
 }
 
-.gallery-img img {
+.gallery-img-old img {
   width: 100%;
   height: auto;
   border-radius: 12px;
 }
 
 #hero-gallery-track {
-  animation: scroll 30s linear infinite;
+  animation: gscroll 36s linear infinite;
 }
+
+.providers-scroll-wrap {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+.providers-scroll-wrap::before,
+.providers-scroll-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 120px;
+  z-index: 2;
+  pointer-events: none;
+}
+.providers-scroll-wrap::before { left: 0; background: linear-gradient(to right, var(--bg), transparent); }
+.providers-scroll-wrap::after { right: 0; background: linear-gradient(to left, var(--bg), transparent); }
 
 #providers-track {
   display: flex;
-  gap: 32px;
+  gap: 24px;
   align-items: center;
-  animation: scroll 20s linear infinite;
+  width: max-content;
+  animation: gscroll 24s linear infinite;
+  will-change: transform;
 }
 
 .provider-logo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 10px;
   flex: 0 0 auto;
+  width: 160px;
+  height: 130px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px 14px;
+  transition: border-color .2s, background .2s;
+}
+
+.provider-logo:hover {
+  border-color: var(--border-h);
+  background: rgba(255,255,255,0.06);
 }
 
 .provider-logo img {
-  height: 40px;
+  height: 52px;
   width: auto;
+  max-width: 100px;
+  object-fit: contain;
   filter: grayscale(1) brightness(1.5);
   transition: filter 0.3s;
 }
 
-.provider-logo img:hover {
+.provider-logo:hover img {
   filter: grayscale(0) brightness(1);
 }
 
 .provider-logo p {
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--t2);
+  letter-spacing: -.005em;
 }
 
 
@@ -379,7 +410,7 @@
 
 <div class="hero">
   <div class="hero-glow"></div>
-  <h1 class="hero-title reveal" style="font-size: 3rem;">L'IA au service de votre quotidien</h1>
+  <h1 class="hero-title reveal" style="font-size: clamp(52px, 8vw, 96px);">L'IA au service de votre quotidien</h1>
   <div class="gallery-wrap" style="margin-top: 20px; margin-bottom: 60px;">
     <div class="gallery-track" id="hero-gallery-track">
       <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false"></div>
@@ -392,6 +423,25 @@
       <div class="gallery-img"><img src="exemples/8.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/9.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/10.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/11.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/12.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/13.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/14.png" alt="" draggable="false"></div>
+      <!-- Duplicate pour boucle seamless -->
+      <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/3.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/4.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/5.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/6.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/7.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/8.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/9.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/10.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/11.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/12.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/13.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/14.png" alt="" draggable="false"></div>
     </div>
   </div>
   <p class="hero-sub reveal d2">WikiMind est une suite complète d'outils intelligents pour apprendre, créer et s'organiser. Propulsé par les meilleurs modèles d'IA du marché.</p>
@@ -415,15 +465,27 @@
 <div class="providers-strip">
   <div class="providers-inner">
     <p class="providers-label reveal">Alimenté par</p>
-    <div class="providers-row reveal d1" id="providers-track">
-      <div class="provider-logo"><img src="providers/groqlogo.png" alt="Groq"><p>Groq</p></div>
-      <div class="provider-logo"><img src="providers/mistrallogo.png" alt="Mistral"><p>Mistral</p></div>
-      <div class="provider-logo"><img src="providers/cerebraslogo.png" alt="Cerebras"><p>Cerebras</p></div>
-      <div class="provider-logo"><img src="providers/sambanovalogo.png" alt="SambaNova"><p>SambaNova</p></div>
-      <div class="provider-logo"><img src="providers/coherelogo.png" alt="Cohere"><p>Cohere</p></div>
-      <div class="provider-logo"><img src="providers/pollinationai.png" alt="Pollinations AI"><p>Pollinations AI</p></div>
-      <div class="provider-logo"><img src="providers/openailogo.png" alt="OpenAI"><p>OpenAI</p></div>
-      <div class="provider-logo"><img src="providers/firebaselogo.png" alt="Firebase"><p>Firebase</p></div>
+    <div class="providers-scroll-wrap">
+      <div class="providers-row" id="providers-track">
+        <!-- Set original -->
+        <div class="provider-logo"><img src="providers/groqlogo.png" alt="Groq"><p>Groq</p></div>
+        <div class="provider-logo"><img src="providers/mistrallogo.png" alt="Mistral"><p>Mistral</p></div>
+        <div class="provider-logo"><img src="providers/cerebraslogo.png" alt="Cerebras"><p>Cerebras</p></div>
+        <div class="provider-logo"><img src="providers/sambanovalogo.png" alt="SambaNova"><p>SambaNova</p></div>
+        <div class="provider-logo"><img src="providers/coherelogo.png" alt="Cohere"><p>Cohere</p></div>
+        <div class="provider-logo"><img src="providers/pollinationai.png" alt="Pollinations AI"><p>Pollinations AI</p></div>
+        <div class="provider-logo"><img src="providers/openailogo.png" alt="OpenAI"><p>OpenAI</p></div>
+        <div class="provider-logo"><img src="providers/firebaselogo.png" alt="Firebase"><p>Firebase</p></div>
+        <!-- Duplicate pour boucle seamless -->
+        <div class="provider-logo"><img src="providers/groqlogo.png" alt="Groq"><p>Groq</p></div>
+        <div class="provider-logo"><img src="providers/mistrallogo.png" alt="Mistral"><p>Mistral</p></div>
+        <div class="provider-logo"><img src="providers/cerebraslogo.png" alt="Cerebras"><p>Cerebras</p></div>
+        <div class="provider-logo"><img src="providers/sambanovalogo.png" alt="SambaNova"><p>SambaNova</p></div>
+        <div class="provider-logo"><img src="providers/coherelogo.png" alt="Cohere"><p>Cohere</p></div>
+        <div class="provider-logo"><img src="providers/pollinationai.png" alt="Pollinations AI"><p>Pollinations AI</p></div>
+        <div class="provider-logo"><img src="providers/openailogo.png" alt="OpenAI"><p>OpenAI</p></div>
+        <div class="provider-logo"><img src="providers/firebaselogo.png" alt="Firebase"><p>Firebase</p></div>
+      </div>
     </div>
   </div>
 </div>
@@ -639,6 +701,36 @@
       <div class="mc-arr"><i class="fa-solid fa-arrow-up-right"></i></div>
     </a>
 
+    <!-- WikiMind Traducteur -->
+    <a href="tools/Wikimind_traducteur.html" class="mc reveal d2" data-name="wikimind traducteur langue traduction texte international">
+      <div class="mc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:rgba(255,255,255,0.8);"><path stroke-linecap="round" stroke-linejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802"/></svg></div>
+      <div class="mc-body">
+        <div class="mc-name">WikiMind Traducteur</div>
+        <div class="mc-desc">Traduction instantanée par IA dans plus de 50 langues, avec contexte, nuances et reformulation naturelle.</div>
+      </div>
+      <div class="mc-arr"><i class="fa-solid fa-arrow-up-right"></i></div>
+    </a>
+
+    <!-- WikiMind Résumé -->
+    <a href="tools/Wikimind_resume.html" class="mc reveal" data-name="wikimind resume synthese document pdf texte ia">
+      <div class="mc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:rgba(255,255,255,0.8);"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"/></svg></div>
+      <div class="mc-body">
+        <div class="mc-name">WikiMind Résumé</div>
+        <div class="mc-desc">Résumez n'importe quel document, article ou texte en quelques secondes avec l'IA. Idéal pour les cours et la veille.</div>
+      </div>
+      <div class="mc-arr"><i class="fa-solid fa-arrow-up-right"></i></div>
+    </a>
+
+    <!-- WikiMind Code -->
+    <a href="tools/Wikimind_code.html" class="mc reveal d1" data-name="wikimind code programmation debugger ia developer python javascript">
+      <div class="mc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:rgba(255,255,255,0.8);"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"/></svg></div>
+      <div class="mc-body">
+        <div class="mc-name">WikiMind Code</div>
+        <div class="mc-desc">Assistant de programmation IA : générez, déboguez et expliquez du code dans tous les langages. Avec exécution en direct.</div>
+      </div>
+      <div class="mc-arr"><i class="fa-solid fa-arrow-up-right"></i></div>
+    </a>
+
   </div>
 </section>
 
@@ -778,20 +870,5 @@
   }
 </script>
 
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const carousels = document.querySelectorAll('.carousel-container');
-    carousels.forEach(carousel => {
-        setInterval(() => {
-            const firstItem = carousel.querySelector('.carousel-item');
-            if (firstItem) {
-                carousel.appendChild(firstItem.cloneNode(true));
-                carousel.removeChild(firstItem);
-            }
-        }, 3000);
-    });
-});
-</script>
 </body>
 </html>
