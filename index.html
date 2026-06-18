@@ -116,7 +116,7 @@
     .section-sub { font-size: 15px; color: var(--t2); max-width: 480px; line-height: 1.65; }
 
     /* ══ PROVIDERS STRIP ══ */
-    .providers-strip { padding: 56px 32px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .providers-strip { padding: 56px 32px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-top: 32px; }
     .providers-inner { max-width: 1160px; margin: 0 auto; }
     .providers-label { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--t3); text-align: center; margin-bottom: 28px; }
     .providers-row { display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 24px; }
@@ -204,12 +204,11 @@
   width: auto;
   max-width: 100px;
   object-fit: contain;
-  filter: grayscale(1) brightness(1.5);
-  transition: filter 0.3s;
+  transition: transform 0.3s;
 }
 
 .provider-logo:hover img {
-  filter: grayscale(0) brightness(1);
+  transform: scale(1.08);
 }
 
 .provider-logo p {
@@ -427,6 +426,12 @@
       <div class="gallery-img"><img src="exemples/12.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/13.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/14.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/15.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/16.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/17.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/18.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/19.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/20.png" alt="" draggable="false"></div>
       <!-- Duplicate pour boucle seamless -->
       <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false"></div>
@@ -442,6 +447,12 @@
       <div class="gallery-img"><img src="exemples/12.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/13.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/14.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/15.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/16.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/17.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/18.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/19.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/20.png" alt="" draggable="false"></div>
     </div>
   </div>
   <p class="hero-sub reveal d2">WikiMind est une suite complète d'outils intelligents pour apprendre, créer et s'organiser. Propulsé par les meilleurs modèles d'IA du marché.</p>
@@ -452,11 +463,12 @@
 </div>
 
  
-  <div class="hero-stats reveal d4">
+  <div class="hero-stats reveal d4" style="margin-bottom: 48px;">
     <div class="hero-stat"><div class="hero-stat-num">20+</div><div class="hero-stat-label">Applications</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">9</div><div class="hero-stat-label">Providers IA</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">37+</div><div class="hero-stat-label">Modèles IA</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">1,9M+</div><div class="hero-stat-label">Tokens générés</div></div>
     <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">Gratuit</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">0</div><div class="hero-stat-label">Publicite</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">0</div><div class="hero-stat-label">Publicité</div></div>
   </div>
 </div>
 
