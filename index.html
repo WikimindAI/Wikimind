@@ -124,7 +124,72 @@
     .provider-chip:hover { border-color: var(--border-h); color: #fff; background: rgba(255,255,255,0.06); }
     .provider-dot { width: 6px; height: 6px; border-radius: 50%; }
 
-    /* ══ FEATURES BENTO ══ */
+    /* New Styles */
+
+.gallery-wrap {
+  overflow: hidden;
+  width: 100%;
+}
+
+.gallery-track {
+  display: flex;
+  gap: 16px;
+  animation: scroll 30s linear infinite;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.gallery-img {
+  flex: 0 0 auto;
+  width: 200px;
+}
+
+.gallery-img img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+#hero-gallery-track {
+  animation: scroll 30s linear infinite;
+}
+
+#providers-track {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  animation: scroll 20s linear infinite;
+}
+
+.provider-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.provider-logo img {
+  height: 40px;
+  width: auto;
+  filter: grayscale(1) brightness(1.5);
+  transition: filter 0.3s;
+}
+
+.provider-logo img:hover {
+  filter: grayscale(0) brightness(1);
+}
+
+.provider-logo p {
+  font-size: 14px;
+  color: var(--t2);
+}
+
+
+/* ══ FEATURES BENTO ══ */
     .bento { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-top: 52px; }
     @media (max-width: 880px) { .bento { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 560px) { .bento { grid-template-columns: 1fr; } }
@@ -311,10 +376,31 @@
 </div>
 
 <!-- HERO -->
+
 <div class="hero">
   <div class="hero-glow"></div>
-  <div class="hero-eyebrow reveal"><div class="hero-eyebrow-dot"></div>Suite IA, 20+ applications gratuites</div>
-  <h1 class="hero-title reveal d1">L'IA au service<br>de votre quotidien</h1>
+  <h1 class="hero-title reveal" style="font-size: 2.5rem;">L'IA au service de votre quotidien</h1>
+  <div class="gallery-wrap" style="margin-top: 20px;">
+    <div class="gallery-track" id="hero-gallery-track">
+      <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/3.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/4.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/5.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/6.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/7.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/8.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/9.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/10.png" alt="" draggable="false"></div>
+    </div>
+  </div>
+  <p class="hero-sub reveal d2">WikiMind est une suite complète d'outils intelligents pour apprendre, créer et s'organiser. Propulsé par les meilleurs modèles d'IA du marché.</p>
+  <div class="hero-ctas reveal d3">
+    <a href="#apps" class="btn-primary">Explorer les apps <i class="fa-solid fa-arrow-down" style="font-size:11px;"></i></a>
+    <a href="https://chpalitom09-bot.github.io/Wikimind-5/" class="btn-ghos">Découvrir WikiMind 5</a>
+  </div>
+</div>
+
   <p class="hero-sub reveal d2">WikiMind est une suite complète d'outils intelligents pour apprendre, créer et s'organiser. Propulsé par les meilleurs modèles d'IA du marché.</p>
   <div class="hero-ctas reveal d3">
     <a href="#apps" class="btn-primary">Explorer les apps <i class="fa-solid fa-arrow-down" style="font-size:11px;"></i></a>
@@ -329,19 +415,23 @@
 </div>
 
 <!-- PROVIDERS -->
+
 <div class="providers-strip">
   <div class="providers-inner">
     <p class="providers-label reveal">Alimenté par</p>
-    <div class="providers-row reveal d1">
-      <div class="provider-chip"><span class="provider-dot" style="background:#ee4b2b;"></span>Mistral</div>
-      <div class="provider-chip"><span class="provider-dot" style="background:#f59e0b;"></span>Groq</div>
-      <div class="provider-chip"><span class="provider-dot" style="background:#a78bfa;"></span>Cerebras</div>
-      <div class="provider-chip"><span class="provider-dot" style="background:#34d399;"></span>SambaNova</div>
-      <div class="provider-chip"><span class="provider-dot" style="background:#60a5fa;"></span>Cohere</div>
-      <div class="provider-chip"><span class="provider-dot" style="background:#f472b6;"></span>Pollinations AI</div>
-      <div class="provider-chip"><span class="provider-dot" style="background:#fb923c;"></span>OpenAI</div>
-      <div class="provider-chip"><span class="provider-dot" style="background:#a3e635;"></span>Firebase</div>
+    <div class="providers-row reveal d1" id="providers-track">
+      <div class="provider-logo"><img src="providers/groqlogo.png" alt="Groq"><p>Groq</p></div>
+      <div class="provider-logo"><img src="providers/mistrallogo.png" alt="Mistral"><p>Mistral</p></div>
+      <div class="provider-logo"><img src="providers/cerebraslogo.png" alt="Cerebras"><p>Cerebras</p></div>
+      <div class="provider-logo"><img src="providers/sambanova.png" alt="SambaNova"><p>SambaNova</p></div>
+      <div class="provider-logo"><img src="providers/cohere.png" alt="Cohere"><p>Cohere</p></div>
+      <div class="provider-logo"><img src="providers/pollinationailogo.png" alt="Pollinations AI"><p>Pollinations AI</p></div>
+      <div class="provider-logo"><img src="providers/openailogo.png" alt="OpenAI"><p>OpenAI</p></div>
+      <div class="provider-logo"><img src="providers/firebaselogo.png" alt="Firebase"><p>Firebase</p></div>
     </div>
+  </div>
+</div>
+
   </div>
 </div>
 
@@ -382,36 +472,7 @@
 </section>
 
 <!-- GALLERY -->
-<div class="gallery-section" id="gallery">
-  <div class="gallery-inner reveal">
-    <p class="section-label">Galerie</p>
-    <h2 class="section-title">Exemples générés par WikiMind</h2>
-    <p class="section-sub">Images créées avec WikiMind Image, Flux Schnell, Kontext et GPT Image.</p>
-  </div>
-  <div class="gallery-wrap" style="margin-top:40px;">
-    <div class="gallery-track" id="gallery-track">
-      <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/3.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/4.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/5.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/6.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/7.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/8.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/9.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/10.png" alt="" draggable="false"></div>
-      <!-- duplicate for seamless loop -->
-      <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/3.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/4.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/5.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/6.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/7.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/8.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/9.png" alt="" draggable="false"></div>
-      <div class="gallery-img"><img src="exemples/10.png" alt="" draggable="false"></div>
-    </div>
+
   </div>
 </div>
 
