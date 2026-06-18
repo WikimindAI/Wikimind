@@ -934,16 +934,15 @@
 
   <div class="podium-wrap">
 
-    <!-- Labels above each column -->
+    <!-- ── Texte au dessus des blocs ── -->
     <div class="podium-labels">
 
-      <!-- #2 left -->
+      <!-- #2 gauche -->
       <div class="plabel plabel-2">
-        <div class="pl-rank">2</div>
         <div class="pl-name">Large 6.1</div>
         <div class="pl-model">DeepSeek-V3.1</div>
+        <img src="providers/sambanovalogo.png" alt="SambaNova" class="pl-logo">
         <div class="pl-provider">
-          <img src="providers/sambanovalogo.png" alt="SambaNova" class="pl-logo">
           <span>SambaNova</span>
         </div>
         <div class="pl-speed-row">
@@ -954,11 +953,10 @@
 
       <!-- #1 centre -->
       <div class="plabel plabel-1">
-        <div class="pl-rank pl-rank-gold">1</div>
         <div class="pl-name pl-name-hero">Flash 1.0</div>
         <div class="pl-model">llama-3.1-8b-instant</div>
+        <img src="providers/groqlogo.png" alt="Groq" class="pl-logo">
         <div class="pl-provider">
-          <img src="providers/groqlogo.png" alt="Groq" class="pl-logo">
           <span>Groq</span>
         </div>
         <div class="pl-speed-row">
@@ -967,13 +965,12 @@
         </div>
       </div>
 
-      <!-- #3 right -->
+      <!-- #3 droite -->
       <div class="plabel plabel-3">
-        <div class="pl-rank">3</div>
         <div class="pl-name">Large 6.4</div>
         <div class="pl-model">Meta-Llama-3.3-70B</div>
+        <img src="providers/sambanovalogo.png" alt="SambaNova" class="pl-logo">
         <div class="pl-provider">
-          <img src="providers/sambanovalogo.png" alt="SambaNova" class="pl-logo">
           <span>SambaNova</span>
         </div>
         <div class="pl-speed-row">
@@ -982,215 +979,209 @@
         </div>
       </div>
 
-    </div><!-- /podium-labels -->
+    </div>
 
-    <!-- SVG podium 3D -->
-    <svg class="podium-svg" viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+    <!-- ── SVG podium 3D ── -->
+    <svg class="podium-svg" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="pgTop1" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.11)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.13)"/>
           <stop offset="100%" stop-color="rgba(255,255,255,0.06)"/>
         </linearGradient>
         <linearGradient id="pgTop2" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.08)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.09)"/>
           <stop offset="100%" stop-color="rgba(255,255,255,0.04)"/>
         </linearGradient>
         <linearGradient id="pgTop3" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.06)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.07)"/>
           <stop offset="100%" stop-color="rgba(255,255,255,0.03)"/>
         </linearGradient>
         <linearGradient id="pgFront" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.055)"/>
-          <stop offset="100%" stop-color="rgba(255,255,255,0.022)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.06)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.02)"/>
         </linearGradient>
         <linearGradient id="pgSide" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.018)"/>
-          <stop offset="100%" stop-color="rgba(255,255,255,0.006)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.02)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.005)"/>
         </linearGradient>
-        <linearGradient id="pgReflect" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.032)"/>
+        <linearGradient id="pgBase" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.05)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.015)"/>
+        </linearGradient>
+        <linearGradient id="pgRefl" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.025)"/>
           <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
         </linearGradient>
       </defs>
 
-      <!-- ══ BASE PLATFORM ══ -->
-      <rect x="60" y="210" width="780" height="48" fill="url(#pgFront)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-      <polygon points="60,210 840,210 870,188 30,188" fill="url(#pgTop2)" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
-      <polygon points="840,210 870,188 870,258 840,258" fill="url(#pgSide)" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+      <!-- BASE PLATFORM — front face -->
+      <rect x="30" y="228" width="840" height="44" fill="url(#pgBase)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+      <!-- BASE top face -->
+      <polygon points="30,228 870,228 900,205 0,205" fill="url(#pgTop2)" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+      <!-- BASE right side -->
+      <polygon points="870,228 900,205 900,272 870,272" fill="url(#pgSide)" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
 
-      <!-- ══ BLOCK #2 — medium ══ -->
-      <rect x="80"  y="130" width="220" height="80"  fill="url(#pgFront)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-      <polygon points="80,130 300,130 328,110 52,110"  fill="url(#pgTop2)" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
-      <polygon points="300,130 328,110 328,210 300,210" fill="url(#pgSide)" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
-      <text x="190" y="190" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="48" font-weight="800" fill="rgba(255,255,255,0.07)">2</text>
+      <!-- BLOCK #2 — medium (left) -->
+      <!-- front -->
+      <rect x="60"  y="128" width="240" height="100" fill="url(#pgFront)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+      <!-- top -->
+      <polygon points="60,128 300,128 330,105 90,105"  fill="url(#pgTop2)" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+      <!-- side -->
+      <polygon points="300,128 330,105 330,228 300,228" fill="url(#pgSide)" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+      <!-- number -->
+      <text x="180" y="210" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="56" font-weight="800" fill="rgba(255,255,255,0.07)">2</text>
 
-      <!-- ══ BLOCK #1 — tallest ══ -->
-      <rect x="330" y="60"  width="250" height="150" fill="url(#pgFront)" stroke="rgba(255,255,255,0.11)" stroke-width="1"/>
-      <polygon points="330,60  580,60  608,38 358,38"  fill="url(#pgTop1)" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
-      <polygon points="580,60  608,38  608,210 580,210" fill="url(#pgSide)" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
-      <line x1="330" y1="60" x2="580" y2="60" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
-      <text x="455" y="170" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="80" font-weight="800" fill="rgba(255,255,255,0.07)">1</text>
+      <!-- BLOCK #1 — tallest (centre) -->
+      <!-- front -->
+      <rect x="330" y="48"  width="270" height="180" fill="url(#pgFront)" stroke="rgba(255,255,255,0.11)" stroke-width="1"/>
+      <!-- top — bright highlight edge -->
+      <polygon points="330,48  600,48  630,25 360,25"  fill="url(#pgTop1)" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+      <!-- top highlight line -->
+      <line x1="330" y1="48" x2="600" y2="48" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+      <!-- side -->
+      <polygon points="600,48  630,25  630,228 600,228" fill="url(#pgSide)" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+      <!-- number -->
+      <text x="465" y="185" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="100" font-weight="800" fill="rgba(255,255,255,0.07)">1</text>
 
-      <!-- ══ BLOCK #3 — shortest ══ -->
-      <rect x="600" y="160" width="210" height="50"  fill="url(#pgFront)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
-      <polygon points="600,160 810,160 838,140 628,140" fill="url(#pgTop3)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
-      <polygon points="810,160 838,140 838,210 810,210" fill="url(#pgSide)" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
-      <text x="705" y="200" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="32" font-weight="800" fill="rgba(255,255,255,0.07)">3</text>
+      <!-- BLOCK #3 — shortest (right) -->
+      <!-- front -->
+      <rect x="620" y="168" width="220" height="60"  fill="url(#pgFront)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+      <!-- top -->
+      <polygon points="620,168 840,168 870,145 650,145" fill="url(#pgTop3)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+      <!-- side -->
+      <polygon points="840,168 870,145 870,228 840,228" fill="url(#pgSide)" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+      <!-- number -->
+      <text x="730" y="216" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="38" font-weight="800" fill="rgba(255,255,255,0.07)">3</text>
 
-      <!-- Ground reflection -->
-      <rect x="60" y="258" width="780" height="22" fill="url(#pgReflect)"/>
+      <!-- REFLECTION -->
+      <rect x="30" y="272" width="840" height="28" fill="url(#pgRefl)"/>
     </svg>
 
-  </div><!-- /podium-wrap -->
+  </div>
 </section>
 
 <style>
-/* ══ PODIUM SECTION ══ */
+/* ══ PODIUM ══ */
 .podium-section {
-  padding: 96px 32px 100px;
+  padding: 96px 24px 100px;
   max-width: 1160px;
   margin: 0 auto;
 }
-.podium-header { margin-bottom: 56px; }
+.podium-header { margin-bottom: 52px; }
 
-/* Outer wrap — relative so labels can align with SVG columns */
 .podium-wrap {
   position: relative;
   opacity: 0;
-  transform: translateY(28px);
-  transition: opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1);
+  transform: translateY(30px);
+  transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+  width: 100%;
 }
 .podium-wrap.pw-in { opacity: 1; transform: none; }
 
-/* ── SVG ── */
 .podium-svg {
   width: 100%;
   display: block;
 }
 
-/* ── Labels row ── */
+/* ── Labels ── */
 .podium-labels {
-  display: flex;
-  align-items: flex-end;           /* bottom-align so text sits flush above blocks */
-  padding: 0 0 0 0;
+  display: grid;
+  /* Mirror SVG column centres:
+     #2 occupies left ~34% (block x60-330), #1 centre ~34%, #3 right ~32% */
+  grid-template-columns: 34% 34% 32%;
+  align-items: end;
   margin-bottom: 0;
+  padding: 0 0 16px;
 }
 
-/* Each label occupies roughly the same horizontal space as its SVG block */
 .plabel {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1);
-  padding-bottom: 18px;            /* breathing room above the SVG */
+  transform: translateY(14px);
+  transition: opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1);
+  padding: 0 8px;
 }
 .plabel.pl-in { opacity: 1; transform: none; }
 
-/* Width ratios mirror the SVG viewBox columns out of 900px total */
-/* #2: x80→300 = 220px wide, centre at ~190 → left portion ~25.5% of 900 */
-/* #1: x330→580 = 250px wide, centre at ~455 → middle ~38.9% */
-/* #3: x600→810 = 210px wide, centre at ~705 → right ~25.6% */
-.plabel-2 { flex: 0 0 27.8%; }   /* ≈ (80+220/2)/900 centred, occupy left third */
-.plabel-1 { flex: 0 0 38.9%; text-align: center; align-items: center; }
-.plabel-3 { flex: 0 0 26.7%; text-align: right;  align-items: flex-end; }
-
-/* Rank circle */
-.pl-rank {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(255,255,255,0.04);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--display); font-size: 12px; font-weight: 800;
-  color: rgba(255,255,255,0.55);
-  flex-shrink: 0;
-  margin-bottom: 2px;
-}
-.pl-rank-gold {
-  border-color: rgba(255,255,255,0.4);
-  background: rgba(255,255,255,0.07);
-  color: #fff;
-}
+.plabel-1 { align-items: center; text-align: center; }
+.plabel-3 { align-items: flex-end; text-align: right; }
 
 /* Name */
 .pl-name {
   font-family: var(--display);
   font-size: 20px; font-weight: 700;
-  letter-spacing: -.02em;
-  color: #fff;
+  letter-spacing: -.025em; color: #fff;
   line-height: 1;
 }
-.pl-name-hero { font-size: 26px; }
+.pl-name-hero { font-size: 28px; }
 
-/* Model ID */
+/* Model id */
 .pl-model {
-  font-size: 10px;
-  color: var(--t3);
-  font-family: monospace;
+  font-size: 10px; color: var(--t3);
+  font-family: monospace; margin-top: 1px;
 }
 
 /* Provider */
 .pl-provider {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 600;
-  color: var(--t2);
-  margin-top: 2px;
+  font-size: 12px; font-weight: 600; color: var(--t2);
+  margin-top: 4px;
 }
+/* Text chip instead of broken PNG */
+.pl-chip {
+  display: none;
+}
+
+/* Provider logo */
 .pl-logo {
-  width: 16px; height: 16px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
   filter: brightness(0) invert(1);
-  opacity: 0.5;
+  opacity: 0.7;
+  margin: 6px 0 2px;
 }
 
 /* Speed row */
 .pl-speed-row {
-  display: flex; flex-direction: column; gap: 4px;
-  margin-top: 6px;
-  width: 100%;
-  max-width: 200px;
+  display: flex; flex-direction: column; gap: 3px;
+  margin-top: 8px; width: 100%;
 }
-.plabel-1 .pl-speed-row { max-width: 240px; }
-.plabel-3 .pl-speed-row { max-width: 180px; margin-left: auto; }
-
 .pl-bar {
-  height: 2px;
-  background: rgba(255,255,255,0.07);
-  border-radius: 100px;
-  overflow: hidden;
+  height: 2px; background: rgba(255,255,255,0.07);
+  border-radius: 100px; overflow: hidden;
 }
 .pl-fill {
   height: 100%; width: 0;
-  background: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.2);
   border-radius: 100px;
   transition: width 1.3s cubic-bezier(.16,1,.3,1);
 }
-.pl-fill-hero { background: rgba(255,255,255,0.55); }
+.pl-fill-hero { background: rgba(255,255,255,0.5); }
 .pl-fill.fill-go { width: var(--w); }
 
-.pl-cps {
-  display: flex; align-items: baseline;
-}
+.pl-cps { display: flex; align-items: baseline; }
 .pl-num {
   font-family: var(--display);
-  font-size: 28px; font-weight: 700;
-  letter-spacing: -.04em;
-  color: rgba(255,255,255,0.9);
+  font-size: 32px; font-weight: 700;
+  letter-spacing: -.04em; color: rgba(255,255,255,0.88);
 }
-.pl-cps-hero .pl-num { font-size: 36px; color: #fff; }
+.pl-cps-hero .pl-num { font-size: 42px; color: #fff; }
 .pl-unit { font-size: 11px; color: var(--t3); margin-left: 3px; }
 
-/* ── Separator line between labels and SVG ── */
-.podium-wrap .podium-svg { margin-top: 0; }
-
-/* ── Mobile: stack vertically ── */
-@media (max-width: 640px) {
-  .podium-labels { flex-direction: column; gap: 28px; align-items: stretch; }
-  .plabel { flex: none !important; text-align: left !important; align-items: flex-start !important; }
-  .plabel-3 .pl-speed-row { margin-left: 0; }
-  .podium-svg { display: none; }
+/* ── MOBILE : SVG redimensionné, texte réorganisé ── */
+@media (max-width: 600px) {
+  .podium-labels {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding-bottom: 24px;
+  }
+  .plabel-1 { order: -1; align-items: flex-start; text-align: left; }
+  .plabel-3 { align-items: flex-start; text-align: left; }
+  /* SVG reste visible mais réduit */
+  .podium-svg { margin-top: 8px; }
 }
 </style>
 
@@ -1198,20 +1189,19 @@
 (function() {
   const section = document.getElementById('podium');
   const wrap    = section.querySelector('.podium-wrap');
-  const labels  = section.querySelectorAll('.plabel');
+  const labels  = section.querySelectorAll('.plabel');  /* order in DOM: 2, 1, 3 */
   const fills   = section.querySelectorAll('.pl-fill');
   const nums    = section.querySelectorAll('.pl-num');
+  const targets = [853, 1000, 676];
 
   function countUp(el, target, ms) {
     let t0 = null;
-    const tick = ts => {
+    (function tick(ts) {
       if (!t0) t0 = ts;
       const p = Math.min((ts - t0) / ms, 1);
-      const ease = 1 - Math.pow(1 - p, 3);
-      el.textContent = Math.round(ease * target).toLocaleString('fr-FR');
+      el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target).toLocaleString('fr-FR');
       if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
+    })(performance.now());
   }
 
   let fired = false;
@@ -1219,23 +1209,20 @@
     if (!e.isIntersecting || fired) return;
     fired = true;
 
-    // 1. Wrap fades in
     wrap.classList.add('pw-in');
 
-    // 2. Labels appear: #1 first, then #2, then #3
-    const order = [1, 0, 2]; // indices into labels NodeList (order in DOM: 2,1,3)
-    order.forEach((idx, i) => {
-      setTimeout(() => labels[idx].classList.add('pl-in'), 250 + i * 150);
-    });
+    /* labels[0]=plabel-2, labels[1]=plabel-1, labels[2]=plabel-3
+       Show order: #1 first, then #2, then #3 */
+    [1, 0, 2].forEach((idx, i) =>
+      setTimeout(() => labels[idx].classList.add('pl-in'), 220 + i * 130)
+    );
 
-    // 3. Bars + counters
     setTimeout(() => {
       fills.forEach(f => f.classList.add('fill-go'));
-      const targets = [853, 1000, 676];
       nums.forEach((n, i) => countUp(n, targets[i], 1400));
-    }, 750);
+    }, 680);
 
-  }, { threshold: 0.15 }).observe(section);
+  }, { threshold: 0.12 }).observe(section);
 })();
 </script>
 <div class="divider"></div>
