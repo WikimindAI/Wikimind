@@ -924,6 +924,367 @@
   </div>
 </section>
 
+<!-- PODIUM VITESSE -->
+<section id="podium" class="podium-section">
+  <div class="podium-header reveal">
+    <p class="section-label">Performances</p>
+    <h2 class="section-title">Les modèles les plus rapides</h2>
+    <p class="section-sub">Classement en tokens par seconde, mesuré en conditions réelles sur WikiMind.</p>
+  </div>
+
+  <!-- Floating info cards above podium -->
+  <div class="podium-arena">
+
+    <!-- Info card #2 (left) -->
+    <div class="pcard pcard-2">
+      <div class="pcard-rank silver-rank">2</div>
+      <div class="pcard-body">
+        <div class="pcard-name">Large 6.1</div>
+        <div class="pcard-model">DeepSeek-V3.1</div>
+        <div class="pcard-provider">
+          <img src="providers/sambanovalogo.png" alt="SambaNova" class="pcard-logo">
+          <span>SambaNova</span>
+        </div>
+        <div class="pcard-bar-wrap">
+          <div class="pcard-bar"><div class="pcard-bar-fill" style="--w:86%"></div></div>
+          <div class="pcard-speed"><span class="pcard-num" data-target="853">0</span> <span class="pcard-unit">c/s</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info card #1 (centre) -->
+    <div class="pcard pcard-1">
+      <div class="pcard-rank gold-rank">1</div>
+      <div class="pcard-body">
+        <div class="pcard-name">Flash 1.0</div>
+        <div class="pcard-model">llama-3.1-8b-instant</div>
+        <div class="pcard-provider">
+          <img src="providers/groqlogo.png" alt="Groq" class="pcard-logo">
+          <span>Groq</span>
+        </div>
+        <div class="pcard-bar-wrap">
+          <div class="pcard-bar"><div class="pcard-bar-fill gold-fill" style="--w:100%"></div></div>
+          <div class="pcard-speed"><span class="pcard-num" data-target="1000">0</span> <span class="pcard-unit">c/s</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info card #3 (right) -->
+    <div class="pcard pcard-3">
+      <div class="pcard-rank bronze-rank">3</div>
+      <div class="pcard-body">
+        <div class="pcard-name">Large 6.4</div>
+        <div class="pcard-model">Meta-Llama-3.3-70B</div>
+        <div class="pcard-provider">
+          <img src="providers/sambanovalogo.png" alt="SambaNova" class="pcard-logo">
+          <span>SambaNova</span>
+        </div>
+        <div class="pcard-bar-wrap">
+          <div class="pcard-bar"><div class="pcard-bar-fill" style="--w:72%"></div></div>
+          <div class="pcard-speed"><span class="pcard-num" data-target="676">0</span> <span class="pcard-unit">c/s</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- The actual 3D podium SVG -->
+    <div class="podium-svg-wrap">
+      <svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" class="podium-svg" preserveAspectRatio="xMidYMax meet">
+        <defs>
+          <!-- Silver gradient for faces -->
+          <linearGradient id="gFaceLeft" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.055)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0.025)"/>
+          </linearGradient>
+          <linearGradient id="gFaceRight" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.018)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0.006)"/>
+          </linearGradient>
+          <!-- Top faces -->
+          <linearGradient id="gTop1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.13)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0.07)"/>
+          </linearGradient>
+          <linearGradient id="gTop2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.09)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0.05)"/>
+          </linearGradient>
+          <linearGradient id="gTop3" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.07)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0.04)"/>
+          </linearGradient>
+          <!-- Reflection -->
+          <linearGradient id="gReflect" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.04)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+          </linearGradient>
+          <clipPath id="reflectClip">
+            <rect x="0" y="300" width="900" height="40"/>
+          </clipPath>
+        </defs>
+
+        <!-- ══ BASE PLATFORM ══ -->
+        <!-- Front face -->
+        <rect x="80" y="240" width="740" height="60" fill="rgba(255,255,255,0.035)" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+        <!-- Top face (perspective) -->
+        <polygon points="80,240 900,240 860,210 40,210" fill="rgba(255,255,255,0.055)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <!-- Right side face -->
+        <polygon points="820,240 900,240 860,210 820,210" fill="rgba(255,255,255,0.018)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+        <!-- ══ BLOCK #2 (LEFT, medium height) ══ -->
+        <!-- Front -->
+        <rect x="100" y="140" width="220" height="100" fill="url(#gFaceLeft)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <!-- Top -->
+        <polygon points="100,140 320,140 340,115 120,115" fill="url(#gTop2)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+        <!-- Right side -->
+        <polygon points="320,140 340,115 340,240 320,240" fill="url(#gFaceRight)" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        <!-- Rank label -->
+        <text x="210" y="205" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="52" font-weight="800" fill="rgba(255,255,255,0.12)" letter-spacing="-2">2</text>
+
+        <!-- ══ BLOCK #1 (CENTRE, tallest) ══ -->
+        <!-- Front -->
+        <rect x="340" y="80" width="240" height="160" fill="url(#gFaceLeft)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+        <!-- Top -->
+        <polygon points="340,80 580,80 600,55 360,55" fill="url(#gTop1)" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>
+        <!-- Right side -->
+        <polygon points="580,80 600,55 600,240 580,240" fill="url(#gFaceRight)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+        <!-- Rank label -->
+        <text x="460" y="190" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="90" font-weight="800" fill="rgba(255,255,255,0.10)" letter-spacing="-3">1</text>
+        <!-- Gold edge top highlight -->
+        <line x1="340" y1="80" x2="580" y2="80" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+
+        <!-- ══ BLOCK #3 (RIGHT, shortest) ══ -->
+        <!-- Front -->
+        <rect x="600" y="170" width="200" height="70" fill="url(#gFaceLeft)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+        <!-- Top -->
+        <polygon points="600,170 800,170 820,148 620,148" fill="url(#gTop3)" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+        <!-- Right side -->
+        <polygon points="800,170 820,148 820,240 800,240" fill="url(#gFaceRight)" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+        <!-- Rank label -->
+        <text x="700" y="225" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="40" font-weight="800" fill="rgba(255,255,255,0.12)" letter-spacing="-1">3</text>
+
+        <!-- ══ REFLECTION ══ -->
+        <rect x="80" y="300" width="740" height="36" fill="url(#gReflect)" opacity="0.5"/>
+      </svg>
+
+      <!-- Ground line -->
+      <div class="podium-ground"></div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+/* ══ PODIUM PREMIUM ══ */
+.podium-section {
+  padding: 96px 32px 120px;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+.podium-header { margin-bottom: 56px; }
+
+.podium-arena {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 480px;
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+}
+.podium-arena.arena-in { opacity: 1; transform: none; }
+
+/* SVG podium */
+.podium-svg-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+}
+.podium-svg { width: 100%; display: block; }
+.podium-ground {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  margin-top: -2px;
+}
+
+/* ══ FLOATING INFO CARDS ══ */
+.pcard {
+  position: absolute;
+  bottom: 82px; /* sits above the podium platform */
+  background: rgba(10,10,14,0.92);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  width: 220px;
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+  opacity: 0;
+  transition: border-color .2s, background .2s;
+}
+.pcard:hover {
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(14,14,20,0.96);
+}
+
+/* Position each card above its podium block */
+.pcard-2 { left: 7%;  transform: translateY(20px) rotate(-1.5deg); }
+.pcard-1 { left: 50%; transform: translate(-50%, 20px); width: 240px; border-color: rgba(255,255,255,0.15); }
+.pcard-3 { right: 5%; transform: translateY(20px) rotate(1.5deg); }
+
+/* Card-in state */
+.pcard.card-in {
+  opacity: 1;
+  transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1), border-color .2s, background .2s;
+}
+.pcard-2.card-in { transform: rotate(-1.5deg); }
+.pcard-1.card-in { transform: translateX(-50%); }
+.pcard-3.card-in { transform: rotate(1.5deg); }
+
+/* Rank badge */
+.pcard-rank {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-size: 14px; font-weight: 800;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+.gold-rank   { background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.35); color: #fff; }
+.silver-rank { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.2);  color: rgba(255,255,255,0.7); }
+.bronze-rank { background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.5); }
+
+.pcard-body { display: flex; flex-direction: column; gap: 6px; }
+
+.pcard-name {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: #fff;
+}
+.pcard-model {
+  font-size: 10px;
+  color: var(--t3);
+  font-family: monospace;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.pcard-provider {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; color: var(--t2);
+  margin-top: 2px;
+}
+.pcard-logo {
+  width: 18px; height: 18px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.6;
+}
+
+/* Bar */
+.pcard-bar-wrap { display: flex; flex-direction: column; gap: 5px; margin-top: 4px; }
+.pcard-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.pcard-bar-fill {
+  height: 100%; width: 0;
+  background: rgba(255,255,255,0.28);
+  border-radius: 100px;
+  transition: width 1.3s cubic-bezier(.16,1,.3,1);
+}
+.gold-fill { background: rgba(255,255,255,0.55); }
+.pcard-bar-fill.bar-go { width: var(--w); }
+
+.pcard-speed {
+  display: flex; align-items: baseline; gap: 3px;
+  justify-content: flex-end;
+}
+.pcard-num {
+  font-family: var(--display);
+  font-size: 20px; font-weight: 700;
+  letter-spacing: -.03em;
+  color: #fff;
+}
+.pcard-1 .pcard-num { font-size: 24px; }
+.pcard-unit { font-size: 11px; color: var(--t3); }
+
+/* Connector lines from card to podium */
+.pcard::after {
+  content: '';
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 18px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.15), transparent);
+}
+
+@media (max-width: 760px) {
+  .podium-arena { min-height: auto; flex-direction: column; align-items: center; gap: 12px; }
+  .pcard { position: static; width: 100% !important; transform: none !important; }
+  .pcard.card-in { transform: none !important; }
+  .pcard::after { display: none; }
+  .podium-svg-wrap { display: none; }
+}
+</style>
+
+<script>
+(function() {
+  const section = document.getElementById('podium');
+  const arena   = section.querySelector('.podium-arena');
+  const cards   = [
+    section.querySelector('.pcard-1'),
+    section.querySelector('.pcard-2'),
+    section.querySelector('.pcard-3'),
+  ];
+  const bars = section.querySelectorAll('.pcard-bar-fill');
+  const nums = section.querySelectorAll('.pcard-num');
+
+  function animateCount(el, target, duration) {
+    let start = null;
+    const step = ts => {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / duration, 1);
+      const v = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(v * target).toLocaleString('fr-FR');
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  let fired = false;
+  const obs = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting || fired) return;
+    fired = true; obs.disconnect();
+
+    // 1) arena fades in
+    arena.classList.add('arena-in');
+
+    // 2) cards drop in: #1 first (hero), then #2, then #3
+    [cards[0], cards[1], cards[2]].forEach((c, i) => {
+      setTimeout(() => c.classList.add('card-in'), 300 + i * 160);
+    });
+
+    // 3) bars fill + counters animate
+    setTimeout(() => {
+      bars.forEach(b => b.classList.add('bar-go'));
+      nums.forEach(n => animateCount(n, parseInt(n.dataset.target), 1500));
+    }, 800);
+
+  }, { threshold: 0.18 });
+
+  obs.observe(section);
+})();
+</script>
+
 <div class="divider"></div>
 
 <footer class="footer">
