@@ -175,11 +175,16 @@
     .btn-primary:hover { opacity: .85; transform: translateY(-2px); }
     .btn-ghost { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.72); border: 1px solid var(--border); cursor: pointer; padding: 13px 26px; border-radius: 9px; font-family: var(--display); font-size: 14px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; transition: background .15s, border-color .15s, transform .15s; }
     .btn-ghost:hover { background: rgba(255,255,255,0.09); border-color: var(--border-h); transform: translateY(-2px); }
-    .hero-stats { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; margin-top: 68px; }
+    .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px 20px; justify-items: center; margin-top: 68px; }
+    .hero-stat { text-align: center; }
     .hero-stat-num { font-family: var(--display); font-size: 30px; font-weight: 700; letter-spacing: -.04em; }
     .hero-stat-label { font-size: 11px; color: var(--t3); margin-top: 3px; text-transform: uppercase; letter-spacing: .07em; font-weight: 500; }
+    @media (max-width: 480px) {
+      .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 28px 16px; }
+    }
 
-    /* ══ REVEAL — base ══ */
+    .hero-stat-flag { display: flex; align-items: center; justify-content: center; gap: 7px; }
+    .flag-img { height: 22px; width: auto; object-fit: contain; border-radius: 3px; }
     .reveal { opacity: 0; transform: translateY(24px); transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1); }
     .reveal.in { opacity: 1; transform: none; }
     .d1 { transition-delay: .08s; }
@@ -646,7 +651,7 @@
     <div class="hero-stat"><div class="hero-stat-num">37+</div><div class="hero-stat-label">Modèles IA</div></div>
     <div class="hero-stat"><div class="hero-stat-num">1,9M+</div><div class="hero-stat-label">Tokens générés</div></div>
     <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">Gratuit</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">0</div><div class="hero-stat-label">Publicité</div></div>
+    <div class="hero-stat"><div class="hero-stat-num hero-stat-flag"><img src="exemples/frenchlogo.png" alt="🇫🇷" class="flag-img" onerror="this.outerHTML='🇫🇷'"> Français</div><div class="hero-stat-label">Made in France</div></div>
   </div>
 </div>
 
@@ -941,9 +946,8 @@
       <div class="plabel plabel-2">
         <div class="pl-name">Large 6.1</div>
         <div class="pl-model">DeepSeek-V3.1</div>
-        <img src="providers/sambanovalogo.png" alt="SambaNova" class="pl-logo" onerror="this.classList.add('hidden')">
-        <div class="pl-provider">
-          <span>SambaNova</span>
+        <div class="pl-provider-logo">
+          <svg class="pl-svg-logo" viewBox="0 0 120 24" xmlns="http://www.w3.org/2000/svg"><text y="19" font-family="'Space Grotesk',sans-serif" font-size="18" font-weight="700" fill="white" opacity="0.65">SambaNova</text></svg>
         </div>
         <div class="pl-speed-row">
           <div class="pl-bar"><div class="pl-fill" style="--w:85.3%"></div></div>
@@ -955,9 +959,8 @@
       <div class="plabel plabel-1">
         <div class="pl-name pl-name-hero">Flash 1.0</div>
         <div class="pl-model">llama-3.1-8b-instant</div>
-        <img src="providers/groqlogo.png" alt="Groq" class="pl-logo" onerror="this.classList.add('hidden')">
-        <div class="pl-provider">
-          <span>Groq</span>
+        <div class="pl-provider-logo">
+          <svg class="pl-svg-logo" viewBox="0 0 60 24" xmlns="http://www.w3.org/2000/svg"><text y="19" font-family="'Space Grotesk',sans-serif" font-size="18" font-weight="700" fill="white" opacity="0.65">Groq</text></svg>
         </div>
         <div class="pl-speed-row">
           <div class="pl-bar"><div class="pl-fill pl-fill-hero" style="--w:100%"></div></div>
@@ -969,9 +972,8 @@
       <div class="plabel plabel-3">
         <div class="pl-name">Large 6.4</div>
         <div class="pl-model">Meta-Llama-3.3-70B</div>
-        <img src="providers/sambanovalogo.png" alt="SambaNova" class="pl-logo" onerror="this.classList.add('hidden')">
-        <div class="pl-provider">
-          <span>SambaNova</span>
+        <div class="pl-provider-logo">
+          <svg class="pl-svg-logo" viewBox="0 0 120 24" xmlns="http://www.w3.org/2000/svg"><text y="19" font-family="'Space Grotesk',sans-serif" font-size="18" font-weight="700" fill="white" opacity="0.65">SambaNova</text></svg>
         </div>
         <div class="pl-speed-row">
           <div class="pl-bar"><div class="pl-fill" style="--w:67.6%"></div></div>
@@ -1134,18 +1136,10 @@
   display: none;
 }
 
-/* Provider logo */
-.pl-logo {
-  height: 22px;
-  width: auto;
-  max-width: 110px;
-  object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: 0.65;
-  margin: 6px 0 0;
-  display: block;
-}
-.pl-logo.hidden { display: none; }
+/* Provider logo SVG inline */
+.pl-provider-logo { margin: 6px 0 2px; }
+.pl-svg-logo { height: 20px; width: auto; display: block; overflow: visible; }
+@media (max-width: 600px) { .pl-svg-logo { height: 14px; } }
 
 /* Speed row */
 .pl-speed-row {
