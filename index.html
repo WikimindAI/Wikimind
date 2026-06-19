@@ -941,13 +941,13 @@
       <div class="plabel plabel-2">
         <div class="pl-name">Large 6.1</div>
         <div class="pl-model">DeepSeek-V3.1</div>
-        <img src="providers/sambanovalogo.png" alt="SambaNova" class="pl-logo">
+        <img src="providers/sambanovalogo.png" alt="SambaNova" class="pl-logo" onerror="this.classList.add('hidden')">
         <div class="pl-provider">
           <span>SambaNova</span>
         </div>
         <div class="pl-speed-row">
           <div class="pl-bar"><div class="pl-fill" style="--w:85.3%"></div></div>
-          <div class="pl-cps"><span class="pl-num" data-target="807">0</span><span class="pl-unit">cps</span></div>
+          <div class="pl-cps"><span class="pl-num" data-target="853">0</span><span class="pl-unit"> c/s</span></div>
         </div>
       </div>
 
@@ -955,13 +955,13 @@
       <div class="plabel plabel-1">
         <div class="pl-name pl-name-hero">Flash 1.0</div>
         <div class="pl-model">llama-3.1-8b-instant</div>
-        <img src="providers/groqlogo.png" alt="Groq" class="pl-logo">
+        <img src="providers/groqlogo.png" alt="Groq" class="pl-logo" onerror="this.classList.add('hidden')">
         <div class="pl-provider">
           <span>Groq</span>
         </div>
         <div class="pl-speed-row">
           <div class="pl-bar"><div class="pl-fill pl-fill-hero" style="--w:100%"></div></div>
-          <div class="pl-cps pl-cps-hero"><span class="pl-num" data-target="853">0</span><span class="pl-unit">cps</span></div>
+          <div class="pl-cps pl-cps-hero"><span class="pl-num" data-target="1000">0</span><span class="pl-unit"> c/s</span></div>
         </div>
       </div>
 
@@ -969,13 +969,13 @@
       <div class="plabel plabel-3">
         <div class="pl-name">Large 6.4</div>
         <div class="pl-model">Meta-Llama-3.3-70B</div>
-        <img src="providers/sambanovalogo.png" alt="SambaNova" class="pl-logo">
+        <img src="providers/sambanovalogo.png" alt="SambaNova" class="pl-logo" onerror="this.classList.add('hidden')">
         <div class="pl-provider">
           <span>SambaNova</span>
         </div>
         <div class="pl-speed-row">
           <div class="pl-bar"><div class="pl-fill" style="--w:67.6%"></div></div>
-          <div class="pl-cps"><span class="pl-num" data-target="676">0</span><span class="pl-unit">cps</span></div>
+          <div class="pl-cps"><span class="pl-num" data-target="676">0</span><span class="pl-unit"> c/s</span></div>
         </div>
       </div>
 
@@ -1136,13 +1136,16 @@
 
 /* Provider logo */
 .pl-logo {
-  width: 48px;
-  height: 48px;
+  height: 22px;
+  width: auto;
+  max-width: 110px;
   object-fit: contain;
   filter: brightness(0) invert(1);
-  opacity: 0.7;
-  margin: 6px 0 2px;
+  opacity: 0.65;
+  margin: 6px 0 0;
+  display: block;
 }
+.pl-logo.hidden { display: none; }
 
 /* Speed row */
 .pl-speed-row {
@@ -1171,17 +1174,21 @@
 .pl-cps-hero .pl-num { font-size: 42px; color: #fff; }
 .pl-unit { font-size: 11px; color: var(--t3); margin-left: 3px; }
 
-/* ── MOBILE : SVG redimensionné, texte réorganisé ── */
+/* ── MOBILE ── */
 @media (max-width: 600px) {
   .podium-labels {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    padding-bottom: 24px;
+    grid-template-columns: 34% 34% 32%;  /* garde les 3 colonnes */
+    padding-bottom: 10px;
   }
-  .plabel-1 { order: -1; align-items: flex-start; text-align: left; }
-  .plabel-3 { align-items: flex-start; text-align: left; }
-  /* SVG reste visible mais réduit */
-  .podium-svg { margin-top: 8px; }
+  .pl-name       { font-size: 14px; }
+  .pl-name-hero  { font-size: 18px; }
+  .pl-model      { font-size: 9px; }
+  .pl-provider   { font-size: 10px; }
+  .pl-logo       { height: 14px; }
+  .pl-num        { font-size: 20px; }
+  .pl-cps-hero .pl-num { font-size: 26px; }
+  .pl-unit       { font-size: 9px; }
+  .podium-section { padding: 60px 12px 60px; }
 }
 </style>
 
@@ -1192,7 +1199,7 @@
   const labels  = section.querySelectorAll('.plabel');  /* order in DOM: 2, 1, 3 */
   const fills   = section.querySelectorAll('.pl-fill');
   const nums    = section.querySelectorAll('.pl-num');
-  const targets = [807, 853, 676];
+  const targets = [853, 1000, 676];
 
   function countUp(el, target, ms) {
     let t0 = null;
