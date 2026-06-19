@@ -298,7 +298,10 @@
   overflow: hidden;
   position: relative;
   width: 100%;
+  cursor: grab;
+  user-select: none;
 }
+.providers-scroll-wrap:active { cursor: grabbing; }
 .providers-scroll-wrap::before,
 .providers-scroll-wrap::after {
   content: '';
@@ -318,6 +321,10 @@
   width: max-content;
   animation: gscroll 48s linear infinite;
   will-change: transform;
+  transition: none;
+}
+#providers-track.dragging {
+  animation-play-state: paused;
 }
 
 .provider-logo {
@@ -378,7 +385,7 @@
     /* ══ GALLERY — continuous no-pause no-click ══ */
     .gallery-section { padding: 80px 0; overflow: hidden; background: var(--bg); }
     .gallery-inner { max-width: 1160px; margin: 0 auto; padding: 0 32px 44px; }
-    .gallery-wrap { position: relative; overflow: hidden; pointer-events: none; user-select: none; }
+    .gallery-wrap { position: relative; overflow: hidden; user-select: none; }
     .gallery-wrap::before, .gallery-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 160px; z-index: 2; pointer-events: none; }
     .gallery-wrap::before { left: 0; background: linear-gradient(to right, var(--bg), transparent); }
     .gallery-wrap::after { right: 0; background: linear-gradient(to left, var(--bg), transparent); }
@@ -621,6 +628,16 @@
       <div class="gallery-img"><img src="exemples/18.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/19.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/20.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/21.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/22.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/23.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/24.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/25.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/26.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/27.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/28.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/29.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/30.png" alt="" draggable="false"></div>
       <!-- Duplicate pour boucle seamless -->
       <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false"></div>
@@ -642,8 +659,110 @@
       <div class="gallery-img"><img src="exemples/18.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/19.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/20.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/21.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/22.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/23.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/24.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/25.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/26.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/27.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/28.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/29.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/30.png" alt="" draggable="false"></div>
     </div>
   </div>
+
+  <script>
+  (function() {
+    const wrap  = document.querySelector('.gallery-wrap');
+    const track = document.getElementById('hero-gallery-track');
+    let animId, offset = 0, speed = 0.45;
+    let dragging = false, startX = 0, startOffset = 0, velX = 0, lastX = 0, lastT = 0;
+    let paused = false;
+
+    // Auto-scroll loop
+    function autoScroll() {
+      if (!paused) {
+        offset += speed;
+        const half = track.scrollWidth / 2;
+        if (offset >= half) offset -= half;
+        track.style.transform = `translateX(${-offset}px)`;
+      }
+      animId = requestAnimationFrame(autoScroll);
+    }
+    animId = requestAnimationFrame(autoScroll);
+
+    // Mouse drag
+    wrap.addEventListener('mousedown', e => {
+      dragging = true; paused = true;
+      startX = e.clientX; startOffset = offset;
+      velX = 0; lastX = e.clientX; lastT = Date.now();
+      wrap.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const now = Date.now();
+      velX = (e.clientX - lastX) / Math.max(1, now - lastT) * 16;
+      lastX = e.clientX; lastT = now;
+      offset = startOffset - (e.clientX - startX);
+      const half = track.scrollWidth / 2;
+      offset = ((offset % half) + half) % half;
+      track.style.transform = `translateX(${-offset}px)`;
+    });
+    window.addEventListener('mouseup', () => {
+      if (!dragging) return;
+      dragging = false;
+      wrap.style.cursor = 'grab';
+      // momentum
+      let v = -velX;
+      function momentum() {
+        v *= 0.93;
+        offset += v;
+        const half = track.scrollWidth / 2;
+        offset = ((offset % half) + half) % half;
+        track.style.transform = `translateX(${-offset}px)`;
+        if (Math.abs(v) > 0.2) requestAnimationFrame(momentum);
+        else paused = false;
+      }
+      requestAnimationFrame(momentum);
+    });
+
+    // Touch drag
+    wrap.addEventListener('touchstart', e => {
+      paused = true;
+      startX = e.touches[0].clientX; startOffset = offset;
+      velX = 0; lastX = startX; lastT = Date.now();
+    }, { passive: true });
+    wrap.addEventListener('touchmove', e => {
+      const now = Date.now();
+      const cx = e.touches[0].clientX;
+      velX = (cx - lastX) / Math.max(1, now - lastT) * 16;
+      lastX = cx; lastT = now;
+      offset = startOffset - (cx - startX);
+      const half = track.scrollWidth / 2;
+      offset = ((offset % half) + half) % half;
+      track.style.transform = `translateX(${-offset}px)`;
+    }, { passive: true });
+    wrap.addEventListener('touchend', () => {
+      let v = -velX;
+      function momentum() {
+        v *= 0.93;
+        offset += v;
+        const half = track.scrollWidth / 2;
+        offset = ((offset % half) + half) % half;
+        track.style.transform = `translateX(${-offset}px)`;
+        if (Math.abs(v) > 0.2) requestAnimationFrame(momentum);
+        else paused = false;
+      }
+      requestAnimationFrame(momentum);
+    });
+
+    wrap.style.cursor = 'grab';
+    // Disable CSS animation on track since JS handles it
+    track.style.animation = 'none';
+  })();
+  </script>
   <p class="hero-sub reveal d2">WikiMind est une suite complète d'outils intelligents pour apprendre, créer et s'organiser. Propulsé par les meilleurs modèles d'IA du marché.</p>
   <div class="hero-ctas reveal d3">
     <a href="#apps" class="btn-primary">Explorer les apps <i class="fa-solid fa-arrow-down" style="font-size:11px;"></i></a>
