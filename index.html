@@ -1804,7 +1804,7 @@
   document.getElementById('btn-profile-signout').onclick = () => signOut(auth).then(() => { closeProfile(); toast('Déconnecté', 'info'); });
 
   document.getElementById('btn-login').onclick = async () => {
-    const email = document.getElementById('login-email').value.trim();
+      const email = document.getElementById('login-email').value.trim();
     const pw = document.getElementById('login-password').value;
     const err = document.getElementById('login-error');
     err.textContent = '';
@@ -1829,4 +1829,76 @@
     } catch (e) { err.textContent = friendlyError(e.code); }
   };
 
-  document.getElementById('login-password').addEventListener('keydown', e =>
+  document.getElementById('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-login').click(); });
+  document.getElementById('signup-password').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-signup').click(); });
+
+  window.openProfile = e => { e && e.preventDefault(); document.getElementById('profile-panel').classList.add('open'); };
+  window.closeProfile = () => document.getElementById('profile-panel').classList.remove('open');
+
+  window.switchAuthTab = tab => {
+    document.getElementById('form-login').style.display = tab === 'login' ? '' : 'none';
+    document.getElementById('form-signup').style.display = tab === 'signup' ? '' : 'none';
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+    document.getElementById('modal-title-text').textContent = tab === 'login' ? 'Bon retour 👋' : 'Créer un compte';
+    document.getElementById('modal-subtitle-text').textContent = tab === 'login' ? 'Connectez-vous pour accéder à vos outils' : 'Rejoignez WikiMind gratuitement';
+  };
+
+  function friendlyError(code) {
+    return { 'auth/user-not-found':'Aucun compte avec cet email.', 'auth/wrong-password':'Mot de passe incorrect.', 'auth/email-already-in-use':'Cet email est déjà utilisé.', 'auth/invalid-email':'Email invalide.', 'auth/weak-password':'Mot de passe trop faible.', 'auth/invalid-credential':'Email ou mot de passe incorrect.', 'auth/too-many-requests':'Trop de tentatives. Réessayez plus tard.', 'auth/popup-blocked':'Popup bloquée par le navigateur. Autorisez les popups.' }[code] || 'Une erreur est survenue.';
+  }
+
+  window.toast = (msg, type = 'info') => {
+    const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<i class="fa-solid ${icons[type]} ti"></i>${msg}`;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  };
+</script>
+
+<script>
+  // Scroll reveal — standard .reveal elements
+  const ro = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); ro.unobserve(e.target); } }), { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+  // Bento card animations — varied per card
+  const bentoAnims = ['anim-from-left','anim-zoom','anim-tilt-left','anim-from-below','anim-from-right','anim-tilt-right'];
+  document.querySelectorAll('.bento-card').forEach((card, i) => {
+    if (!card.classList.contains('anim-from-left') && !card.classList.contains('anim-from-right') &&
+        !card.classList.contains('anim-from-below') && !card.classList.contains('anim-zoom') &&
+        !card.classList.contains('anim-tilt-left') && !card.classList.contains('anim-tilt-right')) {
+      card.classList.add(bentoAnims[i % bentoAnims.length]);
+    }
+  });
+
+  const bro = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('anim-in'); bro.unobserve(e.target); }
+  }), { threshold: 0.1 });
+  document.querySelectorAll('.bento-card').forEach(el => bro.observe(el));
+
+  // MC (app) card animations — varied directions + stagger
+  const mcAnims = ['anim-from-left','anim-from-below','anim-from-right','anim-flip-x','anim-zoom-in','anim-tilt','anim-slide-up','anim-flip-y'];
+  document.querySelectorAll('.mc').forEach((card, i) => {
+    card.classList.add(mcAnims[i % mcAnims.length]);
+    card.classList.add('sd' + (i % 15));
+  });
+
+  const mro = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('anim-in'); mro.unobserve(e.target); }
+  }), { threshold: 0.08 });
+  document.querySelectorAll('.mc').forEach(el => mro.observe(el));
+
+  // App search
+  function filterApps(q) {
+    const s = q.toLowerCase().trim();
+    document.querySelectorAll('#modules-grid .mc').forEach(c => {
+      const n = (c.dataset.name || '') + ' ' + (c.querySelector('.mc-name')?.textContent || '');
+      c.classList.toggle('hidden', s.length > 0 && !n.toLowerCase().includes(s));
+    });
+  }
+</script>
+
+</body>
+</html>
