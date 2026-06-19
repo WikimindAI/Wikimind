@@ -44,7 +44,7 @@
       border-bottom: 1px solid var(--border);
     }
     .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .nav-logo img { width: 28px; height: 28px; object-fit: contain; }
+    .nav-logo img { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; }
     .nav-logo-text { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -.02em; color: #fff; }
     .nav-logo-text span { color: rgba(255,255,255,0.28); font-weight: 400; }
     .nav-links { display: flex; align-items: center; gap: 4px; }
@@ -441,22 +441,55 @@
 
     /* ══ PROFILE PANEL ══ */
     #profile-panel { display: none; position: fixed; inset: 0; z-index: 300; background: var(--bg); overflow-y: auto; }
-    #profile-panel.open { display: block; }
-    .profile-content { max-width: 480px; margin: 0 auto; padding: calc(var(--nav) + 40px) 24px 60px; }
-    .profile-avatar-big { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.07); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; color: rgba(255,255,255,0.55); margin-bottom: 14px; overflow: hidden; position: relative; }
+    #profile-panel.open { display: block; animation: profileIn .32s cubic-bezier(.16,1,.3,1); }
+    @keyframes profileIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+    .profile-content { max-width: 480px; margin: 0 auto; padding: calc(var(--nav) + 32px) 24px 80px; }
+
+    /* Header nav */
+    .profile-header { margin-bottom: 36px; }
+    .btn-back { background: none; border: none; cursor: pointer; color: var(--t3); font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px 7px 0; transition: color .15s; }
+    .btn-back:hover { color: #fff; }
+
+    /* Hero identity */
+    .profile-hero { display: flex; align-items: center; gap: 20px; margin-bottom: 28px; }
+    .profile-avatar-big { width: 68px; height: 68px; border-radius: 50%; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: rgba(255,255,255,0.55); overflow: hidden; position: relative; flex-shrink: 0; }
     .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; position: absolute; inset: 0; }
     .profile-avatar-big img.loaded { display: block; }
     .profile-avatar-big img.loaded ~ span { display: none; }
-    .profile-name { font-family: var(--display); font-size: 21px; font-weight: 700; margin-bottom: 4px; }
-    .profile-email { font-size: 13px; color: var(--t2); margin-bottom: 30px; }
-    .profile-sec-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--t3); margin-bottom: 10px; }
-    .profile-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .profile-card-label { font-size: 13px; color: var(--t2); }
-    .profile-card-value { font-size: 13px; font-weight: 600; }
-    .btn-back { background: none; border: none; cursor: pointer; color: var(--t2); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; padding: 8px 0; margin-bottom: 28px; transition: color .15s; }
-    .btn-back:hover { color: #fff; }
-    .btn-danger { background: rgba(239,68,68,0.09); border: 1px solid rgba(239,68,68,0.22); color: #f87171; cursor: pointer; border-radius: 8px; padding: 10px 16px; font-size: 13px; font-weight: 600; width: 100%; margin-top: 22px; transition: background .15s; }
-    .btn-danger:hover { background: rgba(239,68,68,0.16); }
+    .profile-identity { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .profile-name { font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: -.025em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .profile-email { font-size: 12px; color: var(--t3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .profile-badge { display: inline-flex; align-items: center; margin-top: 4px; padding: 3px 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: rgba(255,255,255,0.5); width: fit-content; }
+
+    /* Stats row */
+    .profile-stats-row { display: flex; align-items: stretch; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; margin-bottom: 32px; overflow: hidden; }
+    .profile-stat-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 18px 12px; text-align: center; }
+    .profile-stat-val { font-family: var(--display); font-size: 15px; font-weight: 700; color: #fff; }
+    .profile-stat-lbl { font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: .06em; font-weight: 500; }
+    .profile-stat-divider { width: 1px; background: rgba(255,255,255,0.07); margin: 14px 0; }
+
+    /* Section titles */
+    .profile-sec-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--t3); margin-bottom: 10px; }
+
+    /* Blocks */
+    .profile-block { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; margin-bottom: 20px; overflow: hidden; }
+    .profile-block-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; }
+    .profile-block-label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); }
+    .profile-block-sub { font-size: 11px; color: var(--t3); margin-top: 2px; }
+    .profile-cookie-btns { display: flex; gap: 6px; flex-shrink: 0; }
+    .profile-toggle-btn { padding: 6px 14px; border-radius: 100px; font-size: 11px; font-weight: 700; border: none; cursor: pointer; transition: opacity .15s; white-space: nowrap; }
+    .profile-toggle-btn.accept { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+    .profile-toggle-btn.refuse { background: transparent; color: rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.08); }
+    .profile-toggle-btn:hover { opacity: .75; }
+
+    /* Danger */
+    .btn-danger { background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.18); color: #f87171; cursor: pointer; border-radius: 12px; padding: 12px 18px; font-size: 13px; font-weight: 600; width: 100%; margin-top: 4px; transition: background .15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-danger:hover { background: rgba(239,68,68,0.14); }
+
+    /* Remove old profile-card styles */
+    .profile-card { display: none; }
+    .cookie-profile-btn { display: none; }
 
     /* ══ FOOTER ══ */
     .footer { border-top: 1px solid var(--border); padding: 28px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; max-width: 1160px; margin: 0 auto; }
@@ -582,20 +615,181 @@
 <!-- PROFILE PANEL -->
 <div id="profile-panel">
   <div class="profile-content">
-    <button class="btn-back" onclick="closeProfile()"><i class="fa-solid fa-arrow-left"></i> Retour</button>
-    <div class="profile-avatar-big" id="profile-avatar-big">
-      <img id="profile-avatar-img" src="" alt="">
-      <span id="profile-avatar-initial-big"></span>
+
+    <!-- Header -->
+    <div class="profile-header">
+      <button class="btn-back" onclick="closeProfile()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+        Retour
+      </button>
     </div>
-    <div class="profile-name" id="profile-name-text"></div>
-    <div class="profile-email" id="profile-email-text"></div>
+
+    <!-- Hero identity -->
+    <div class="profile-hero">
+      <div class="profile-avatar-big" id="profile-avatar-big">
+        <img id="profile-avatar-img" src="" alt="">
+        <span id="profile-avatar-initial-big"></span>
+      </div>
+      <div class="profile-identity">
+        <div class="profile-name" id="profile-name-text"></div>
+        <div class="profile-email" id="profile-email-text"></div>
+        <div class="profile-badge" id="profile-plan-badge">Free</div>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="profile-stats-row">
+      <div class="profile-stat-box">
+        <div class="profile-stat-val" id="profile-verified-stat">—</div>
+        <div class="profile-stat-lbl">Email vérifié</div>
+      </div>
+      <div class="profile-stat-divider"></div>
+      <div class="profile-stat-box">
+        <div class="profile-stat-val" id="profile-created-stat">—</div>
+        <div class="profile-stat-lbl">Membre depuis</div>
+      </div>
+      <div class="profile-stat-divider"></div>
+      <div class="profile-stat-box">
+        <div class="profile-stat-val" id="profile-plan-stat">Free</div>
+        <div class="profile-stat-lbl">Forfait</div>
+      </div>
+    </div>
+
+    <!-- Section : Confidentialité -->
+    <p class="profile-sec-title">Confidentialité</p>
+    <div class="profile-block">
+      <div class="profile-block-row">
+        <div>
+          <div class="profile-block-label">Cookies</div>
+          <div class="profile-block-sub" id="cookie-status-label">—</div>
+        </div>
+        <div class="profile-cookie-btns">
+          <button class="profile-toggle-btn accept" onclick="setCookieChoice('accepted')">Accepter</button>
+          <button class="profile-toggle-btn refuse" onclick="setCookieChoice('refused')">Refuser</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section : Compte -->
     <p class="profile-sec-title">Compte</p>
-    <div class="profile-card"><span class="profile-card-label">Forfait</span><span class="profile-card-value" id="profile-plan">Free</span></div>
-    <div class="profile-card"><span class="profile-card-label">Email verifie</span><span class="profile-card-value" id="profile-verified">—</span></div>
-    <div class="profile-card"><span class="profile-card-label">Membre depuis</span><span class="profile-card-value" id="profile-created">—</span></div>
-    <button class="btn-danger" id="btn-profile-signout">Se deconnecter</button>
+    <button class="btn-danger" id="btn-profile-signout">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
+      Se déconnecter
+    </button>
+
   </div>
 </div>
+
+<!-- COOKIE BANNER -->
+<div id="cookie-banner">
+  <div class="cookie-icon">🍪</div>
+  <div class="cookie-text">
+    <div class="cookie-title">Ce site utilise des cookies</div>
+    <div class="cookie-desc">Nous utilisons des cookies pour améliorer votre expérience et analyser le trafic. Vous pouvez changer votre choix à tout moment dans votre profil.</div>
+  </div>
+  <div class="cookie-btns">
+    <button class="cookie-btn accept" onclick="setCookieChoice('accepted')">Accepter</button>
+    <button class="cookie-btn refuse" onclick="setCookieChoice('refused')">Refuser</button>
+  </div>
+</div>
+
+<style>
+/* ══ COOKIE BANNER ══ */
+#cookie-banner {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  z-index: 9999;
+  background: rgba(14,14,18,0.96);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 18px;
+  backdrop-filter: blur(24px);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 600px;
+  width: calc(100% - 48px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+  transition: transform .5s cubic-bezier(.16,1,.3,1), opacity .5s ease;
+  opacity: 0;
+}
+#cookie-banner.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+#cookie-banner.hide {
+  transform: translateX(-50%) translateY(120px);
+  opacity: 0;
+  pointer-events: none;
+}
+.cookie-icon { font-size: 26px; flex-shrink: 0; }
+.cookie-text { flex: 1; min-width: 0; }
+.cookie-title { font-family: var(--display); font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+.cookie-desc  { font-size: 11px; color: var(--t3); line-height: 1.5; }
+.cookie-btns  { display: flex; gap: 8px; flex-shrink: 0; }
+.cookie-btn {
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 12px; font-weight: 700;
+  border: none; cursor: pointer;
+  transition: opacity .15s;
+}
+.cookie-btn:hover { opacity: .85; }
+.cookie-btn.accept { background: #fff; color: #000; }
+.cookie-btn.refuse { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.12); }
+
+/* Cookie profile buttons */
+.cookie-profile-btn {
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 11px; font-weight: 700;
+  border: none; cursor: pointer;
+  transition: opacity .15s;
+}
+.cookie-profile-btn.accept { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+.cookie-profile-btn.refuse { background: transparent; color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.08); }
+.cookie-profile-btn:hover { opacity: .75; }
+
+@media (max-width: 500px) {
+  #cookie-banner { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .cookie-btns { width: 100%; }
+  .cookie-btn { flex: 1; text-align: center; }
+}
+</style>
+
+<script>
+(function() {
+  function updateCookieLabel() {
+    const v = localStorage.getItem('wm_cookies');
+    const el = document.getElementById('cookie-status-label');
+    if (!el) return;
+    if (v === 'accepted') el.textContent = 'Acceptés ✓';
+    else if (v === 'refused') el.textContent = 'Refusés';
+    else el.textContent = 'Choix non effectué';
+  }
+
+  window.setCookieChoice = function(choice) {
+    localStorage.setItem('wm_cookies', choice);
+    const banner = document.getElementById('cookie-banner');
+    banner.classList.remove('show');
+    banner.classList.add('hide');
+    updateCookieLabel();
+  };
+
+  // Show banner if no choice yet
+  window.addEventListener('DOMContentLoaded', () => {
+    updateCookieLabel();
+    if (!localStorage.getItem('wm_cookies')) {
+      setTimeout(() => {
+        const banner = document.getElementById('cookie-banner');
+        banner.classList.add('show');
+      }, 1200);
+    }
+  });
+})();
+</script>
 
 <!-- HERO -->
 
@@ -672,7 +866,10 @@
   (function() {
     const wrap  = document.querySelector('.gallery-wrap');
     const track = document.getElementById('hero-gallery-track');
-    let animId, offset = 0, speed = 0.45;
+    let animId, speed = 0.45;
+    // Départ aléatoire : entre image 1 et 30 (largeur d'une image ~300px + gap)
+    const imgW = 300 + 16; // approx card width + gap
+    let offset = Math.floor(Math.random() * 30) * imgW;
     let dragging = false, startX = 0, startOffset = 0, velX = 0, lastX = 0, lastT = 0;
     let paused = false;
 
@@ -805,6 +1002,80 @@
     </div>
   </div>
 </div>
+
+<script>
+(function() {
+  const pwrap = document.querySelector('.providers-scroll-wrap');
+  const ptrack = document.getElementById('providers-track');
+  let pOffset = 0, pSpeed = 0.35, pPaused = false;
+  let pDragging = false, pStartX = 0, pStartOff = 0, pVelX = 0, pLastX = 0, pLastT = 0;
+
+  function pLoop() {
+    if (!pPaused) {
+      pOffset += pSpeed;
+      const half = ptrack.scrollWidth / 2;
+      if (pOffset >= half) pOffset -= half;
+      ptrack.style.transform = `translateX(${-pOffset}px)`;
+    }
+    requestAnimationFrame(pLoop);
+  }
+  // Disable CSS animation and take over with JS
+  ptrack.style.animation = 'none';
+  requestAnimationFrame(pLoop);
+
+  function pMomentum(v) {
+    v *= 0.93;
+    pOffset += v;
+    const half = ptrack.scrollWidth / 2;
+    pOffset = ((pOffset % half) + half) % half;
+    ptrack.style.transform = `translateX(${-pOffset}px)`;
+    if (Math.abs(v) > 0.15) requestAnimationFrame(() => pMomentum(v));
+    else pPaused = false;
+  }
+
+  pwrap.addEventListener('mousedown', e => {
+    pDragging = true; pPaused = true;
+    pStartX = e.clientX; pStartOff = pOffset;
+    pVelX = 0; pLastX = e.clientX; pLastT = Date.now();
+    pwrap.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!pDragging) return;
+    const now = Date.now();
+    pVelX = (e.clientX - pLastX) / Math.max(1, now - pLastT) * 16;
+    pLastX = e.clientX; pLastT = now;
+    pOffset = pStartOff - (e.clientX - pStartX);
+    const half = ptrack.scrollWidth / 2;
+    pOffset = ((pOffset % half) + half) % half;
+    ptrack.style.transform = `translateX(${-pOffset}px)`;
+  });
+  window.addEventListener('mouseup', () => {
+    if (!pDragging) return;
+    pDragging = false;
+    pwrap.style.cursor = 'grab';
+    pMomentum(-pVelX);
+  });
+
+  pwrap.addEventListener('touchstart', e => {
+    pPaused = true;
+    pStartX = e.touches[0].clientX; pStartOff = pOffset;
+    pVelX = 0; pLastX = pStartX; pLastT = Date.now();
+  }, { passive: true });
+  pwrap.addEventListener('touchmove', e => {
+    const now = Date.now(), cx = e.touches[0].clientX;
+    pVelX = (cx - pLastX) / Math.max(1, now - pLastT) * 16;
+    pLastX = cx; pLastT = now;
+    pOffset = pStartOff - (cx - pStartX);
+    const half = ptrack.scrollWidth / 2;
+    pOffset = ((pOffset % half) + half) % half;
+    ptrack.style.transform = `translateX(${-pOffset}px)`;
+  }, { passive: true });
+  pwrap.addEventListener('touchend', () => pMomentum(-pVelX));
+
+  pwrap.style.cursor = 'grab';
+})();
+</script>
 
   </div>
 </div>
@@ -1071,8 +1342,8 @@
           <svg class="pl-svg-logo" viewBox="0 0 120 24" xmlns="http://www.w3.org/2000/svg"><text y="19" font-family="'Space Grotesk',sans-serif" font-size="18" font-weight="700" fill="white" opacity="0.65">SambaNova</text></svg>
         </div>
         <div class="pl-speed-row">
-          <div class="pl-bar"><div class="pl-fill" style="--w:85.3%"></div></div>
-          <div class="pl-cps"><span class="pl-num" data-target="853">0</span><span class="pl-unit"> c/s</span></div>
+          <div class="pl-bar"><div class="pl-fill" style="--w:94.6%"></div></div>
+          <div class="pl-cps"><span class="pl-num" data-target="807">0</span><span class="pl-unit"> c/s</span></div>
         </div>
       </div>
 
@@ -1085,7 +1356,7 @@
         </div>
         <div class="pl-speed-row">
           <div class="pl-bar"><div class="pl-fill pl-fill-hero" style="--w:100%"></div></div>
-          <div class="pl-cps pl-cps-hero"><span class="pl-num" data-target="1000">0</span><span class="pl-unit"> c/s</span></div>
+          <div class="pl-cps pl-cps-hero"><span class="pl-num" data-target="853">0</span><span class="pl-unit"> c/s</span></div>
         </div>
       </div>
 
@@ -1097,7 +1368,7 @@
           <svg class="pl-svg-logo" viewBox="0 0 120 24" xmlns="http://www.w3.org/2000/svg"><text y="19" font-family="'Space Grotesk',sans-serif" font-size="18" font-weight="700" fill="white" opacity="0.65">SambaNova</text></svg>
         </div>
         <div class="pl-speed-row">
-          <div class="pl-bar"><div class="pl-fill" style="--w:67.6%"></div></div>
+          <div class="pl-bar"><div class="pl-fill" style="--w:79.2%"></div></div>
           <div class="pl-cps"><span class="pl-num" data-target="676">0</span><span class="pl-unit"> c/s</span></div>
         </div>
       </div>
@@ -1314,7 +1585,7 @@
   const labels  = section.querySelectorAll('.plabel');  /* order in DOM: 2, 1, 3 */
   const fills   = section.querySelectorAll('.pl-fill');
   const nums    = section.querySelectorAll('.pl-num');
-  const targets = [853, 1000, 676];
+  const targets = [807, 853, 676];
 
   function countUp(el, target, ms) {
     let t0 = null;
@@ -1349,7 +1620,51 @@
 </script>
 <div class="divider"></div>
 
-<footer class="footer">
+<!-- CONTACT -->
+<section class="contact-section">
+  <div class="contact-inner reveal">
+    <p class="section-label">Support</p>
+    <h2 class="section-title">Nous contacter</h2>
+    <p class="section-sub">Une question, un bug, une idée ? On vous répond rapidement.</p>
+    <a href="mailto:wikimind.ai@gmail.com" class="contact-mail-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="contact-mail-icon"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
+      wikimind.ai@gmail.com
+    </a>
+  </div>
+</section>
+
+<style>
+.contact-section {
+  padding: 80px 32px 100px;
+  max-width: 1160px;
+  margin: 0 auto;
+  text-align: center;
+}
+.contact-inner { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.contact-mail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 14px 28px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  color: rgba(255,255,255,0.85);
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: -.01em;
+  transition: background .2s, border-color .2s, color .2s;
+}
+.contact-mail-btn:hover {
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,255,255,0.22);
+  color: #fff;
+}
+.contact-mail-icon { width: 18px; height: 18px; opacity: .7; }
+</style>
   <div class="footer-logo">
     <img src="wikimind.png" alt="WikiMind">
     WikiMind
@@ -1458,15 +1773,20 @@
       document.getElementById('nav-username-text').textContent = name;
       document.getElementById('profile-name-text').textContent = name;
       document.getElementById('profile-email-text').textContent = user.email;
-      document.getElementById('profile-verified').textContent = user.emailVerified ? 'Oui' : 'Non';
-      const d = user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('fr-FR',{year:'numeric',month:'long'}) : '—';
-      document.getElementById('profile-created').textContent = d;
+      document.getElementById('profile-verified-stat').textContent = user.emailVerified ? 'Oui ✓' : 'Non';
+      const d = user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('fr-FR',{year:'numeric',month:'short'}) : '—';
+      document.getElementById('profile-created-stat').textContent = d;
       setAvatar(user.photoURL, name[0].toUpperCase());
       try {
         const snap = await get(ref(db, `users/${user.uid}/FORFAIT`));
         const plans = ['Free','Plus','Pro','Entreprise'];
-        document.getElementById('profile-plan').textContent = plans[Math.min(snap.exists() ? parseInt(snap.val()) : 0, 3)];
-      } catch { document.getElementById('profile-plan').textContent = 'Free'; }
+        const plan = plans[Math.min(snap.exists() ? parseInt(snap.val()) : 0, 3)];
+        document.getElementById('profile-plan-stat').textContent = plan;
+        document.getElementById('profile-plan-badge').textContent = plan;
+      } catch {
+        document.getElementById('profile-plan-stat').textContent = 'Free';
+        document.getElementById('profile-plan-badge').textContent = 'Free';
+      }
       authModal.classList.remove('open');
     } else {
       navAuthGuest.style.display = 'flex';
@@ -1509,76 +1829,4 @@
     } catch (e) { err.textContent = friendlyError(e.code); }
   };
 
-  document.getElementById('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-login').click(); });
-  document.getElementById('signup-password').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-signup').click(); });
-
-  window.openProfile = e => { e && e.preventDefault(); document.getElementById('profile-panel').classList.add('open'); };
-  window.closeProfile = () => document.getElementById('profile-panel').classList.remove('open');
-
-  window.switchAuthTab = tab => {
-    document.getElementById('form-login').style.display = tab === 'login' ? '' : 'none';
-    document.getElementById('form-signup').style.display = tab === 'signup' ? '' : 'none';
-    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-    document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
-    document.getElementById('modal-title-text').textContent = tab === 'login' ? 'Bon retour 👋' : 'Créer un compte';
-    document.getElementById('modal-subtitle-text').textContent = tab === 'login' ? 'Connectez-vous pour accéder à vos outils' : 'Rejoignez WikiMind gratuitement';
-  };
-
-  function friendlyError(code) {
-    return { 'auth/user-not-found':'Aucun compte avec cet email.', 'auth/wrong-password':'Mot de passe incorrect.', 'auth/email-already-in-use':'Cet email est déjà utilisé.', 'auth/invalid-email':'Email invalide.', 'auth/weak-password':'Mot de passe trop faible.', 'auth/invalid-credential':'Email ou mot de passe incorrect.', 'auth/too-many-requests':'Trop de tentatives. Réessayez plus tard.', 'auth/popup-blocked':'Popup bloquée par le navigateur. Autorisez les popups.' }[code] || 'Une erreur est survenue.';
-  }
-
-  window.toast = (msg, type = 'info') => {
-    const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
-    const el = document.createElement('div');
-    el.className = `toast ${type}`;
-    el.innerHTML = `<i class="fa-solid ${icons[type]} ti"></i>${msg}`;
-    document.getElementById('toast-container').appendChild(el);
-    setTimeout(() => el.remove(), 3500);
-  };
-</script>
-
-<script>
-  // Scroll reveal — standard .reveal elements
-  const ro = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); ro.unobserve(e.target); } }), { threshold: 0.08 });
-  document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
-
-  // Bento card animations — varied per card
-  const bentoAnims = ['anim-from-left','anim-zoom','anim-tilt-left','anim-from-below','anim-from-right','anim-tilt-right'];
-  document.querySelectorAll('.bento-card').forEach((card, i) => {
-    if (!card.classList.contains('anim-from-left') && !card.classList.contains('anim-from-right') &&
-        !card.classList.contains('anim-from-below') && !card.classList.contains('anim-zoom') &&
-        !card.classList.contains('anim-tilt-left') && !card.classList.contains('anim-tilt-right')) {
-      card.classList.add(bentoAnims[i % bentoAnims.length]);
-    }
-  });
-
-  const bro = new IntersectionObserver(entries => entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('anim-in'); bro.unobserve(e.target); }
-  }), { threshold: 0.1 });
-  document.querySelectorAll('.bento-card').forEach(el => bro.observe(el));
-
-  // MC (app) card animations — varied directions + stagger
-  const mcAnims = ['anim-from-left','anim-from-below','anim-from-right','anim-flip-x','anim-zoom-in','anim-tilt','anim-slide-up','anim-flip-y'];
-  document.querySelectorAll('.mc').forEach((card, i) => {
-    card.classList.add(mcAnims[i % mcAnims.length]);
-    card.classList.add('sd' + (i % 15));
-  });
-
-  const mro = new IntersectionObserver(entries => entries.forEach(e => {
-    if (e.isIntersecting) { e.target.classList.add('anim-in'); mro.unobserve(e.target); }
-  }), { threshold: 0.08 });
-  document.querySelectorAll('.mc').forEach(el => mro.observe(el));
-
-  // App search
-  function filterApps(q) {
-    const s = q.toLowerCase().trim();
-    document.querySelectorAll('#modules-grid .mc').forEach(c => {
-      const n = (c.dataset.name || '') + ' ' + (c.querySelector('.mc-name')?.textContent || '');
-      c.classList.toggle('hidden', s.length > 0 && !n.toLowerCase().includes(s));
-    });
-  }
-</script>
-
-</body>
-</html>
+  document.getElementById('login-password').addEventListener('keydown', e =>
