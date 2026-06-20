@@ -1918,7 +1918,7 @@
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/WikiMind/wikimind/sw.js', { scope: '/WikiMind/' })
+    navigator.serviceWorker.register('/Wikimind/wikimind/sw.js', { scope: '/Wikimind/' })
       .then(reg => console.log('[WikiMind PWA] SW enregistré ✓', reg.scope))
       .catch(err => console.warn('[WikiMind PWA] SW échec :', err));
   });
