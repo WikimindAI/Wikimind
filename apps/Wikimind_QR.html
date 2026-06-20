@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WikiMind QR - Générateur et Scanner</title>
+  <link rel="icon" type="image/png" href="../wikimind.png">
+  <meta name="theme-color" content="#050505">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Librairies pour QR Code -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #060608;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.07);
+      --border-h: rgba(255,255,255,0.16);
+      --t1: #ffffff;
+      --t2: rgba(255,255,255,0.52);
+      --t3: rgba(255,255,255,0.26);
+      --sans: 'Inter', sans-serif;
+      --display: 'Space Grotesk', sans-serif;
+      --r: 14px;
+      --rl: 22px;
+      --nav: 64px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--t1); font-family: var(--sans); overflow-x: hidden; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; min-height: 100vh; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    /* ══ NAV (Identique à l'index) ══ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--nav);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px;
+      background: rgba(6,6,8,0.85);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; }
+    .nav-logo-text { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -.02em; color: #fff; }
+    .nav-logo-text span { color: rgba(255,255,255,0.28); font-weight: 400; }
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-link { font-size: 13px; font-weight: 500; color: var(--t2); background: none; border: none; cursor: pointer; padding: 6px 12px; border-radius: 8px; transition: color .15s, background .15s; text-decoration: none; }
+    .nav-link:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    .nav-auth { display: flex; align-items: center; gap: 8px; }
+    .btn-nav-login { font-size: 13px; font-weight: 600; color: var(--t2); background: none; border: none; cursor: pointer; padding: 7px 14px; border-radius: 8px; transition: color .15s; }
+    .btn-nav-login:hover { color: #fff; }
+    .btn-nav-signup { font-size: 13px; font-weight: 600; color: #000; background: #fff; border: none; cursor: pointer; padding: 7px 16px; border-radius: 8px; transition: opacity .15s, transform .15s; }
+    .btn-nav-signup:hover { opacity: .85; transform: translateY(-1px); }
+    #nav-user-info { display: none; align-items: center; gap: 10px; }
+    #nav-user-info.visible { display: flex; }
+    .nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.09); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.75); cursor: pointer; text-decoration: none; overflow: hidden; }
+    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; }
+    .nav-avatar img.loaded { display: block; }
+    .nav-avatar span { display: block; }
+    .nav-avatar img.loaded + span { display: none; }
+    .nav-username { font-size: 13px; font-weight: 500; color: var(--t2); }
+    .btn-signout { font-size: 12px; font-weight: 500; color: var(--t3); background: none; border: none; cursor: pointer; padding: 5px 10px; border-radius: 6px; transition: color .15s; }
+    .btn-signout:hover { color: var(--t2); }
+
+    /* ══ AUTH MODAL & PROFILE (Identiques à l'index) ══ */
+    /* ... (Copie des styles Modals / Toast / Formulaires d'index.html) ... */
+    .modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.72); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .25s; }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box { background: #0c0c0f; border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 0; width: 92%; max-width: 420px; transform: translateY(20px) scale(.96); transition: transform .3s; position: relative; overflow: hidden; }
+    .modal-overlay.open .modal-box { transform: none; }
+    .modal-top-bar { height: 3px; background: linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa); }
+    .modal-inner { padding: 32px 30px 28px; }
+    .modal-close { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.06); border: none; cursor: pointer; width: 28px; height: 28px; border-radius: 50%; color: var(--t3); font-size: 11px; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; z-index: 2; }
+    .modal-close:hover { background: rgba(255,255,255,0.12); color: var(--t1); }
+    .modal-header { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 26px; text-align: center; }
+    .modal-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .modal-brand img { width: 24px; height: 24px; object-fit: contain; }
+    .modal-brand-name { font-family: var(--display); font-weight: 700; font-size: 16px; color: #fff; }
+    .modal-title { font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: -.03em; color: #fff; }
+    .modal-subtitle { font-size: 13px; color: var(--t2); }
+    .btn-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 11px; padding: 12px 16px; font-family: var(--sans); font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; transition: background .18s, border-color .18s, transform .15s; margin-bottom: 20px; }
+    .btn-google:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.22); transform: translateY(-1px); }
+    .auth-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .auth-divider-line { flex: 1; height: 1px; background: var(--border); }
+    .auth-divider-text { font-size: 11px; font-weight: 600; color: var(--t3); letter-spacing: .06em; text-transform: uppercase; }
+    .modal-tabs { display: flex; gap: 3px; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 3px; margin-bottom: 20px; border: 1px solid var(--border); }
+    .modal-tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 600; background: none; border: none; cursor: pointer; border-radius: 7px; color: var(--t2); transition: all .18s; font-family: var(--sans); }
+    .modal-tab.active { background: rgba(255,255,255,0.09); color: #fff; }
+    .form-group { margin-bottom: 12px; }
+    .form-label { display: block; font-size: 11px; font-weight: 700; color: var(--t3); margin-bottom: 6px; letter-spacing: .06em; text-transform: uppercase; }
+    .form-input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; padding: 11px 13px; color: #fff; font-family: var(--sans); font-size: 14px; outline: none; transition: border-color .15s, background .15s; }
+    .form-input:focus { border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.04); }
+    .form-input::placeholder { color: var(--t3); }
+    .btn-submit { width: 100%; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; border: none; cursor: pointer; border-radius: 11px; padding: 13px; font-family: var(--display); font-size: 14px; font-weight: 700; margin-top: 6px; transition: opacity .15s, transform .15s; }
+    .btn-submit:hover { opacity: .88; transform: translateY(-1px); }
+    .modal-error { font-size: 12px; color: #f87171; margin-top: 10px; text-align: center; min-height: 16px; }
+
+    /* TOAST */
+    #toast-container { position: fixed; bottom: 22px; right: 22px; z-index: 9999; display: flex; flex-direction: column; gap: 7px; pointer-events: none; }
+    .toast { background: #141417; border: 1px solid var(--border); border-radius: 9px; padding: 10px 15px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.82); display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 28px rgba(0,0,0,0.4); animation: tin .28s forwards; pointer-events: all; }
+    .toast.success .ti { color: #4ade80; }
+    .toast.error .ti { color: #f87171; }
+    @keyframes tin { from{opacity:0;transform:translateY(6px) scale(.96);} to{opacity:1;transform:none;} }
+
+    /* ══ APP SPECIFIC STYLES ══ */
+    .app-main { flex: 1; padding: calc(var(--nav) + 40px) 24px 60px; max-width: 800px; margin: 0 auto; width: 100%; }
+    .app-header { text-align: center; margin-bottom: 40px; }
+    .app-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t3); border: 1px solid var(--border); border-radius: 100px; padding: 5px 14px; margin-bottom: 16px; }
+    .app-title { font-family: var(--display); font-size: clamp(32px, 5vw, 48px); font-weight: 700; letter-spacing: -.03em; margin-bottom: 12px; }
+    .app-sub { font-size: 15px; color: var(--t2); max-width: 500px; margin: 0 auto; line-height: 1.6; }
+
+    /* BENTO CARD */
+    .qr-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); padding: 32px; position: relative; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.2); }
+    
+    /* TOOL TABS */
+    .tool-tabs { display: flex; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 32px; }
+    .tool-tab { flex: 1; padding: 10px; font-size: 14px; font-weight: 600; font-family: var(--sans); color: var(--t2); background: none; border: none; border-radius: 8px; cursor: pointer; transition: all .2s; }
+    .tool-tab:hover { color: #fff; }
+    .tool-tab.active { background: rgba(255,255,255,0.08); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+    /* GEN SECTION */
+    .qr-gen-area { display: flex; flex-direction: column; gap: 20px; }
+    .qr-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; }
+    @media (max-width: 500px) { .qr-settings { grid-template-columns: 1fr; } }
+    
+    .btn-primary { background: #fff; color: #000; border: none; cursor: pointer; padding: 13px 26px; border-radius: 9px; font-family: var(--display); font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 7px; transition: opacity .15s, transform .15s; width: 100%; margin-top: 10px; }
+    .btn-primary:hover { opacity: .85; transform: translateY(-2px); }
+    .btn-ghost { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); border: 1px solid var(--border); cursor: pointer; padding: 13px 26px; border-radius: 9px; font-family: var(--display); font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 7px; transition: background .15s, border-color .15s, transform .15s; width: 100%; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.09); border-color: var(--border-h); transform: translateY(-2px); }
+
+    .qr-output-container { margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; display: none; }
+    .qr-output-container.visible { display: flex; }
+    .qr-canvas-wrapper { background: #fff; padding: 16px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+    .qr-canvas-wrapper canvas { display: block; border-radius: 4px; max-width: 100%; height: auto; }
+
+    /* SCAN SECTION */
+    .qr-scan-area { display: none; flex-direction: column; gap: 20px; }
+    .qr-scan-area.active { display: flex; }
+    
+    .scan-modes { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
+    .scan-mode-btn { background: var(--surface); border: 1px solid var(--border); color: var(--t2); padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .scan-mode-btn.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: #fff; }
+
+    #reader { width: 100%; max-width: 400px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #000; min-height: 250px; display: none; }
+    #reader video { object-fit: cover; }
+    
+    .file-scan-wrapper { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 40px 20px; border: 2px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,0.02); text-align: center; }
+    .file-scan-wrapper:hover { border-color: var(--border-h); background: rgba(255,255,255,0.04); }
+    .file-scan-icon { font-size: 32px; color: var(--t3); margin-bottom: 8px; }
+
+    .scan-result-box { margin-top: 20px; padding: 20px; background: rgba(74, 222, 128, 0.05); border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 12px; display: none; flex-direction: column; gap: 12px; }
+    .scan-result-box.visible { display: flex; animation: tin .3s forwards; }
+    .scan-result-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #4ade80; display: flex; align-items: center; gap: 6px; }
+    .scan-result-text { font-size: 15px; color: #fff; word-break: break-all; line-height: 1.5; font-family: monospace; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; }
+    .scan-actions { display: flex; gap: 10px; }
+
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="../index.html">
+    <img src="../wikimind.png" alt="WikiMind">
+    <span class="nav-logo-text">WikiMind <span>AI</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="../index.html#apps" class="nav-link"><i class="fa-solid fa-arrow-left"></i> Retour aux apps</a>
+  </div>
+  <div class="nav-auth" id="nav-auth-guest">
+    <button class="btn-nav-login" id="btn-open-login">Se connecter</button>
+    <button class="btn-nav-signup" id="btn-open-signup">Commencer</button>
+  </div>
+  <div id="nav-user-info">
+    <span class="nav-username" id="nav-username-text"></span>
+    <a class="nav-avatar" id="nav-avatar-btn" href="#" onclick="toast('Profil disponible sur la page d\'accueil', 'info')">
+      <img id="nav-avatar-img" src="" alt="">
+      <span id="nav-avatar-initial"></span>
+    </a>
+    <button class="btn-signout" id="btn-signout">Déconnexion</button>
+  </div>
+</nav>
+
+<!-- MAIN APP -->
+<main class="app-main">
+  <div class="app-header">
+    <div class="app-eyebrow"><i class="fa-solid fa-qrcode"></i> WikiMind Outils</div>
+    <h1 class="app-title">QR Code IA</h1>
+    <p class="app-sub">Générez des QR codes personnalisés en haute résolution ou scannez-les instantanément via votre caméra ou depuis une image.</p>
+  </div>
+
+  <div class="qr-card">
+    <!-- TABS -->
+    <div class="tool-tabs">
+      <button class="tool-tab active" id="tab-gen-btn" onclick="switchTool('gen')">Créer un QR</button>
+      <button class="tool-tab" id="tab-scan-btn" onclick="switchTool('scan')">Scanner</button>
+    </div>
+
+    <!-- GENERATOR SECTION -->
+    <div class="qr-gen-area" id="section-gen">
+      <div class="form-group">
+        <label class="form-label">Contenu (Lien, Texte, Email...)</label>
+        <input type="text" class="form-input" id="qr-input-text" placeholder="Ex: https://wikimind.fr ou 'Bonjour !'">
+      </div>
+      
+      <div class="qr-settings">
+        <div class="form-group">
+          <label class="form-label">Couleur QR</label>
+          <input type="color" class="form-input" id="qr-color-dark" value="#000000" style="padding: 4px 8px; height: 42px; cursor: pointer;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Couleur Fond</label>
+          <input type="color" class="form-input" id="qr-color-light" value="#ffffff" style="padding: 4px 8px; height: 42px; cursor: pointer;">
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btn-generate-qr">Générer le QR Code</button>
+
+      <div class="qr-output-container" id="qr-output-container">
+        <div class="qr-canvas-wrapper" id="qr-canvas-wrapper">
+          <canvas id="qr-canvas"></canvas>
+        </div>
+        <button class="btn-ghost" id="btn-download-qr"><i class="fa-solid fa-download"></i> Télécharger (PNG)</button>
+      </div>
+    </div>
+
+    <!-- SCANNER SECTION -->
+    <div class="qr-scan-area" id="section-scan">
+      
+      <div class="scan-modes">
+        <button class="scan-mode-btn active" id="mode-cam-btn" onclick="setScanMode('cam')"><i class="fa-solid fa-camera"></i> Caméra</button>
+        <button class="scan-mode-btn" id="mode-file-btn" onclick="setScanMode('file')"><i class="fa-solid fa-image"></i> Fichier Image</button>
+      </div>
+
+      <!-- Cam Reader -->
+      <div id="reader"></div>
+
+      <!-- File Reader -->
+      <div class="file-scan-wrapper" id="file-scanner-ui" style="display: none;">
+        <i class="fa-solid fa-cloud-arrow-up file-scan-icon"></i>
+        <p style="font-size: 14px; font-weight: 500; color: var(--t2);">Sélectionnez une image contenant un QR Code</p>
+        <input type="file" id="qr-upload-file" accept="image/*" style="display: none;" onchange="handleFileUpload(event)">
+        <button class="btn-ghost" onclick="document.getElementById('qr-upload-file').click()" style="max-width: 200px;">Parcourir...</button>
+      </div>
+
+      <!-- Result -->
+      <div class="scan-result-box" id="scan-result-box">
+        <div class="scan-result-title"><i class="fa-solid fa-circle-check"></i> Code détecté</div>
+        <div class="scan-result-text" id="scan-result-text"></div>
+        <div class="scan-actions">
+          <button class="btn-primary" style="flex:1; padding: 10px;" onclick="copyScanResult()"><i class="fa-regular fa-copy"></i> Copier</button>
+          <button class="btn-ghost" style="flex:1; padding: 10px; display:none;" id="btn-open-link" onclick="openScanLink()"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ouvrir</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<!-- AUTH MODAL (Identique à l'index) -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box">
+    <div class="modal-top-bar"></div>
+    <button class="modal-close" id="modal-close"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-inner">
+      <div class="modal-header">
+        <div class="modal-brand">
+          <img src="../wikimind.png" alt="WikiMind">
+          <span class="modal-brand-name">WikiMind</span>
+        </div>
+        <div class="modal-title" id="modal-title-text">Bon retour 👋</div>
+        <div class="modal-subtitle" id="modal-subtitle-text">Connectez-vous pour accéder à vos outils</div>
+      </div>
+      <button class="btn-google" id="btn-google-auth">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;flex-shrink:0"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continuer avec Google
+      </button>
+      <div class="auth-divider"><div class="auth-divider-line"></div><span class="auth-divider-text">ou</span><div class="auth-divider-line"></div></div>
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="tab-login" onclick="switchAuthTab('login')">Connexion</button>
+        <button class="modal-tab" id="tab-signup" onclick="switchAuthTab('signup')">Créer un compte</button>
+      </div>
+      <div id="form-login">
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="login-email" placeholder="vous@exemple.fr"></div>
+        <div class="form-group"><label class="form-label">Mot de passe</label><input class="form-input" type="password" id="login-password" placeholder="••••••••"></div>
+        <button class="btn-submit" id="btn-login">Se connecter</button>
+        <p class="modal-error" id="login-error"></p>
+      </div>
+      <div id="form-signup" style="display:none;">
+        <div class="form-group"><label class="form-label">Prénom / Nom</label><input class="form-input" type="text" id="signup-name" placeholder="Votre nom"></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="signup-email" placeholder="vous@exemple.fr"></div>
+        <div class="form-group"><label class="form-label">Mot de passe</label><input class="form-input" type="password" id="signup-password" placeholder="8 caractères min"></div>
+        <button class="btn-submit" id="btn-signup">Créer mon compte</button>
+        <p class="modal-error" id="signup-error"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- LOGIQUE QR CODE -->
+<script>
+  // Utils UI
+  window.toast = (msg, type = 'info') => {
+    const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<i class="fa-solid ${icons[type]} ti"></i>${msg}`;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  };
+
+  // Switch App Tabs (Gen / Scan)
+  let html5QrCode = null;
+  
+  window.switchTool = async (mode) => {
+    document.getElementById('tab-gen-btn').classList.toggle('active', mode === 'gen');
+    document.getElementById('tab-scan-btn').classList.toggle('active', mode === 'scan');
+    
+    document.getElementById('section-gen').style.display = mode === 'gen' ? 'flex' : 'none';
+    
+    const scanArea = document.getElementById('section-scan');
+    if (mode === 'scan') {
+      scanArea.classList.add('active');
+      setScanMode('cam'); // Default to cam
+    } else {
+      scanArea.classList.remove('active');
+      stopCamera();
+    }
+  };
+
+  // --- GENERATEUR ---
+  document.getElementById('btn-generate-qr').addEventListener('click', () => {
+    const text = document.getElementById('qr-input-text').value.trim();
+    if (!text) return toast('Veuillez entrer un texte ou un lien', 'error');
+
+    const colorDark = document.getElementById('qr-color-dark').value;
+    const colorLight = document.getElementById('qr-color-light').value;
+    const canvas = document.getElementById('qr-canvas');
+    const container = document.getElementById('qr-output-container');
+
+    QRCode.toCanvas(canvas, text, {
+      width: 300,
+      margin: 2,
+      color: {
+        dark: colorDark,
+        light: colorLight
+      }
+    }, function (error) {
+      if (error) {
+        console.error(error);
+        toast('Erreur lors de la génération', 'error');
+      } else {
+        container.classList.add('visible');
+        toast('QR Code généré avec succès !', 'success');
+      }
+    });
+  });
+
+  document.getElementById('btn-download-qr').addEventListener('click', () => {
+    const canvas = document.getElementById('qr-canvas');
+    const link = document.createElement('a');
+    link.download = 'WikiMind_QRCode.png';
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+
+  // --- SCANNER ---
+  let currentScanMode = 'cam';
+
+  window.setScanMode = async (mode) => {
+    currentScanMode = mode;
+    document.getElementById('mode-cam-btn').classList.toggle('active', mode === 'cam');
+    document.getElementById('mode-file-btn').classList.toggle('active', mode === 'file');
+    
+    const reader = document.getElementById('reader');
+    const fileUi = document.getElementById('file-scanner-ui');
+    const resultBox = document.getElementById('scan-result-box');
+    
+    resultBox.classList.remove('visible');
+
+    if (mode === 'cam') {
+      fileUi.style.display = 'none';
+      reader.style.display = 'block';
+      startCamera();
+    } else {
+      reader.style.display = 'none';
+      fileUi.style.display = 'flex';
+      stopCamera();
+    }
+  };
+
+  async function startCamera() {
+    if (!html5QrCode) {
+      html5QrCode = new Html5Qrcode("reader");
+    }
+    
+    try {
+      const hasCameras = await Html5Qrcode.getCameras();
+      if (hasCameras && hasCameras.length > 0) {
+        html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (decodedText, decodedResult) => {
+            handleScanSuccess(decodedText);
+            stopCamera(); // Auto-stop après scan
+          },
+          (errorMessage) => { /* Ignore background scan errors */ }
+        ).catch(err => {
+          toast("Erreur d'accès à la caméra", "error");
+          console.error(err);
+        });
+      } else {
+        toast("Aucune caméra détectée", "error");
+      }
+    } catch (e) {
+      toast("Permission caméra refusée ou erreur", "error");
+    }
+  }
+
+  function stopCamera() {
+    if (html5QrCode && html5QrCode.isScanning) {
+      html5QrCode.stop().catch(err => console.error("Erreur stop caméra", err));
+    }
+  }
+
+  window.handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); // Initialisation silencieuse
+
+    html5QrCode.scanFile(file, true)
+      .then(decodedText => {
+        handleScanSuccess(decodedText);
+      })
+      .catch(err => {
+        toast("Aucun QR Code trouvé dans cette image", "error");
+      });
+      
+    // Reset file input
+    event.target.value = '';
+  };
+
+  function handleScanSuccess(text) {
+    const box = document.getElementById('scan-result-box');
+    const textBox = document.getElementById('scan-result-text');
+    const btnLink = document.getElementById('btn-open-link');
+    
+    textBox.innerText = text;
+    box.classList.add('visible');
+    
+    // Check if it's a URL
+    if (text.startsWith('http://') || text.startsWith('https://')) {
+      btnLink.style.display = 'inline-flex';
+      btnLink.onclick = () => window.open(text, '_blank');
+    } else {
+      btnLink.style.display = 'none';
+    }
+    
+    toast('QR Code scanné avec succès', 'success');
+  }
+
+  window.copyScanResult = () => {
+    const text = document.getElementById('scan-result-text').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      toast('Texte copié dans le presse-papier !', 'success');
+    });
+  };
+
+</script>
+
+<!-- FIREBASE AUTH (Identique à l'index) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyAjtTCLwbhWJtfLrPhm7UwICaHEb5OBoJI",
+    authDomain: "wikimindata.firebaseapp.com",
+    projectId: "wikimindata",
+    storageBucket: "wikimindata.firebasestorage.app",
+    messagingSenderId: "520734288721",
+    appId: "1:520734288721:web:12035317283a91396d4170",
+    databaseURL: "https://wikimindata-default-rtdb.firebaseio.com"
+  });
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({ client_id: '520734288721-3smo9l1122dc2j4ifg6kt2maeb4rm9es.apps.googleusercontent.com' });
+
+  const authModal = document.getElementById('auth-modal');
+  const navAuthGuest = document.getElementById('nav-auth-guest');
+  const navUserInfo = document.getElementById('nav-user-info');
+
+  document.getElementById('btn-open-login').onclick = () => { window.switchAuthTab('login'); authModal.classList.add('open'); };
+  document.getElementById('btn-open-signup').onclick = () => { window.switchAuthTab('signup'); authModal.classList.add('open'); };
+  document.getElementById('modal-close').onclick = () => authModal.classList.remove('open');
+  authModal.addEventListener('click', e => { if (e.target === authModal) authModal.classList.remove('open'); });
+
+  window.switchAuthTab = tab => {
+    document.getElementById('form-login').style.display = tab === 'login' ? '' : 'none';
+    document.getElementById('form-signup').style.display = tab === 'signup' ? '' : 'none';
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+    document.getElementById('modal-title-text').textContent = tab === 'login' ? 'Bon retour 👋' : 'Créer un compte';
+    document.getElementById('modal-subtitle-text').textContent = tab === 'login' ? 'Connectez-vous pour accéder à vos outils' : 'Rejoignez WikiMind gratuitement';
+  };
+
+  // Google Sign-In
+  document.getElementById('btn-google-auth').onclick = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      const snap = await get(ref(db, `users/${user.uid}`));
+      if (!snap.exists()) {
+        await set(ref(db, `users/${user.uid}`), {
+          displayName: user.displayName || user.email.split('@')[0],
+          email: user.email,
+          FORFAIT: 0,
+          createdAt: Date.now()
+        });
+      }
+      toast('Connexion Google réussie 🎉', 'success');
+    } catch (e) {
+      if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+        document.getElementById('login-error').textContent = 'Erreur Google : ' + (e.code || e.message);
+      }
+    }
+  };
+
+  function setAvatar(photoURL, initial) {
+    const navImg = document.getElementById('nav-avatar-img');
+    const navInitial = document.getElementById('nav-avatar-initial');
+    if (photoURL) {
+      navImg.src = photoURL;
+      navImg.onload = () => navImg.classList.add('loaded');
+      navImg.onerror = () => { navImg.style.display = 'none'; navInitial.style.display = 'block'; };
+    } else {
+      navInitial.textContent = initial;
+    }
+  }
+
+  onAuthStateChanged(auth, async user => {
+    if (user) {
+      const name = user.displayName || user.email.split('@')[0];
+      navAuthGuest.style.display = 'none';
+      navUserInfo.classList.add('visible');
+      document.getElementById('nav-username-text').textContent = name;
+      setAvatar(user.photoURL, name[0].toUpperCase());
+      authModal.classList.remove('open');
+    } else {
+      navAuthGuest.style.display = 'flex';
+      navUserInfo.classList.remove('visible');
+      document.getElementById('nav-avatar-img').classList.remove('loaded');
+      document.getElementById('nav-avatar-img').src = '';
+    }
+  });
+
+  document.getElementById('btn-signout').onclick = () => signOut(auth).then(() => toast('Déconnecté', 'info'));
+
+  document.getElementById('btn-login').onclick = async () => {
+    const email = document.getElementById('login-email').value.trim();
+    const pw = document.getElementById('login-password').value;
+    const err = document.getElementById('login-error');
+    err.textContent = '';
+    if (!email || !pw) return err.textContent = 'Remplissez tous les champs.';
+    try { await signInWithEmailAndPassword(auth, email, pw); toast('Connexion réussie', 'success'); }
+    catch (e) { err.textContent = 'Erreur de connexion vérifiez vos identifiants.'; }
+  };
+
+  document.getElementById('btn-signup').onclick = async () => {
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const pw = document.getElementById('signup-password').value;
+    const err = document.getElementById('signup-error');
+    err.textContent = '';
+    if (!name || !email || !pw) return err.textContent = 'Remplissez tous les champs.';
+    if (pw.length < 8) return err.textContent = 'Mot de passe trop court (8 min).';
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pw);
+      await updateProfile(cred.user, { displayName: name });
+      await set(ref(db, `users/${cred.user.uid}`), { displayName: name, email, FORFAIT: 0, createdAt: Date.now() });
+      toast('Compte créé ! Bienvenue 🎉', 'success');
+    } catch (e) { err.textContent = 'Erreur lors de la création.'; }
+  };
+</script>
+
+</body>
+</html>
