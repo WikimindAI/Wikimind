@@ -140,9 +140,9 @@ Conçu pour les étudiants, créateurs, développeurs, entrepreneurs et curieux.
 
 <div align="center">
 
-![GitHub stars](https://img.shields.io/github/stars/USER/REPO?style=for-the-badge)
-![GitHub forks](https://img.shields.io/github/forks/USER/REPO?style=for-the-badge)
-![GitHub issues](https://img.shields.io/github/issues/USER/REPO?style=for-the-badge)
+![GitHub stars](https://img.shields.io/github/stars/WikimindAI/Wikimind?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/WikimindAI/Wikimind?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/WikimindAI/Wikimind?style=for-the-badge)
 
 </div>
 
