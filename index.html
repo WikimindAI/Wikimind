@@ -177,6 +177,8 @@
     .hero-title { font-family: var(--display); font-size: clamp(46px, 7.5vw, 86px); font-weight: 700; line-height: 1.0; letter-spacing: -.04em; margin-bottom: 24px; background: linear-gradient(150deg, #fff 25%, rgba(255,255,255,0.45) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .hero-sub { font-size: clamp(15px, 1.8vw, 17px); color: var(--t2); max-width: 520px; line-height: 1.68; margin-bottom: 40px; font-weight: 400; }
     .hero-ctas { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .btn-pwa-hero { margin-top: 4px; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.55); border-radius: 100px; padding: 9px 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: border-color .2s, color .2s; }
+    .btn-pwa-hero:hover { border-color: rgba(255,255,255,0.28); color: rgba(255,255,255,0.85); }
     .btn-primary { background: #fff; color: #000; border: none; cursor: pointer; padding: 13px 26px; border-radius: 9px; font-family: var(--display); font-size: 14px; font-weight: 700; letter-spacing: -.01em; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; transition: opacity .15s, transform .15s; }
     .btn-primary:hover { opacity: .85; transform: translateY(-2px); }
     .btn-ghost { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.72); border: 1px solid var(--border); cursor: pointer; padding: 13px 26px; border-radius: 9px; font-family: var(--display); font-size: 14px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 7px; transition: background .15s, border-color .15s, transform .15s; }
@@ -396,8 +398,9 @@
     .gallery-wrap::after { right: 0; background: linear-gradient(to left, var(--bg), transparent); }
     .gallery-caption { text-align: center; font-size: 11px; color: var(--t3); letter-spacing: .04em; margin: 10px 0 48px; }
     @keyframes gscroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .gallery-track { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; gap: 14px; width: max-content; will-change: transform; }
     .gallery-img { width: 260px; height: 185px; border-radius: var(--r); overflow: hidden; flex-shrink: 0; border: 1px solid var(--border); }
-    .gallery-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .gallery-img img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 
     /* ══ APPS ══ */
     .apps-section { padding: 96px 32px 120px; max-width: 1160px; margin: 0 auto; }
@@ -968,6 +971,10 @@
     <a href="#apps" class="btn-primary">Explorer les apps <i class="fa-solid fa-arrow-down" style="font-size:11px;"></i></a>
     <a href="https://chpalitom09-bot.github.io/Wikimind-5/" class="btn-ghost" target="_blank">Ouvrir WikiMind AI <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;"></i></a>
   </div>
+  <button class="btn-pwa-hero reveal d4" id="btn-pwa-hero" style="display:none;" onclick="triggerPWAInstall()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+    Télécharger WikiMind
+  </button>
 </div>
 
  
@@ -1912,19 +1919,34 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/WikiMind/wikimind/sw.js', { scope: '/WikiMind/' })
-      .then(reg => {
-        console.log('[WikiMind PWA] SW enregistré ✓', reg.scope);
-        // Prompt install banner
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', e => {
-          e.preventDefault();
-          deferredPrompt = e;
-          showInstallBanner(e);
-        });
-      })
+      .then(reg => console.log('[WikiMind PWA] SW enregistré ✓', reg.scope))
       .catch(err => console.warn('[WikiMind PWA] SW échec :', err));
   });
 }
+
+let _deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  // Show hero button
+  const btn = document.getElementById('btn-pwa-hero');
+  if (btn) btn.style.display = 'inline-flex';
+  // Show floating banner
+  if (!localStorage.getItem('wm_pwa_dismissed')) showInstallBanner(e);
+});
+
+window.triggerPWAInstall = async function() {
+  if (!_deferredPrompt) return;
+  _deferredPrompt.prompt();
+  const { outcome } = await _deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    localStorage.setItem('wm_pwa_dismissed', '1');
+    const btn = document.getElementById('btn-pwa-hero');
+    if (btn) btn.style.display = 'none';
+  }
+  _deferredPrompt = null;
+};
 
 function showInstallBanner(promptEvent) {
   // Don't show if already dismissed or installed
