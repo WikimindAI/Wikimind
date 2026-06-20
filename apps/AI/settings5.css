@@ -1,0 +1,136 @@
+/* =============================================
+   WIKIMIND SETTINGS MODAL — settings5.css
+   ============================================= */
+
+#settings-overlay {
+  position: fixed; inset: 0; z-index: 600;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+#settings-overlay.open { opacity: 1; pointer-events: all; }
+
+#settings-modal {
+  background: #111;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  width: 480px;
+  max-width: 95vw;
+  max-height: 88vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.9);
+  animation: settingsIn 0.2s cubic-bezier(0.34,1.2,0.64,1);
+}
+@keyframes settingsIn {
+  from { opacity:0; transform:scale(0.96) translateY(12px); }
+  to   { opacity:1; transform:none; }
+}
+#settings-modal::-webkit-scrollbar { width: 4px; }
+#settings-modal::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* ── Header ── */
+.stg-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.stg-title { font-size: 1rem; font-weight: 700; color: #fff; }
+.stg-close {
+  width: 28px; height: 28px; border-radius: 50%; border: none;
+  background: rgba(255,255,255,0.07); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.5);
+  transition: background 0.15s, color 0.15s;
+}
+.stg-close:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+/* ── Section labels ── */
+.stg-section-label {
+  font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  padding: 16px 20px 6px;
+}
+
+/* ── Groups ── */
+.stg-group {
+  margin: 0 12px 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* ── Rows ── */
+.stg-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.12s;
+}
+.stg-row:last-child { border-bottom: none; }
+.stg-row:hover { background: rgba(255,255,255,0.04); }
+.stg-row.no-hover { cursor: default; }
+.stg-row.no-hover:hover { background: none; }
+
+.stg-row-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.stg-row-icon svg { width: 17px; height: 17px; }
+
+.stg-row-body { flex: 1; min-width: 0; }
+.stg-row-label { font-size: 0.88rem; font-weight: 500; color: rgba(255,255,255,0.88); }
+.stg-row-sub   { font-size: 0.74rem; color: rgba(255,255,255,0.35); margin-top: 1px; }
+
+.stg-row-right {
+  font-size: 0.78rem; color: rgba(255,255,255,0.35);
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.stg-row-right svg { width: 12px; height: 12px; opacity: 0.4; }
+
+/* ── Toggle switch ── */
+.stg-toggle {
+  position: relative; width: 44px; height: 26px; flex-shrink: 0;
+}
+.stg-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.stg-toggle-track {
+  position: absolute; inset: 0; border-radius: 13px;
+  background: rgba(255,255,255,0.12); cursor: pointer;
+  transition: background 0.2s;
+}
+.stg-toggle input:checked + .stg-toggle-track { background: #ff6b35; }
+.stg-toggle-track::after {
+  content: ''; position: absolute;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; top: 3px; left: 3px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.stg-toggle input:checked + .stg-toggle-track::after { transform: translateX(18px); }
+
+/* ── Theme pills ── */
+.stg-theme-pills { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.stg-theme-pill {
+  padding: 5px 14px; border-radius: 20px;
+  font-size: 0.78rem; font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent; color: rgba(255,255,255,0.5);
+  cursor: pointer; transition: all 0.15s;
+}
+.stg-theme-pill:hover  { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.8); }
+.stg-theme-pill.active { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.4); color: #fff; }
+
+/* ── Account avatar ── */
+.stg-account-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b35, #ff4757);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+
+/* ── Danger row ── */
+.stg-row.danger .stg-row-label { color: #ff4757; }
+.stg-row.danger:hover { background: rgba(255,71,87,0.06); }

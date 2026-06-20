@@ -1,0 +1,503 @@
+/* =============================================
+   FLASHCARDS.CSS — Wikimind AI v5
+   ============================================= */
+
+/* ── CANVAS PANEL (côté droit) ── */
+#fc-panel {
+  position: fixed;
+  top: 0; right: 0;
+  width: 420px;
+  height: 100vh;
+  background: var(--bg2);
+  border-left: 1px solid var(--border2);
+  display: flex;
+  flex-direction: column;
+  z-index: 900;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden;
+}
+#fc-panel.open {
+  transform: translateX(0);
+}
+/* Rétrécir le chat quand le panel est ouvert */
+body.fc-panel-open #app {
+  margin-right: 420px;
+  transition: margin-right 0.32s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── HEADER ── */
+#fc-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg2);
+}
+#fc-panel-head-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(236,72,153,0.12);
+  display: flex; align-items: center; justify-content: center;
+}
+#fc-panel-head-icon img { width: 22px; height: 22px; object-fit: contain; }
+#fc-panel-title {
+  flex: 1;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#fc-panel-subtitle {
+  font-size: 0.7rem;
+  color: var(--text3);
+  margin-top: 1px;
+}
+#fc-close-btn {
+  width: 28px; height: 28px;
+  border: none;
+  background: var(--bg3);
+  border-radius: 7px;
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.12s;
+}
+#fc-close-btn:hover { background: var(--bg4); color: var(--text); }
+
+/* ── TOOLBAR ── */
+#fc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+#fc-count {
+  font-size: 0.72rem;
+  color: var(--text3);
+  margin-right: auto;
+  white-space: nowrap;
+}
+.fc-tool-btn {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text2);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.fc-tool-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+.fc-tool-btn:hover { background: var(--bg3); color: var(--text); border-color: var(--border2); }
+.fc-tool-btn.primary {
+  background: rgba(236,72,153,0.12);
+  border-color: rgba(236,72,153,0.3);
+  color: #ec4899;
+}
+.fc-tool-btn.primary:hover { background: rgba(236,72,153,0.2); }
+
+/* ── NAVIGATION CARTES ── */
+#fc-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 14px 6px;
+  flex-shrink: 0;
+}
+.fc-nav-btn {
+  width: 30px; height: 30px;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  background: var(--bg3);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+  flex-shrink: 0;
+}
+.fc-nav-btn:hover:not(:disabled) { background: var(--bg4); color: var(--text); }
+.fc-nav-btn:disabled { opacity: 0.3; cursor: default; }
+#fc-nav-indicator {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text2);
+  min-width: 60px;
+  text-align: center;
+}
+
+/* ── CARTE PRINCIPALE ── */
+#fc-cards-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#fc-cards-area::-webkit-scrollbar { width: 3px; }
+#fc-cards-area::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+/* Mode lecture : 1 carte à la fois */
+#fc-cards-area.single-mode {
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.fc-card {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 18px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s, transform 0.12s;
+  min-height: 80px;
+}
+.fc-card:hover { border-color: rgba(236,72,153,0.4); }
+.fc-card .fc-card-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+.fc-card .fc-card-text {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.55;
+}
+.fc-card .fc-card-actions {
+  position: absolute;
+  top: 10px; right: 10px;
+  display: flex; gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.fc-card:hover .fc-card-actions { opacity: 1; }
+.fc-card-act-btn {
+  width: 24px; height: 24px;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  background: var(--bg2);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+}
+.fc-card-act-btn svg { width: 11px; height: 11px; }
+.fc-card-act-btn:hover { background: var(--bg4); color: var(--text); }
+.fc-card-act-btn.danger:hover { background: rgba(239,68,68,0.15); color: #f87171; border-color: rgba(239,68,68,0.3); }
+
+/* ── CARTE FLIP (mode lecture) ── */
+.fc-flip-container {
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 3/2;
+  perspective: 1000px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.fc-flip-inner {
+  width: 100%; height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+}
+.fc-flip-container.flipped .fc-flip-inner {
+  transform: rotateY(180deg);
+}
+.fc-flip-front, .fc-flip-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  border: 1px solid var(--border2);
+}
+.fc-flip-front {
+  background: linear-gradient(135deg, #1a0a2e 0%, #1e1028 50%, #150d20 100%);
+  border-color: rgba(236,72,153,0.25);
+}
+.fc-flip-back {
+  background: linear-gradient(135deg, #0a1a2e 0%, #0d1828 50%, #081520 100%);
+  border-color: rgba(77,143,255,0.25);
+  transform: rotateY(180deg);
+}
+.fc-flip-badge {
+  position: absolute;
+  top: 12px; left: 12px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 7px;
+  border-radius: 5px;
+}
+.fc-flip-front .fc-flip-badge { background: rgba(236,72,153,0.2); color: #ec4899; }
+.fc-flip-back .fc-flip-badge { background: rgba(77,143,255,0.2); color: #4d8fff; }
+.fc-flip-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.5;
+}
+.fc-flip-hint {
+  position: absolute;
+  bottom: 10px;
+  font-size: 0.62rem;
+  color: var(--text3);
+}
+
+/* Progression mode lecture */
+#fc-progress-bar-wrap {
+  height: 3px;
+  background: var(--bg3);
+  border-radius: 2px;
+  margin: 0 14px 2px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+#fc-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ec4899, #4d8fff);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+/* ── MODE ÉDITION INLINE ── */
+.fc-card.editing {
+  border-color: rgba(77,143,255,0.5);
+  background: var(--bg4);
+}
+.fc-edit-field {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.85rem;
+  padding: 8px 10px;
+  outline: none;
+  resize: vertical;
+  min-height: 52px;
+  margin-bottom: 6px;
+  transition: border-color 0.12s;
+  line-height: 1.5;
+}
+.fc-edit-field:focus { border-color: rgba(77,143,255,0.5); }
+.fc-edit-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+.fc-edit-save {
+  height: 26px; padding: 0 12px;
+  background: #4d8fff;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-family: 'Geist', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.12s;
+}
+.fc-edit-save:hover { opacity: 0.85; }
+.fc-edit-cancel {
+  height: 26px; padding: 0 10px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text2);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.fc-edit-cancel:hover { background: var(--bg3); color: var(--text); }
+
+/* ── MODAL EDIT IA ── */
+#fc-ai-edit-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  z-index: 10010;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+#fc-ai-edit-overlay.open { opacity: 1; pointer-events: all; }
+#fc-ai-edit-box {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 22px;
+  width: 340px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#fc-ai-edit-box h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin: 0; }
+#fc-ai-edit-instruction {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 9px;
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.85rem;
+  padding: 10px 12px;
+  outline: none;
+  resize: none;
+  min-height: 64px;
+}
+#fc-ai-edit-instruction:focus { border-color: rgba(236,72,153,0.4); }
+#fc-ai-edit-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── CHIP ACTIF DANS LA ROW ── */
+.fc-active-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px 3px 7px;
+  background: rgba(236,72,153,0.12);
+  border: 1px solid rgba(236,72,153,0.3);
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #ec4899;
+  cursor: default;
+  flex-shrink: 0;
+  height: 24px;
+}
+.fc-active-chip img { width: 13px; height: 13px; object-fit: contain; }
+.fc-active-chip-remove {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+  font-size: 0.7rem;
+  margin-left: 1px;
+}
+.fc-active-chip-remove:hover { opacity: 1; }
+
+/* ── THINKING FLASHCARDS ── */
+.thinking-fc {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg3);
+  border: 1px solid rgba(236,72,153,0.2);
+  border-radius: 12px;
+  font-size: 0.82rem;
+  color: var(--text2);
+}
+.thinking-fc-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  background: rgba(236,72,153,0.12);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.thinking-fc-icon img { width: 18px; height: 18px; object-fit: contain; }
+
+/* ── FILE CARD (dans le chat) ── */
+.wm-fc-file-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg3);
+  border: 1px solid rgba(236,72,153,0.25);
+  border-radius: 12px;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  max-width: 320px;
+}
+.wm-fc-file-card:hover { background: var(--bg4); border-color: rgba(236,72,153,0.5); }
+.wm-fc-file-icon {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: rgba(236,72,153,0.1);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.wm-fc-file-icon img { width: 24px; height: 24px; object-fit: contain; }
+.wm-fc-file-info { flex: 1; min-width: 0; }
+.wm-fc-file-name { font-size: 0.85rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wm-fc-file-meta { font-size: 0.7rem; color: var(--text3); margin-top: 2px; }
+.wm-fc-file-open {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: rgba(236,72,153,0.12);
+  border: 1px solid rgba(236,72,153,0.3);
+  border-radius: 7px;
+  color: #ec4899;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: none;
+  transition: background 0.12s;
+}
+.wm-fc-file-open:hover { background: rgba(236,72,153,0.22); }
+
+/* ── EMPTY STATE ── */
+#fc-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text3);
+  padding: 20px;
+  text-align: center;
+}
+#fc-empty img { width: 48px; height: 48px; opacity: 0.35; }
+#fc-empty p { font-size: 0.82rem; line-height: 1.5; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  #fc-panel {
+    width: 100vw;
+    border-left: none;
+    border-top: 1px solid var(--border2);
+    height: 55vh;
+    top: auto; bottom: 0;
+    transform: translateY(100%);
+  }
+  #fc-panel.open { transform: translateY(0); }
+  body.fc-panel-open #app { margin-right: 0; }
+}

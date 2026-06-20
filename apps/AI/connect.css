@@ -1,0 +1,561 @@
+/* ══════════════════════════════════════════════
+   CONNECT.CSS — Wikimind AI Login Page
+   ══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0a0a0a;
+  --bg2:     #111111;
+  --bg3:     #1a1a1a;
+  --bg4:     #222222;
+  --border:  rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.18);
+  --text:    #f0f0f0;
+  --text2:   #888;
+  --text3:   #555;
+  --accent:  #6e6eff;
+  --accent2: #4f4fff;
+  --green:   #4ade80;
+  --radius:  14px;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Geist', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+/* ── TOPBAR ─────────────────────────────────── */
+#cn-topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+  gap: 8px;
+}
+
+#cn-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+  flex-shrink: 0;
+}
+
+#cn-logo svg { width: 28px; height: 28px; }
+
+#cn-topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.cn-nav-btn {
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.cn-nav-btn:hover { color: var(--text); background: var(--bg3); }
+.cn-nav-btn.accent { color: var(--text); background: var(--bg3); border: 1px solid var(--border2); }
+.cn-nav-btn.accent:hover { background: var(--bg4); }
+
+#cn-topbar-contact {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+#cn-topbar-contact:hover { color: var(--text); border-color: var(--border2); background: var(--bg3); }
+
+/* ── MAIN LAYOUT ────────────────────────────── */
+#cn-page {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 56px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── LEFT PANEL (CENTERED FORM) ─────────────── */
+#cn-left {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 24px;
+  position: relative;
+  z-index: 10;
+}
+
+#cn-brand {
+  margin-bottom: 36px;
+  text-align: center;
+}
+#cn-brand h1 {
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+#cn-brand p {
+  color: var(--text2);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* ── FORM CARD ──────────────────────────────── */
+#cn-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+/* Social buttons */
+.cn-social-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 11px 16px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cn-social-btn:hover { background: var(--bg4); border-color: var(--border2); }
+.cn-social-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+#cn-social-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.cn-sep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text3);
+  font-size: 0.75rem;
+}
+.cn-sep::before, .cn-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Email form */
+#cn-email-row {
+  display: flex;
+  gap: 8px;
+}
+
+.cn-input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.88rem;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.cn-input:focus { border-color: var(--border2); }
+.cn-input::placeholder { color: var(--text3); }
+
+#cn-email-go {
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  border-radius: 11px;
+  padding: 11px 18px;
+  font-family: 'Geist', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+#cn-email-go:hover { opacity: 0.88; }
+#cn-email-go:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Step 2 — password */
+#cn-step-pass, #cn-step-profile { display: none; flex-direction: column; gap: 10px; }
+#cn-step-pass.active, #cn-step-profile.active { display: flex; }
+
+.cn-step-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+.cn-step-back {
+  background: none;
+  border: none;
+  color: var(--text2);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, background 0.15s;
+}
+.cn-step-back:hover { color: var(--text); background: var(--bg3); }
+.cn-step-back svg { width: 16px; height: 16px; }
+
+.cn-step-label {
+  font-size: 0.82rem;
+  color: var(--text2);
+  font-weight: 500;
+}
+.cn-step-label strong { color: var(--text); font-weight: 600; }
+
+.cn-submit-btn {
+  width: 100%;
+  padding: 11px;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  border-radius: 11px;
+  font-family: 'Geist', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-top: 2px;
+}
+.cn-submit-btn:hover { opacity: 0.88; }
+.cn-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Profile step grid */
+#cn-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+select.cn-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+select.cn-input option { background: #1a1a1a; }
+
+/* Error */
+#cn-err {
+  font-size: 0.8rem;
+  color: #ff5555;
+  display: none;
+  padding: 2px 0;
+  animation: fadeIn 0.2s;
+}
+
+/* Legal */
+#cn-legal {
+  font-size: 0.73rem;
+  color: var(--text3);
+  text-align: center;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+#cn-legal a { color: var(--text3); text-decoration: underline; cursor: pointer; }
+#cn-legal a:hover { color: var(--text2); }
+
+/* Spinner */
+.cn-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(0,0,0,0.3);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* ── FORFAIT POPUP ──────────────────────────── */
+#cn-forfait-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+#cn-forfait-overlay.open { display: flex; }
+
+#cn-forfait-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 760px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+#cn-forfait-box h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 6px;
+}
+#cn-forfait-box p { color: var(--text2); font-size: 0.88rem; margin-bottom: 24px; }
+
+.cn-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.cn-plan-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.15s;
+}
+.cn-plan-card:hover { border-color: var(--border2); }
+.cn-plan-card.popular {
+  border-color: rgba(110,110,255,0.4);
+  background: rgba(110,110,255,0.05);
+}
+
+.cn-plan-name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: -0.02em;
+}
+.cn-plan-price {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+.cn-plan-price span { font-size: 0.75rem; font-weight: 400; color: var(--text2); }
+.cn-plan-badge {
+  display: inline-block;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(110,110,255,0.2);
+  color: #a0a0ff;
+  border: 1px solid rgba(110,110,255,0.3);
+  width: fit-content;
+}
+.cn-plan-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+.cn-plan-features li {
+  font-size: 0.78rem;
+  color: var(--text2);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.cn-plan-features li::before {
+  content: '✓';
+  color: var(--green);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 0px;
+}
+.cn-plan-btn {
+  width: 100%;
+  padding: 9px;
+  border: 1px solid var(--border2);
+  border-radius: 9px;
+  background: none;
+  color: var(--text);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 4px;
+}
+.cn-plan-btn:hover { background: var(--bg4); }
+.cn-plan-card.popular .cn-plan-btn {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.cn-plan-card.popular .cn-plan-btn:hover { background: var(--accent2); }
+
+#cn-forfait-close {
+  display: block;
+  margin: 20px auto 0;
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+#cn-forfait-close:hover { color: var(--text2); }
+
+/* ── LEGAL POPUP ─────────────────────────────── */
+#cn-legal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  z-index: 600;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+#cn-legal-overlay.open { display: flex; }
+
+#cn-legal-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 680px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+}
+#cn-legal-box h2 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 16px; }
+#cn-legal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.15s;
+}
+#cn-legal-close:hover { color: var(--text); background: var(--bg4); }
+
+.cn-legal-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg3);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.cn-legal-tab {
+  flex: 1;
+  min-width: 80px;
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.15s;
+  text-align: center;
+}
+.cn-legal-tab.active { background: var(--bg4); color: var(--text); }
+.cn-legal-content { display: none; }
+.cn-legal-content.active { display: block; }
+.cn-legal-content h3 { font-size: 0.95rem; font-weight: 700; margin: 16px 0 6px; color: var(--text); }
+.cn-legal-content p { font-size: 0.82rem; color: var(--text2); line-height: 1.65; margin-bottom: 10px; }
+.cn-legal-content ul { padding-left: 16px; margin-bottom: 10px; }
+.cn-legal-content ul li { font-size: 0.82rem; color: var(--text2); line-height: 1.65; margin-bottom: 4px; }
+
+/* ── ANIMATIONS ─────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 900px) {
+  #cn-page { overflow-y: auto; }
+  html, body { overflow: auto; }
+}
+@media (max-width: 480px) {
+  #cn-left { padding: 24px 16px; }
+  #cn-card { padding: 20px 16px; }
+  #cn-social-row { grid-template-columns: 1fr; }
+  #cn-topbar { padding: 0 16px; }
+  .cn-nav-btn { padding: 6px 8px; font-size: 0.75rem; }
+  #cn-brand h1 { font-size: 1.6rem; }
+  .cn-plans-grid { grid-template-columns: 1fr; }
+}
