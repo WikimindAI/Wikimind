@@ -5,8 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WikiMind IA</title>
   <link rel="icon" type="image/png" href="wikimind.png">
-  <meta name="description" content="WikiMind est la suite d'outils IA pour apprendre, créer et s'organiser. 20+ applications gratuites propulsées par les meilleurs modèles.">
+  <link rel="manifest" href="wikimind/manifest.json">
   <meta name="theme-color" content="#050505">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WikiMind">
+  <link rel="apple-touch-icon" href="wikimind.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -389,7 +394,7 @@
     .gallery-wrap::before, .gallery-wrap::after { content: ''; position: absolute; top: 0; bottom: 0; width: 160px; z-index: 2; pointer-events: none; }
     .gallery-wrap::before { left: 0; background: linear-gradient(to right, var(--bg), transparent); }
     .gallery-wrap::after { right: 0; background: linear-gradient(to left, var(--bg), transparent); }
-    .gallery-track { display: flex; gap: 14px; width: max-content; animation: gscroll 56s linear infinite; will-change: transform; }
+    .gallery-caption { text-align: center; font-size: 11px; color: var(--t3); letter-spacing: .04em; margin: 10px 0 48px; }
     @keyframes gscroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
     .gallery-img { width: 260px; height: 185px; border-radius: var(--r); overflow: hidden; flex-shrink: 0; border: 1px solid var(--border); }
     .gallery-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -796,7 +801,7 @@
 <div class="hero">
   <div class="hero-glow"></div>
   <h1 class="hero-title reveal" style="font-size: clamp(52px, 8vw, 96px);">L'IA au service de votre quotidien</h1>
-  <div class="gallery-wrap" style="margin-top: 20px; margin-bottom: 60px;">
+  <div class="gallery-wrap" style="margin-top: 20px; margin-bottom: 10px;">
     <div class="gallery-track" id="hero-gallery-track">
       <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false"></div>
@@ -956,6 +961,8 @@
     track.style.animation = 'none';
   })();
   </script>
+  <p class="gallery-caption">Images générées par WikiMind AI</p>
+
   <p class="hero-sub reveal d2">WikiMind est une suite complète d'outils intelligents pour apprendre, créer et s'organiser. Propulsé par les meilleurs modèles d'IA du marché.</p>
   <div class="hero-ctas reveal d3">
     <a href="#apps" class="btn-primary">Explorer les apps <i class="fa-solid fa-arrow-down" style="font-size:11px;"></i></a>
@@ -1804,7 +1811,7 @@
   document.getElementById('btn-profile-signout').onclick = () => signOut(auth).then(() => { closeProfile(); toast('Déconnecté', 'info'); });
 
   document.getElementById('btn-login').onclick = async () => {
-      const email = document.getElementById('login-email').value.trim();
+    const email = document.getElementById('login-email').value.trim();
     const pw = document.getElementById('login-password').value;
     const err = document.getElementById('login-error');
     err.textContent = '';
@@ -1899,6 +1906,97 @@
     });
   }
 </script>
+
+<!-- PWA Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/WikiMind/wikimind/sw.js', { scope: '/WikiMind/' })
+      .then(reg => {
+        console.log('[WikiMind PWA] SW enregistré ✓', reg.scope);
+        // Prompt install banner
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', e => {
+          e.preventDefault();
+          deferredPrompt = e;
+          showInstallBanner(e);
+        });
+      })
+      .catch(err => console.warn('[WikiMind PWA] SW échec :', err));
+  });
+}
+
+function showInstallBanner(promptEvent) {
+  // Don't show if already dismissed or installed
+  if (localStorage.getItem('wm_pwa_dismissed')) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'pwa-banner';
+  banner.innerHTML = `
+    <div class="pwa-icon"><img src="wikimind.png" alt="WikiMind"></div>
+    <div class="pwa-text">
+      <div class="pwa-title">Installer WikiMind</div>
+      <div class="pwa-sub">Accès hors-ligne, icône sur l'écran d'accueil</div>
+    </div>
+    <div class="pwa-actions">
+      <button class="pwa-btn install" id="pwa-install-btn">Installer</button>
+      <button class="pwa-btn dismiss" id="pwa-dismiss-btn">✕</button>
+    </div>
+  `;
+  document.body.appendChild(banner);
+
+  // Slide in
+  requestAnimationFrame(() => banner.classList.add('show'));
+
+  document.getElementById('pwa-install-btn').onclick = async () => {
+    promptEvent.prompt();
+    const { outcome } = await promptEvent.userChoice;
+    banner.classList.remove('show');
+    setTimeout(() => banner.remove(), 400);
+    if (outcome === 'accepted') localStorage.setItem('wm_pwa_dismissed', '1');
+  };
+
+  document.getElementById('pwa-dismiss-btn').onclick = () => {
+    localStorage.setItem('wm_pwa_dismissed', '1');
+    banner.classList.remove('show');
+    setTimeout(() => banner.remove(), 400);
+  };
+}
+</script>
+
+<style>
+#pwa-banner {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9998;
+  background: rgba(14,14,18,0.96);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(24px);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 320px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .4s ease, transform .4s cubic-bezier(.16,1,.3,1);
+  pointer-events: none;
+}
+#pwa-banner.show { opacity: 1; transform: translateY(0); pointer-events: all; }
+.pwa-icon img { width: 38px; height: 38px; border-radius: 8px; object-fit: contain; flex-shrink: 0; }
+.pwa-text { flex: 1; min-width: 0; }
+.pwa-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; color: #fff; }
+.pwa-sub { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.pwa-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.pwa-btn { border: none; cursor: pointer; border-radius: 100px; font-size: 11px; font-weight: 700; transition: opacity .15s; }
+.pwa-btn.install { background: #fff; color: #000; padding: 7px 14px; }
+.pwa-btn.dismiss { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); padding: 7px 10px; border: 1px solid rgba(255,255,255,0.1); }
+.pwa-btn:hover { opacity: .8; }
+@media (max-width: 400px) { #pwa-banner { right: 12px; left: 12px; max-width: none; } }
+</style>
 
 </body>
 </html>
