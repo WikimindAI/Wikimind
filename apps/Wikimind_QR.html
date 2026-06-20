@@ -10,8 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   
-  <!-- Librairies pour QR Code -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <!-- Librairies séparées sans conflit -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <style>
@@ -37,16 +37,8 @@
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 
-    /* ══ NAV (Identique à l'index) ══ */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      height: var(--nav);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 32px;
-      background: rgba(6,6,8,0.85);
-      backdrop-filter: blur(24px);
-      border-bottom: 1px solid var(--border);
-    }
+    /* ══ NAV ══ */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: var(--nav); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; background: rgba(6,6,8,0.85); backdrop-filter: blur(24px); border-bottom: 1px solid var(--border); }
     .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .nav-logo img { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; }
     .nav-logo-text { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -.02em; color: #fff; }
@@ -70,8 +62,7 @@
     .btn-signout { font-size: 12px; font-weight: 500; color: var(--t3); background: none; border: none; cursor: pointer; padding: 5px 10px; border-radius: 6px; transition: color .15s; }
     .btn-signout:hover { color: var(--t2); }
 
-    /* ══ AUTH MODAL & PROFILE (Identiques à l'index) ══ */
-    /* ... (Copie des styles Modals / Toast / Formulaires d'index.html) ... */
+    /* ══ MODALS & TOASTS ══ */
     .modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.72); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .25s; }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal-box { background: #0c0c0f; border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; padding: 0; width: 92%; max-width: 420px; transform: translateY(20px) scale(.96); transition: transform .3s; position: relative; overflow: hidden; }
@@ -103,7 +94,6 @@
     .btn-submit:hover { opacity: .88; transform: translateY(-1px); }
     .modal-error { font-size: 12px; color: #f87171; margin-top: 10px; text-align: center; min-height: 16px; }
 
-    /* TOAST */
     #toast-container { position: fixed; bottom: 22px; right: 22px; z-index: 9999; display: flex; flex-direction: column; gap: 7px; pointer-events: none; }
     .toast { background: #141417; border: 1px solid var(--border); border-radius: 9px; padding: 10px 15px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.82); display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 28px rgba(0,0,0,0.4); animation: tin .28s forwards; pointer-events: all; }
     .toast.success .ti { color: #4ade80; }
@@ -139,7 +129,7 @@
     .qr-output-container { margin-top: 24px; display: flex; flex-direction: column; align-items: center; gap: 16px; display: none; }
     .qr-output-container.visible { display: flex; }
     .qr-canvas-wrapper { background: #fff; padding: 16px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
-    .qr-canvas-wrapper canvas { display: block; border-radius: 4px; max-width: 100%; height: auto; }
+    .qr-canvas-wrapper canvas { display: block; border-radius: 4px; max-width: 100%; max-height: 250px; object-fit: contain; }
 
     /* SCAN SECTION */
     .qr-scan-area { display: none; flex-direction: column; gap: 20px; }
@@ -266,7 +256,7 @@
   </div>
 </main>
 
-<!-- AUTH MODAL (Identique à l'index) -->
+<!-- AUTH MODAL -->
 <div class="modal-overlay" id="auth-modal">
   <div class="modal-box">
     <div class="modal-top-bar"></div>
@@ -322,24 +312,27 @@
 
   // Switch App Tabs (Gen / Scan)
   let html5QrCode = null;
+  let isCameraStarting = false;
   
   window.switchTool = async (mode) => {
     document.getElementById('tab-gen-btn').classList.toggle('active', mode === 'gen');
     document.getElementById('tab-scan-btn').classList.toggle('active', mode === 'scan');
     
     document.getElementById('section-gen').style.display = mode === 'gen' ? 'flex' : 'none';
-    
     const scanArea = document.getElementById('section-scan');
+
+    // Forcer l'arrêt de la caméra à chaque changement
+    await stopCamera();
+
     if (mode === 'scan') {
       scanArea.classList.add('active');
       setScanMode('cam'); // Default to cam
     } else {
       scanArea.classList.remove('active');
-      stopCamera();
     }
   };
 
-  // --- GENERATEUR ---
+  // --- GENERATEUR (QRious - Aucun conflit avec HTML5Qrcode) ---
   document.getElementById('btn-generate-qr').addEventListener('click', () => {
     const text = document.getElementById('qr-input-text').value.trim();
     if (!text) return toast('Veuillez entrer un texte ou un lien', 'error');
@@ -349,22 +342,21 @@
     const canvas = document.getElementById('qr-canvas');
     const container = document.getElementById('qr-output-container');
 
-    QRCode.toCanvas(canvas, text, {
-      width: 300,
-      margin: 2,
-      color: {
-        dark: colorDark,
-        light: colorLight
-      }
-    }, function (error) {
-      if (error) {
-        console.error(error);
-        toast('Erreur lors de la génération', 'error');
-      } else {
-        container.classList.add('visible');
-        toast('QR Code généré avec succès !', 'success');
-      }
-    });
+    try {
+      new QRious({
+        element: canvas,
+        value: text,
+        size: 500, // Bonne résolution pour le téléchargement
+        background: colorLight,
+        foreground: colorDark,
+        level: 'H'
+      });
+      container.classList.add('visible');
+      toast('QR Code généré avec succès !', 'success');
+    } catch(e) {
+      toast('Erreur lors de la génération', 'error');
+      console.error(e);
+    }
   });
 
   document.getElementById('btn-download-qr').addEventListener('click', () => {
@@ -376,10 +368,7 @@
   });
 
   // --- SCANNER ---
-  let currentScanMode = 'cam';
-
   window.setScanMode = async (mode) => {
-    currentScanMode = mode;
     document.getElementById('mode-cam-btn').classList.toggle('active', mode === 'cam');
     document.getElementById('mode-file-btn').classList.toggle('active', mode === 'file');
     
@@ -389,6 +378,10 @@
     
     resultBox.classList.remove('visible');
 
+    // On s'assure d'arrêter systématiquement la caméra existante 
+    // pour éviter l'erreur "ongoing camera scan"
+    await stopCamera();
+
     if (mode === 'cam') {
       fileUi.style.display = 'none';
       reader.style.display = 'block';
@@ -396,11 +389,13 @@
     } else {
       reader.style.display = 'none';
       fileUi.style.display = 'flex';
-      stopCamera();
     }
   };
 
   async function startCamera() {
+    if (isCameraStarting) return;
+    isCameraStarting = true;
+
     if (!html5QrCode) {
       html5QrCode = new Html5Qrcode("reader");
     }
@@ -408,47 +403,55 @@
     try {
       const hasCameras = await Html5Qrcode.getCameras();
       if (hasCameras && hasCameras.length > 0) {
-        html5QrCode.start(
+        await html5QrCode.start(
           { facingMode: "environment" },
           { fps: 10, qrbox: { width: 250, height: 250 } },
           (decodedText, decodedResult) => {
             handleScanSuccess(decodedText);
-            stopCamera(); // Auto-stop après scan
+            stopCamera(); // Auto-stop après la réussite du scan
           },
-          (errorMessage) => { /* Ignore background scan errors */ }
-        ).catch(err => {
-          toast("Erreur d'accès à la caméra", "error");
-          console.error(err);
-        });
+          (errorMessage) => { /* Ignore les erreurs continues en arrière-plan */ }
+        );
       } else {
         toast("Aucune caméra détectée", "error");
       }
     } catch (e) {
       toast("Permission caméra refusée ou erreur", "error");
+      console.error(e);
+    } finally {
+      isCameraStarting = false;
     }
   }
 
-  function stopCamera() {
+  async function stopCamera() {
+    // Si une instance tourne et scanne, on l'arrête en attente (await)
     if (html5QrCode && html5QrCode.isScanning) {
-      html5QrCode.stop().catch(err => console.error("Erreur stop caméra", err));
+      try {
+        await html5QrCode.stop();
+        html5QrCode.clear(); // Nettoie le canvas du flux vidéo
+      } catch (err) {
+        console.error("Erreur stop caméra", err);
+      }
     }
   }
 
-  window.handleFileUpload = (event) => {
+  window.handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader"); // Initialisation silencieuse
+    // Par sécurité, on force l'arrêt encore une fois
+    await stopCamera();
 
-    html5QrCode.scanFile(file, true)
-      .then(decodedText => {
-        handleScanSuccess(decodedText);
-      })
-      .catch(err => {
-        toast("Aucun QR Code trouvé dans cette image", "error");
-      });
+    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+
+    try {
+      const decodedText = await html5QrCode.scanFile(file, true);
+      handleScanSuccess(decodedText);
+    } catch (err) {
+      toast("Aucun QR Code détecté dans cette image", "error");
+    }
       
-    // Reset file input
+    // Reset l'input file pour permettre d'uploader le même fichier deux fois
     event.target.value = '';
   };
 
@@ -480,7 +483,7 @@
 
 </script>
 
-<!-- FIREBASE AUTH (Identique à l'index) -->
+<!-- FIREBASE AUTH -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
@@ -518,7 +521,6 @@
     document.getElementById('modal-subtitle-text').textContent = tab === 'login' ? 'Connectez-vous pour accéder à vos outils' : 'Rejoignez WikiMind gratuitement';
   };
 
-  // Google Sign-In
   document.getElementById('btn-google-auth').onclick = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
