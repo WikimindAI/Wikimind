@@ -836,6 +836,16 @@
       <div class="gallery-img"><img src="exemples/28.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/29.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/30.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/31.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/32.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/33.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/34.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/35.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/36.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/37.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/38.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/39.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/40.png" alt="" draggable="false"></div>
       <!-- Duplicate pour boucle seamless -->
       <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false"></div>
@@ -867,6 +877,16 @@
       <div class="gallery-img"><img src="exemples/28.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/29.png" alt="" draggable="false"></div>
       <div class="gallery-img"><img src="exemples/30.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/31.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/32.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/33.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/34.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/35.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/36.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/37.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/38.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/39.png" alt="" draggable="false"></div>
+      <div class="gallery-img"><img src="exemples/40.png" alt="" draggable="false"></div>
     </div>
   </div>
 
@@ -875,9 +895,9 @@
     const wrap  = document.querySelector('.gallery-wrap');
     const track = document.getElementById('hero-gallery-track');
     let animId, speed = 0.45;
-    // Départ aléatoire : entre image 1 et 30 (largeur d'une image ~300px + gap)
-    const imgW = 300 + 16; // approx card width + gap
-    let offset = Math.floor(Math.random() * 30) * imgW;
+    // Départ aléatoire parmi les 40 images
+    const imgW = 300 + 16;
+    let offset = Math.floor(Math.random() * 40) * imgW;
     let dragging = false, startX = 0, startOffset = 0, velX = 0, lastX = 0, lastT = 0;
     let paused = false;
 
@@ -1330,6 +1350,16 @@
       <div class="mc-body">
         <div class="mc-name">WikiMind Code</div>
         <div class="mc-desc">Assistant de programmation IA : générez, déboguez et expliquez du code dans tous les langages. Avec exécution en direct.</div>
+      </div>
+      <div class="mc-arr"><i class="fa-solid fa-arrow-up-right"></i></div>
+    </a>
+
+    <!-- WikiMind QR -->
+    <a href="tools/Wikimind_qr.html" class="mc reveal d2" data-name="wikimind qr code générateur scanner qrcode lien url">
+      <div class="mc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:rgba(255,255,255,0.8);"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5ZM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 0 1-1.125-1.125v-4.5ZM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 13.5 9.375v-4.5ZM6.75 6.75h.75v.75h-.75v-.75ZM6.75 16.5h.75v.75h-.75v-.75ZM16.5 6.75h.75v.75h-.75v-.75ZM13.5 13.5h.75v.75h-.75v-.75ZM13.5 19.5h.75v.75h-.75v-.75ZM19.5 13.5h.75v.75h-.75v-.75ZM19.5 19.5h.75v.75h-.75v-.75ZM16.5 16.5h.75v.75h-.75v-.75Z"/></svg></div>
+      <div class="mc-body">
+        <div class="mc-name">WikiMind QR</div>
+        <div class="mc-desc">Générez des QR codes personnalisés en quelques secondes : liens, texte, contact, Wi-Fi. Téléchargeables en haute résolution.</div>
       </div>
       <div class="mc-arr"><i class="fa-solid fa-arrow-up-right"></i></div>
     </a>
@@ -1792,8 +1822,269 @@
     <img src="wikimind.png" alt="WikiMind">
     WikiMind
   </div>
-  <span class="footer-copy">© 2026 WikiMind 100% gratuit, zero publicite.</span>
+  <span class="footer-copy">© 2026 WikiMind — 100% gratuit, zéro publicité, Made in France 🇫🇷</span>
+  <nav class="footer-links">
+    <button class="footer-link" onclick="openLegal('cgu')">Conditions d'utilisation</button>
+    <span class="footer-dot">·</span>
+    <button class="footer-link" onclick="openLegal('privacy')">Politique de confidentialité</button>
+    <span class="footer-dot">·</span>
+    <button class="footer-link" onclick="openLegal('data')">Données personnelles</button>
+    <span class="footer-dot">·</span>
+    <button class="footer-link" onclick="openLegal('cookies')">Cookies</button>
+  </nav>
 </footer>
+
+<!-- LEGAL MODAL -->
+<div id="legal-overlay" onclick="closeLegal()"></div>
+<div id="legal-panel">
+  <div class="legal-header">
+    <div class="legal-title" id="legal-title"></div>
+    <button class="legal-close" onclick="closeLegal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="legal-body" id="legal-body"></div>
+</div>
+
+<style>
+/* ── Footer upgrade ── */
+.footer { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 32px 24px 40px; border-top: 1px solid rgba(255,255,255,0.06); }
+.footer-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; }
+.footer-link { background: none; border: none; cursor: pointer; font-size: 11px; color: rgba(255,255,255,0.3); font-family: inherit; transition: color .15s; padding: 2px 0; }
+.footer-link:hover { color: rgba(255,255,255,0.7); }
+.footer-dot { font-size: 10px; color: rgba(255,255,255,0.15); }
+
+/* ── Legal overlay + panel ── */
+#legal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);
+}
+#legal-overlay.open { display: block; }
+
+#legal-panel {
+  display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 901;
+  background: #0e0e12;
+  border-top: 1px solid rgba(255,255,255,0.09);
+  border-radius: 24px 24px 0 0;
+  max-height: 80vh;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform .38s cubic-bezier(.16,1,.3,1);
+}
+#legal-panel.open { display: block; transform: translateY(0); }
+
+.legal-header {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 28px 16px;
+  background: #0e0e12;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.legal-title { font-family: var(--display); font-size: 16px; font-weight: 700; color: #fff; }
+.legal-close { background: rgba(255,255,255,0.07); border: none; cursor: pointer; color: rgba(255,255,255,0.6); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+.legal-close:hover { background: rgba(255,255,255,0.13); }
+
+.legal-body { padding: 24px 28px 48px; font-size: 13px; color: var(--t2); line-height: 1.75; }
+.legal-body h3 { font-family: var(--display); font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.85); margin: 24px 0 6px; text-transform: uppercase; letter-spacing: .06em; }
+.legal-body h3:first-child { margin-top: 0; }
+.legal-body p { margin-bottom: 8px; }
+.legal-body ul { padding-left: 18px; margin-bottom: 8px; }
+.legal-body ul li { margin-bottom: 4px; }
+.legal-body a { color: rgba(255,255,255,0.55); text-decoration: underline; }
+.legal-chip { display: inline-block; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 2px 8px; font-size: 11px; font-family: monospace; margin: 2px 2px; }
+</style>
+
+<script>
+const LEGAL_CONTENT = {
+  cgu: {
+    title: "Conditions Générales d'Utilisation",
+    body: `
+      <h3>1. Présentation</h3>
+      <p>WikiMind IA (ci-après "WikiMind") est une suite d'outils d'intelligence artificielle gratuite, développée et maintenue par une équipe indépendante basée en France. L'accès au service est disponible à l'adresse <a href="https://wikimindai.github.io/Wikimind/" target="_blank">wikimindai.github.io/Wikimind</a>.</p>
+
+      <h3>2. Accès au service</h3>
+      <p>WikiMind est accessible gratuitement à toute personne disposant d'un accès internet et d'un compte. L'inscription nécessite une adresse e-mail valide via Firebase Authentication. WikiMind se réserve le droit de suspendre l'accès en cas d'abus.</p>
+
+      <h3>3. Utilisation acceptable</h3>
+      <p>En utilisant WikiMind, vous vous engagez à :</p>
+      <ul>
+        <li>Ne pas utiliser le service à des fins illicites, frauduleuses ou malveillantes</li>
+        <li>Ne pas tenter de surcharger, contourner ou pirater les systèmes</li>
+        <li>Ne pas générer de contenu haineux, violent, ou portant atteinte à des tiers</li>
+        <li>Respecter les droits de propriété intellectuelle</li>
+        <li>Ne pas revendre ou redistribuer le service sans autorisation écrite</li>
+      </ul>
+
+      <h3>4. Contenu généré</h3>
+      <p>WikiMind utilise des modèles d'IA tiers (Groq, Mistral, SambaNova, Pollinations AI, OpenAI, etc.). WikiMind ne peut garantir l'exactitude des réponses générées. L'utilisateur reste seul responsable de l'utilisation du contenu produit.</p>
+
+      <h3>5. Disponibilité</h3>
+      <p>WikiMind s'efforce d'assurer une disponibilité maximale du service mais ne peut garantir une accessibilité ininterrompue. Des maintenances peuvent être effectuées sans préavis.</p>
+
+      <h3>6. Modification des CGU</h3>
+      <p>Ces CGU peuvent être modifiées à tout moment. La date de dernière mise à jour est indiquée en bas de ce document. La poursuite de l'utilisation du service vaut acceptation des nouvelles conditions.</p>
+
+      <h3>7. Droit applicable</h3>
+      <p>Ces CGU sont soumises au droit français. En cas de litige, les tribunaux français seront seuls compétents. Pour toute question : <a href="mailto:wikimind.ai@gmail.com">wikimind.ai@gmail.com</a></p>
+      <p style="margin-top:24px;font-size:11px;color:var(--t3);">Dernière mise à jour : juin 2026</p>
+    `
+  },
+  privacy: {
+    title: "Politique de confidentialité",
+    body: `
+      <h3>1. Responsable du traitement</h3>
+      <p>WikiMind IA, équipe indépendante basée en France. Contact : <a href="mailto:wikimind.ai@gmail.com">wikimind.ai@gmail.com</a></p>
+
+      <h3>2. Données collectées</h3>
+      <p>WikiMind collecte uniquement les données strictement nécessaires au fonctionnement du service :</p>
+      <ul>
+        <li><strong>Adresse e-mail</strong> — pour l'authentification et la gestion du compte</li>
+        <li><strong>Nom d'affichage</strong> — optionnel, fourni lors de l'inscription</li>
+        <li><strong>Photo de profil</strong> — optionnelle, fournie par le fournisseur d'authentification</li>
+        <li><strong>Données de session</strong> — token d'authentification Firebase stocké localement</li>
+        <li><strong>Préférences</strong> — choix cookie, thème, stockés dans <span class="legal-chip">localStorage</span></li>
+      </ul>
+
+      <h3>3. Données NON collectées</h3>
+      <ul>
+        <li>Nous ne collectons pas vos conversations avec l'IA</li>
+        <li>Nous ne collectons pas vos images générées</li>
+        <li>Nous n'effectuons aucun tracking comportemental</li>
+        <li>Nous ne vendons aucune donnée à des tiers</li>
+        <li>Aucune publicité ciblée n'est utilisée</li>
+      </ul>
+
+      <h3>4. Base légale</h3>
+      <p>Le traitement repose sur votre consentement (inscription volontaire) et l'exécution du contrat de service (CGU). Conformément au RGPD, vous pouvez exercer vos droits à tout moment.</p>
+
+      <h3>5. Durée de conservation</h3>
+      <p>Vos données sont conservées tant que votre compte est actif. En cas de suppression du compte, les données associées sont effacées dans un délai de 30 jours.</p>
+
+      <h3>6. Vos droits (RGPD)</h3>
+      <ul>
+        <li><strong>Droit d'accès</strong> — obtenir une copie de vos données</li>
+        <li><strong>Droit de rectification</strong> — corriger vos informations</li>
+        <li><strong>Droit à l'effacement</strong> — supprimer votre compte et données</li>
+        <li><strong>Droit à la portabilité</strong> — recevoir vos données dans un format lisible</li>
+        <li><strong>Droit d'opposition</strong> — vous opposer à certains traitements</li>
+      </ul>
+      <p>Pour exercer ces droits : <a href="mailto:wikimind.ai@gmail.com">wikimind.ai@gmail.com</a></p>
+
+      <h3>7. Sous-traitants</h3>
+      <ul>
+        <li><strong>Firebase (Google)</strong> — authentification et base de données</li>
+        <li><strong>GitHub Pages</strong> — hébergement du site</li>
+        <li><strong>Groq, Mistral, SambaNova, Pollinations AI, OpenAI</strong> — traitement des requêtes IA (vos messages peuvent transiter par leurs API)</li>
+      </ul>
+      <p style="margin-top:24px;font-size:11px;color:var(--t3);">Dernière mise à jour : juin 2026</p>
+    `
+  },
+  data: {
+    title: "Données personnelles — À quoi servent vos données ?",
+    body: `
+      <h3>Principe fondamental</h3>
+      <p>WikiMind est construit sur un principe simple : <strong>vos données vous appartiennent</strong>. Nous collectons le strict minimum, nous ne monétisons rien, et nous ne partageons rien avec des annonceurs.</p>
+
+      <h3>Votre e-mail</h3>
+      <p>Sert uniquement à :</p>
+      <ul>
+        <li>Créer et sécuriser votre compte</li>
+        <li>Vous permettre de vous reconnecter</li>
+        <li>Vous envoyer des informations importantes sur le service (si nécessaire)</li>
+      </ul>
+      <p>Il n'est jamais partagé, jamais vendu, jamais utilisé à des fins marketing.</p>
+
+      <h3>Vos conversations IA</h3>
+      <p>WikiMind <strong>ne stocke pas</strong> vos conversations. Chaque session est locale et éphémère. Vos échanges avec l'IA transitent par les API des fournisseurs (Groq, Mistral, etc.) mais ne sont pas enregistrés par WikiMind.</p>
+
+      <h3>Vos images générées</h3>
+      <p>Les images que vous générez via WikiMind Image ne sont pas stockées sur nos serveurs. Elles sont générées par Pollinations AI ou les API concernées et affichées directement dans votre navigateur.</p>
+
+      <h3>Le <span class="legal-chip">localStorage</span></h3>
+      <p>Nous utilisons le stockage local de votre navigateur pour :</p>
+      <ul>
+        <li>Mémoriser votre choix concernant les cookies</li>
+        <li>Garder votre session active (token Firebase)</li>
+        <li>Mémoriser vos préférences d'interface</li>
+      </ul>
+      <p>Ces données restent sur votre appareil et ne nous sont jamais transmises.</p>
+
+      <h3>Firebase Realtime Database</h3>
+      <p>Seule votre information de forfait (Free/Plus/Pro) est stockée dans notre base de données Firebase, associée à votre identifiant utilisateur anonymisé.</p>
+
+      <h3>Ce que nous ne faisons JAMAIS</h3>
+      <ul>
+        <li>❌ Vendre vos données à des tiers</li>
+        <li>❌ Afficher des publicités ciblées</li>
+        <li>❌ Analyser vos conversations</li>
+        <li>❌ Partager vos données avec des partenaires commerciaux</li>
+        <li>❌ Utiliser des trackers publicitaires</li>
+      </ul>
+      <p style="margin-top:24px;font-size:11px;color:var(--t3);">Des questions ? <a href="mailto:wikimind.ai@gmail.com">wikimind.ai@gmail.com</a></p>
+    `
+  },
+  cookies: {
+    title: "Politique de cookies",
+    body: `
+      <h3>Que sont les cookies ?</h3>
+      <p>Les cookies sont de petits fichiers texte stockés sur votre appareil par votre navigateur. WikiMind utilise principalement le <span class="legal-chip">localStorage</span>, un mécanisme similaire mais entièrement local à votre navigateur.</p>
+
+      <h3>Cookies utilisés par WikiMind</h3>
+
+      <h3>Cookies strictement nécessaires</h3>
+      <p>Ces cookies sont indispensables au fonctionnement du service. Ils ne peuvent pas être désactivés.</p>
+      <ul>
+        <li><span class="legal-chip">firebase:authUser</span> — session d'authentification Firebase</li>
+        <li><span class="legal-chip">wm_cookies</span> — mémorisation de votre choix cookie</li>
+        <li><span class="legal-chip">wm_pwa_dismissed</span> — mémorisation du refus de la bannière d'installation</li>
+      </ul>
+
+      <h3>Cookies de préférences</h3>
+      <p>Ces cookies mémorisent vos préférences d'utilisation pour améliorer votre expérience.</p>
+      <ul>
+        <li>Préférences d'interface (thème, langue)</li>
+        <li>État de l'application</li>
+      </ul>
+
+      <h3>Cookies analytiques</h3>
+      <p>WikiMind <strong>n'utilise pas</strong> de cookies analytiques ou de tracking (pas de Google Analytics, pas de Hotjar, pas de pixels Facebook).</p>
+
+      <h3>Cookies publicitaires</h3>
+      <p>WikiMind <strong>n'utilise aucun cookie publicitaire</strong>. Nous ne diffusons aucune publicité et ne partageons aucune donnée avec des régies publicitaires.</p>
+
+      <h3>Gérer vos préférences</h3>
+      <p>Vous pouvez modifier votre choix concernant les cookies à tout moment depuis votre <strong>profil → Confidentialité</strong>. Vous pouvez également vider le <span class="legal-chip">localStorage</span> directement depuis les paramètres de votre navigateur.</p>
+
+      <h3>Cookies tiers</h3>
+      <p>Firebase (Google) peut déposer ses propres cookies dans le cadre de l'authentification. Ces cookies sont soumis à la <a href="https://policies.google.com/privacy" target="_blank">politique de confidentialité de Google</a>.</p>
+      <p style="margin-top:24px;font-size:11px;color:var(--t3);">Dernière mise à jour : juin 2026</p>
+    `
+  }
+};
+
+function openLegal(key) {
+  const content = LEGAL_CONTENT[key];
+  if (!content) return;
+  document.getElementById('legal-title').textContent = content.title;
+  document.getElementById('legal-body').innerHTML = content.body;
+  document.getElementById('legal-overlay').classList.add('open');
+  const panel = document.getElementById('legal-panel');
+  panel.style.display = 'block';
+  requestAnimationFrame(() => panel.classList.add('open'));
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLegal() {
+  document.getElementById('legal-overlay').classList.remove('open');
+  const panel = document.getElementById('legal-panel');
+  panel.classList.remove('open');
+  setTimeout(() => { panel.style.display = 'none'; }, 400);
+  document.body.style.overflow = '';
+}
+
+// Close on ESC
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLegal(); });
+</script>
 
 <div id="toast-container"></div>
 
