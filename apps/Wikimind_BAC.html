@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WikiMind BAC 2026 — Simulateur de Moyenne</title>
+<link rel="icon" type="image/png" href="wikimind.png">
+<meta name="theme-color" content="#060608">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #060608;
+  --surface: rgba(255,255,255,0.04);
+  --surface2: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.07);
+  --border-h: rgba(255,255,255,0.16);
+  --t1: #ffffff;
+  --t2: rgba(255,255,255,0.52);
+  --t3: rgba(255,255,255,0.26);
+  --accent: #6366f1;
+  --accent-glow: rgba(99,102,241,0.25);
+  --accent-soft: rgba(99,102,241,0.12);
+  --sans: 'Inter', sans-serif;
+  --display: 'Space Grotesk', sans-serif;
+  --r: 14px;
+  --rl: 20px;
+  --nav: 64px;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--t1); font-family: var(--sans); overflow-x: hidden; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+/* ══ AMBIENT ══ */
+body::before {
+  content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(99,102,241,0.13) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(99,102,241,0.06) 0%, transparent 60%);
+}
+
+/* ══ SPLASH ══ */
+#splash {
+  position: fixed; inset: 0; z-index: 9999; background: var(--bg);
+  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 20px;
+  transition: opacity .6s ease, transform .6s ease;
+}
+#splash.out { opacity: 0; transform: scale(1.04); pointer-events: none; }
+.splash-logo {
+  width: 72px; height: 72px; border-radius: 22px;
+  background: linear-gradient(135deg, #fff 0%, #c7c8ff 100%);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 60px rgba(99,102,241,0.5), 0 0 120px rgba(99,102,241,0.2);
+  animation: splashPulse 2s ease-in-out infinite;
+}
+@keyframes splashPulse { 0%,100%{box-shadow:0 0 40px rgba(99,102,241,0.4),0 0 80px rgba(99,102,241,0.15);} 50%{box-shadow:0 0 70px rgba(99,102,241,0.65),0 0 140px rgba(99,102,241,0.25);} }
+.splash-logo span { font-family: var(--display); font-weight: 700; font-size: 32px; color: #060608; }
+.splash-title { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: -.03em; }
+.splash-sub { font-size: 11px; color: var(--t3); letter-spacing: .2em; text-transform: uppercase; }
+.splash-bar { width: 120px; height: 2px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+.splash-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); border-radius: 2px; width: 0; animation: splashFill 1.3s cubic-bezier(.4,0,.2,1) .2s forwards; }
+@keyframes splashFill { to { width: 100%; } }
+
+/* ══ NAV ══ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: var(--nav);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 28px;
+  background: rgba(6,6,8,0.85); backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: linear-gradient(135deg,#fff,#c7c8ff);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 14px rgba(99,102,241,0.35);
+}
+.nav-logo-icon span { font-family: var(--display); font-weight: 700; font-size: 14px; color: #060608; }
+.nav-logo-text { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -.02em; color: #fff; }
+.nav-logo-text em { color: #818cf8; font-style: normal; }
+.nav-back { font-size: 12px; font-weight: 500; color: var(--t3); text-decoration: none; display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 8px; transition: color .15s, background .15s; }
+.nav-back:hover { color: var(--t2); background: var(--surface); }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+
+/* Nav auth */
+#nav-auth-guest { display: flex; align-items: center; gap: 8px; }
+#nav-auth-guest.hidden { display: none; }
+.btn-nav-login { font-size: 13px; font-weight: 600; color: var(--t2); background: none; border: none; cursor: pointer; padding: 7px 14px; border-radius: 8px; transition: color .15s; }
+.btn-nav-login:hover { color: #fff; }
+.btn-nav-signup { font-size: 13px; font-weight: 600; color: #000; background: #fff; border: none; cursor: pointer; padding: 7px 16px; border-radius: 8px; transition: opacity .15s, transform .15s; }
+.btn-nav-signup:hover { opacity: .85; transform: translateY(-1px); }
+#nav-user-info { display: none; align-items: center; gap: 10px; }
+#nav-user-info.visible { display: flex; }
+.nav-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.09);
+  border: 1px solid var(--border); display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.75); cursor: pointer;
+  text-decoration: none; overflow: hidden;
+}
+.nav-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; }
+.nav-avatar img.loaded { display: block; }
+.nav-avatar img.loaded + span { display: none; }
+.nav-username { font-size: 13px; font-weight: 500; color: var(--t2); }
+.btn-signout { font-size: 12px; font-weight: 500; color: var(--t3); background: none; border: none; cursor: pointer; padding: 5px 10px; border-radius: 6px; transition: color .15s; }
+.btn-signout:hover { color: var(--t2); }
+
+/* Save status */
+#save-status {
+  font-size: 11px; font-weight: 500; color: var(--t3); display: flex; align-items: center; gap: 5px;
+  transition: opacity .3s; opacity: 0;
+}
+#save-status.visible { opacity: 1; }
+#save-status .dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
+#save-status.saving .dot { background: #f59e0b; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+@media(max-width:600px){ .nav-username, .nav-back { display:none; } }
+
+/* ══ AUTH MODAL ══ */
+.modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.72); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box { background: #0c0c0f; border: 1px solid rgba(255,255,255,0.09); border-radius: 24px; width: 92%; max-width: 420px; transform: translateY(20px) scale(.96); transition: transform .3s cubic-bezier(.16,1,.3,1); position: relative; overflow: hidden; }
+.modal-overlay.open .modal-box { transform: none; }
+.modal-top-bar { height: 3px; background: linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa); }
+.modal-inner { padding: 32px 30px 28px; }
+.modal-close { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.06); border: none; cursor: pointer; width: 28px; height: 28px; border-radius: 50%; color: var(--t3); font-size: 11px; display: flex; align-items: center; justify-content: center; transition: background .15s, color .15s; z-index: 2; }
+.modal-close:hover { background: rgba(255,255,255,0.12); color: var(--t1); }
+.modal-header { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 26px; text-align: center; }
+.modal-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.modal-brand-name { font-family: var(--display); font-weight: 700; font-size: 16px; color: #fff; }
+.modal-title { font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: -.03em; color: #fff; }
+.modal-subtitle { font-size: 13px; color: var(--t2); }
+.btn-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 11px; padding: 12px 16px; font-family: var(--sans); font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; transition: background .18s, border-color .18s, transform .15s; margin-bottom: 20px; }
+.btn-google:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.22); transform: translateY(-1px); }
+.btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
+.auth-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.auth-divider-line { flex: 1; height: 1px; background: var(--border); }
+.auth-divider-text { font-size: 11px; font-weight: 600; color: var(--t3); letter-spacing: .06em; text-transform: uppercase; }
+.modal-tabs { display: flex; gap: 3px; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 3px; margin-bottom: 20px; border: 1px solid var(--border); }
+.modal-tab { flex: 1; padding: 8px; font-size: 13px; font-weight: 600; background: none; border: none; cursor: pointer; border-radius: 7px; color: var(--t2); transition: all .18s; font-family: var(--sans); }
+.modal-tab.active { background: rgba(255,255,255,0.09); color: #fff; }
+.form-group { margin-bottom: 12px; }
+.form-label { display: block; font-size: 11px; font-weight: 700; color: var(--t3); margin-bottom: 6px; letter-spacing: .06em; text-transform: uppercase; }
+.form-input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; padding: 11px 13px; color: #fff; font-family: var(--sans); font-size: 14px; outline: none; transition: border-color .15s, background .15s; }
+.form-input:focus { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.06); }
+.form-error { font-size: 12px; color: #f87171; margin-top: 8px; min-height: 16px; }
+.btn-submit { width: 100%; padding: 12px; background: #fff; color: #000; border: none; border-radius: 11px; font-family: var(--sans); font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .15s, transform .15s; margin-top: 4px; }
+.btn-submit:hover { opacity: .88; transform: translateY(-1px); }
+.modal-footer { text-align: center; margin-top: 16px; font-size: 12px; color: var(--t3); }
+.modal-footer a { color: var(--t2); text-decoration: none; }
+.modal-footer a:hover { color: #fff; }
+
+/* ══ MAIN LAYOUT ══ */
+main { max-width: 800px; margin: 0 auto; padding: calc(var(--nav) + 40px) 20px 200px; position: relative; z-index: 1; }
+
+/* ══ PAGE HEADER ══ */
+.page-header { margin-bottom: 36px; }
+.page-header-eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.eyebrow-icon {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: linear-gradient(135deg, rgba(99,102,241,.18), rgba(129,140,248,.1));
+  border: 1px solid rgba(99,102,241,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.eyebrow-badge { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: #818cf8; background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.25); padding: 4px 10px; border-radius: 100px; }
+.page-title { font-family: var(--display); font-size: clamp(26px,5vw,36px); font-weight: 700; letter-spacing: -.04em; line-height: 1.1; margin-bottom: 10px; }
+.page-title span { background: linear-gradient(135deg, #fff 30%, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.page-sub { font-size: 14px; color: var(--t2); line-height: 1.6; max-width: 480px; }
+
+/* ══ SECTION LABEL ══ */
+.section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--t3); margin-bottom: 12px; }
+
+/* ══ FILIERE SELECTOR ══ */
+.selector-block { margin-bottom: 24px; }
+.voie-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.voie-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border-radius: 100px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--t2); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+  font-family: var(--sans);
+}
+.voie-chip:hover { background: var(--surface2); color: #fff; border-color: var(--border-h); }
+.voie-chip.active { background: var(--accent-soft); border-color: rgba(99,102,241,.4); color: #818cf8; }
+
+.sub-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.sub-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 100px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  color: var(--t3); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+  font-family: var(--sans);
+}
+.sub-chip:hover { background: var(--surface); color: #fff; }
+.sub-chip.active { background: var(--accent-soft); border-color: rgba(99,102,241,.3); color: #818cf8; }
+
+/* ══ RESULT BAR (sticky) ══ */
+#result-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(6,6,8,.92); backdrop-filter: blur(24px);
+  border-top: 1px solid var(--border);
+  padding: 0 20px;
+  transform: translateY(100%);
+  transition: transform .4s cubic-bezier(.16,1,.3,1);
+}
+#result-bar.visible { transform: translateY(0); }
+.result-bar-inner {
+  max-width: 800px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  height: 72px;
+}
+.result-grade-group { display: flex; align-items: baseline; gap: 8px; }
+.result-grade {
+  font-family: var(--display); font-size: 28px; font-weight: 700; letter-spacing: -.04em; color: #fff;
+  transition: color .3s;
+}
+.result-denom { font-size: 14px; color: var(--t3); font-weight: 500; }
+.result-mention {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
+  padding: 4px 10px; border-radius: 100px;
+  transition: all .3s;
+}
+.result-progress { font-size: 11px; color: var(--t3); margin-left: 6px; }
+.result-actions { display: flex; align-items: center; gap: 8px; }
+.btn-ai-bar {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border-radius: 100px;
+  background: var(--accent); border: none; cursor: pointer;
+  font-size: 13px; font-weight: 700; color: #fff; font-family: var(--sans);
+  transition: opacity .2s, transform .15s;
+  box-shadow: 0 4px 20px rgba(99,102,241,.45);
+}
+.btn-ai-bar:hover { opacity: .88; transform: translateY(-1px); }
+.btn-ai-bar:disabled { opacity: .4; cursor: default; transform: none; }
+.btn-reset-bar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--border); cursor: pointer;
+  color: var(--t2); font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s;
+}
+.btn-reset-bar:hover { background: var(--surface2); color: #fff; }
+
+/* ══ CALCULATOR ══ */
+#calculator-container { display: none; }
+.calc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.calc-title { font-family: var(--display); font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
+.bachibac-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 700;
+  background: linear-gradient(135deg, rgba(239,68,68,.15), rgba(250,204,21,.15));
+  border: 1px solid rgba(250,204,21,.25); color: #fde047;
+}
+
+/* ══ SUBJECT LIST ══ */
+.subjects-list { display: flex; flex-direction: column; gap: 6px; }
+
+.cat-header {
+  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em;
+  color: var(--t3); padding: 14px 0 6px; border-bottom: 1px solid var(--border);
+  margin-top: 8px;
+}
+
+.subject-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-radius: var(--r);
+  background: var(--surface); border: 1px solid var(--border);
+  gap: 12px; transition: border-color .2s, background .2s;
+}
+.subject-row:focus-within { border-color: rgba(99,102,241,.3); background: rgba(20,20,30,.6); }
+.subject-row.has-grade { border-color: rgba(99,102,241,.18); }
+.subject-info { flex: 1; min-width: 0; }
+.subject-name { font-size: 13px; font-weight: 600; line-height: 1.3; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.subject-hint { font-size: 10px; color: var(--t3); cursor: help; }
+.coef-badge {
+  display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--t3); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  padding: 2px 7px; border-radius: 100px; margin-top: 4px;
+}
+
+.grade-input {
+  width: 72px; text-align: center; font-weight: 700; font-size: 15px;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px; color: #fff; padding: 8px 10px; outline: none;
+  transition: all .2s; flex-shrink: 0; font-family: var(--sans);
+}
+.grade-input:focus { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
+.grade-input.ok { border-color: rgba(16,185,129,.4); color: #6ee7b7; }
+.grade-input.mid { border-color: rgba(245,158,11,.35); color: #fcd34d; }
+.grade-input.low { border-color: rgba(239,68,68,.35); color: #fca5a5; }
+
+/* Options section */
+.options-section {
+  margin-top: 20px; padding: 16px;
+  background: rgba(250,204,21,.04); border: 1px solid rgba(250,204,21,.1);
+  border-radius: var(--rl);
+}
+.options-toggle {
+  cursor: pointer; display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 700; color: rgba(253,224,71,.7);
+  text-transform: uppercase; letter-spacing: .08em;
+  list-style: none; user-select: none;
+}
+.options-toggle::-webkit-details-marker { display: none; }
+details[open] .options-toggle { color: #fde047; }
+.options-grid { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+
+/* ══ AI ANALYSIS PANEL ══ */
+.ai-panel {
+  margin-top: 28px; border-radius: var(--rl);
+  border: 1px solid rgba(99,102,241,.2);
+  background: rgba(20,20,32,.6);
+  overflow: hidden;
+}
+.ai-panel-header {
+  padding: 18px 20px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(99,102,241,.12);
+}
+.ai-panel-title { font-family: var(--display); font-size: 15px; font-weight: 700; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
+.ai-panel-title i { color: #818cf8; }
+.btn-ai-launch {
+  display: flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: 100px;
+  background: var(--accent); border: none; cursor: pointer;
+  font-size: 12px; font-weight: 700; color: #fff; font-family: var(--sans);
+  transition: opacity .2s; box-shadow: 0 2px 16px rgba(99,102,241,.4);
+}
+.btn-ai-launch:hover { opacity: .88; }
+.btn-ai-launch:disabled { opacity: .35; cursor: default; }
+.ai-panel-body { padding: 20px; }
+.ai-loader { display: flex; align-items: center; gap: 10px; color: var(--t3); font-size: 13px; }
+.ai-loader-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  animation: aiDot 1.4s ease-in-out infinite;
+}
+.ai-loader-dot:nth-child(2) { animation-delay: .2s; }
+.ai-loader-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes aiDot { 0%,80%,100%{transform:scale(.7);opacity:.4} 40%{transform:scale(1);opacity:1} }
+.ai-response { font-size: 13px; line-height: 1.8; color: rgba(255,255,255,.82); display: none; }
+.ai-placeholder { font-size: 13px; color: var(--t3); line-height: 1.6; }
+
+/* ══ TOAST ══ */
+#toast-container { position: fixed; bottom: 100px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast {
+  padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 500;
+  backdrop-filter: blur(20px); display: flex; align-items: center; gap: 8px;
+  animation: toastIn .3s cubic-bezier(.16,1,.3,1) both;
+  pointer-events: all;
+}
+@keyframes toastIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:none} }
+.toast.success { background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.28); }
+.toast.error { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.28); }
+.toast.info { background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.28); }
+.toast .ti { font-size: 14px; }
+.toast.success .ti { color: #34d399; }
+.toast.error .ti { color: #f87171; }
+.toast.info .ti { color: #818cf8; }
+
+/* ══ REVEAL ANIMATIONS ══ */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .5s ease, transform .5s cubic-bezier(.16,1,.3,1); }
+.reveal.in { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: .05s; }
+.reveal-d2 { transition-delay: .1s; }
+.reveal-d3 { transition-delay: .15s; }
+.reveal-d4 { transition-delay: .2s; }
+
+/* Subject row fade animation */
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+.fade-row { animation: fadeUp .35s cubic-bezier(.16,1,.3,1) both; }
+
+/* ══ LOGIN PROMPT ══ */
+.login-prompt {
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  border-radius: var(--r); background: rgba(99,102,241,.07);
+  border: 1px solid rgba(99,102,241,.18); margin-bottom: 24px; font-size: 13px; color: var(--t2);
+}
+.login-prompt i { color: #818cf8; }
+.login-prompt a { color: #818cf8; font-weight: 600; text-decoration: none; cursor: pointer; }
+.login-prompt a:hover { text-decoration: underline; }
+
+/* ══ MOBILE ══ */
+@media (max-width: 640px) {
+  .result-bar-inner { height: 64px; }
+  .result-grade { font-size: 22px; }
+  .result-actions { gap: 6px; }
+  .btn-ai-bar span { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo"><span>W</span></div>
+  <div class="splash-title">WikiMind <span style="color:#818cf8">BAC</span></div>
+  <div class="splash-sub">2026</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon"><span>W</span></div>
+      <span class="nav-logo-text">WikiMind <em>BAC</em></span>
+    </a>
+    <a href="index.html" class="nav-back"><i class="fa-solid fa-arrow-left" style="font-size:11px;"></i> Accueil</a>
+  </div>
+  <div class="nav-right">
+    <div id="save-status"><div class="dot"></div><span id="save-text">Sauvegardé</span></div>
+    <div id="nav-auth-guest">
+      <button class="btn-nav-login" id="btn-open-login">Connexion</button>
+      <button class="btn-nav-signup" id="btn-open-signup">S'inscrire</button>
+    </div>
+    <div id="nav-user-info">
+      <span class="nav-username" id="nav-username"></span>
+      <a href="#" class="nav-avatar" id="nav-avatar-wrap">
+        <img id="nav-avatar-img" alt="Avatar">
+        <span id="nav-avatar-initials"></span>
+      </a>
+      <button class="btn-signout" id="btn-signout">Déconnexion</button>
+    </div>
+  </div>
+</nav>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box">
+    <div class="modal-top-bar"></div>
+    <button class="modal-close" id="modal-close"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-inner">
+      <div class="modal-header">
+        <div class="modal-brand">
+          <div class="nav-logo-icon" style="width:24px;height:24px;border-radius:6px;"><span style="font-size:11px;">W</span></div>
+          <span class="modal-brand-name">WikiMind</span>
+        </div>
+        <div class="modal-title" id="modal-title-text">Bon retour 👋</div>
+        <div class="modal-subtitle" id="modal-subtitle-text">Connectez-vous pour sauvegarder vos notes</div>
+      </div>
+
+      <button class="btn-google" id="btn-google-auth">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continuer avec Google
+      </button>
+      <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-text">ou</div><div class="auth-divider-line"></div></div>
+      <div class="modal-tabs">
+        <button class="modal-tab active" id="tab-login" onclick="switchTab('login')">Connexion</button>
+        <button class="modal-tab" id="tab-signup" onclick="switchTab('signup')">Inscription</button>
+      </div>
+
+      <!-- Login form -->
+      <div id="form-login">
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="login-email" placeholder="vous@example.com"></div>
+        <div class="form-group"><label class="form-label">Mot de passe</label><input type="password" class="form-input" id="login-password" placeholder="••••••••"></div>
+        <div class="form-error" id="login-error"></div>
+        <button class="btn-submit" id="btn-login">Se connecter</button>
+      </div>
+
+      <!-- Signup form -->
+      <div id="form-signup" style="display:none;">
+        <div class="form-group"><label class="form-label">Prénom</label><input type="text" class="form-input" id="signup-name" placeholder="Ton prénom"></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="signup-email" placeholder="vous@example.com"></div>
+        <div class="form-group"><label class="form-label">Mot de passe</label><input type="password" class="form-input" id="signup-password" placeholder="8 caractères minimum"></div>
+        <div class="form-error" id="signup-error"></div>
+        <button class="btn-submit" id="btn-signup">Créer mon compte</button>
+      </div>
+
+      <div class="modal-footer">En continuant, vous acceptez les <a href="#">CGU</a> de WikiMind.</div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT BAR -->
+<div id="result-bar">
+  <div class="result-bar-inner">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div class="result-grade-group">
+        <div class="result-grade" id="result-grade">--</div>
+        <div class="result-denom">/20</div>
+      </div>
+      <div class="result-mention" id="result-mention" style="display:none;"></div>
+      <div class="result-progress" id="result-progress"></div>
+    </div>
+    <div class="result-actions">
+      <button class="btn-reset-bar" onclick="resetCalc()" title="Réinitialiser"><i class="fa-solid fa-rotate-left"></i></button>
+      <button class="btn-ai-bar" id="btn-ai-main" onclick="launchAI()">
+        <i class="fa-solid fa-sparkles"></i>
+        <span>Analyse IA</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <!-- Header -->
+  <div class="page-header reveal">
+    <div class="page-header-eyebrow">
+      <div class="eyebrow-icon">🎓</div>
+      <div class="eyebrow-badge">BAC 2026</div>
+    </div>
+    <h1 class="page-title"><span>Simulateur de Moyenne</span></h1>
+    <p class="page-sub">Toutes filières · Coefficients officiels · Sauvegarde automatique · Analyse IA Mistral</p>
+  </div>
+
+  <!-- Login prompt (non-auth) -->
+  <div class="login-prompt reveal reveal-d1" id="login-prompt" style="display:none;">
+    <i class="fa-solid fa-cloud-arrow-up"></i>
+    <span>Vos notes ne sont pas sauvegardées. <a id="lnk-login">Connectez-vous</a> pour les retrouver à chaque visite.</span>
+  </div>
+
+  <!-- Voie selector -->
+  <div class="selector-block reveal reveal-d2">
+    <div class="section-label">Voie</div>
+    <div class="voie-chips" id="voie-chips">
+      <button class="voie-chip active" data-voie="generale" onclick="selectVoie('generale',this)">🎓 Générale</button>
+      <button class="voie-chip" data-voie="technologique" onclick="selectVoie('technologique',this)">⚙️ Technologique</button>
+      <button class="voie-chip" data-voie="pro" onclick="selectVoie('pro',this)">🛠️ Professionnelle</button>
+      <button class="voie-chip" data-voie="internationale" onclick="selectVoie('internationale',this)">🌍 Internationale</button>
+    </div>
+    <div class="sub-chips" id="sub-chips"></div>
+  </div>
+
+  <!-- Calculator -->
+  <div id="calculator-container">
+    <div class="calc-header reveal reveal-d3">
+      <div class="calc-title" id="calc-title">Bac Général</div>
+      <div class="bachibac-badge" id="bachibac-badge" style="display:none;">🇪🇸 BachiBac</div>
+    </div>
+
+    <div id="subjects-container" class="subjects-list reveal reveal-d4"></div>
+
+    <!-- AI Panel -->
+    <div class="ai-panel reveal" id="ai-panel" style="margin-top:28px;">
+      <div class="ai-panel-header">
+        <div class="ai-panel-title"><i class="fa-solid fa-sparkles"></i> Analyse IA Mistral</div>
+        <button class="btn-ai-launch" id="btn-ai-panel" onclick="launchAI()">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Analyser
+        </button>
+      </div>
+      <div class="ai-panel-body">
+        <div class="ai-loader" id="ai-loader" style="display:none;">
+          <div class="ai-loader-dot"></div>
+          <div class="ai-loader-dot"></div>
+          <div class="ai-loader-dot"></div>
+          <span>WikiMind analyse tes notes…</span>
+        </div>
+        <div class="ai-placeholder" id="ai-placeholder">
+          Saisis tes notes ci-dessus, puis clique sur <strong style="color:rgba(255,255,255,.6);">Analyser</strong> pour obtenir un bilan personnalisé de ta situation avec des conseils concrets pour améliorer ta moyenne.
+        </div>
+        <div class="ai-response" id="ai-response"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="toast-container"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     DATA
+══════════════════════════════════════════════════════ -->
+<script>
+const FILIERES = {
+  generale: {
+    label: 'Bac Général',
+    subs: {
+      'standard': {
+        label: 'Général Standard',
+        subjects: [
+          { cat: 'Épreuves Terminales — Contrôle Terminal (60%)' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 8 },
+          { name: 'Grand Oral', coef: 10 },
+          { name: 'Spécialité 1 (Terminale)', coef: 16, info: 'Épreuve écrite 4h' },
+          { name: 'Spécialité 2 (Terminale)', coef: 16, info: 'Épreuve écrite 4h' },
+          { cat: 'Contrôle Continu (40%)' },
+          { name: 'Spécialité abandonnée (1ère)', coef: 8, info: 'Moyenne annuelle 1ère' },
+          { name: 'Histoire-Géographie', coef: 6 },
+          { name: 'LVA', coef: 6 },
+          { name: 'LVB', coef: 6 },
+          { name: 'Enseignement Scientifique', coef: 6 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ],
+        options: [
+          { name: 'Option Facultative (1ère)', coef: 2, info: 'Bonification si > 10' },
+          { name: 'Option Facultative (Terminale)', coef: 2, info: 'Bonification si > 10' },
+        ]
+      },
+      'maths-expertes': {
+        label: 'Maths Expertes',
+        subjects: [
+          { cat: 'Épreuves Terminales (60%)' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 8 },
+          { name: 'Grand Oral', coef: 10 },
+          { name: 'Spécialité 1 (Terminale)', coef: 16 },
+          { name: 'Spécialité 2 (Terminale)', coef: 16 },
+          { name: 'Maths Expertes', coef: 6, info: 'Option Terminale — bonus si > 10' },
+          { cat: 'Contrôle Continu (40%)' },
+          { name: 'Spécialité abandonnée (1ère)', coef: 8 },
+          { name: 'Histoire-Géographie', coef: 6 },
+          { name: 'LVA', coef: 6 },
+          { name: 'LVB', coef: 6 },
+          { name: 'Enseignement Scientifique', coef: 6 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ]
+      },
+      'maths-complementaires': {
+        label: 'Maths Complémentaires',
+        subjects: [
+          { cat: 'Épreuves Terminales (60%)' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 8 },
+          { name: 'Grand Oral', coef: 10 },
+          { name: 'Spécialité 1 (Terminale)', coef: 16 },
+          { name: 'Spécialité 2 (Terminale)', coef: 16 },
+          { name: 'Maths Complémentaires', coef: 4, info: 'Option Terminale' },
+          { cat: 'Contrôle Continu (40%)' },
+          { name: 'Spécialité abandonnée (1ère)', coef: 8 },
+          { name: 'Histoire-Géographie', coef: 6 },
+          { name: 'LVA', coef: 6 },
+          { name: 'LVB', coef: 6 },
+          { name: 'Enseignement Scientifique', coef: 6 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ]
+      },
+      'droit-eco': {
+        label: 'Option Droit / Éco',
+        subjects: [
+          { cat: 'Épreuves Terminales (60%)' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 8 },
+          { name: 'Grand Oral', coef: 10 },
+          { name: 'Spécialité 1 (Terminale)', coef: 16 },
+          { name: 'Spécialité 2 (Terminale)', coef: 16 },
+          { name: 'Droit & Grands Enjeux Contemporains', coef: 4 },
+          { cat: 'Contrôle Continu (40%)' },
+          { name: 'Spécialité abandonnée (1ère)', coef: 8 },
+          { name: 'Histoire-Géographie', coef: 6 },
+          { name: 'LVA', coef: 6 },
+          { name: 'LVB', coef: 6 },
+          { name: 'Enseignement Scientifique', coef: 6 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ]
+      }
+    }
+  },
+  technologique: {
+    label: 'Voie Technologique',
+    subs: {
+      'sti2d': {
+        label: 'STI2D',
+        subjects: [
+          { cat: 'Épreuves Terminales' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 4 },
+          { name: 'Maths (Terminale)', coef: 6 },
+          { name: 'Innovation Techno & Éco-conception', coef: 6, info: 'Écrit 4h' },
+          { name: 'Ingénierie & Développement Durable', coef: 8 },
+          { name: 'Spécialité STI2D (Écrit)', coef: 8 },
+          { name: 'Spécialité STI2D (TP)', coef: 6 },
+          { cat: 'Contrôle Continu' },
+          { name: 'Histoire-Géographie', coef: 4 },
+          { name: 'LVA', coef: 4 },
+          { name: 'LVB', coef: 2 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ]
+      },
+      'stmg': {
+        label: 'STMG',
+        subjects: [
+          { cat: 'Épreuves Terminales' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 4 },
+          { name: 'Sciences de Management (Écrit)', coef: 7 },
+          { name: 'Sciences de Gestion (Oral)', coef: 7 },
+          { name: 'Éco-Droit', coef: 6 },
+          { name: 'Spécialité STMG (Écrit)', coef: 6 },
+          { cat: 'Contrôle Continu' },
+          { name: 'Maths', coef: 4 },
+          { name: 'Histoire-Géographie', coef: 4 },
+          { name: 'LVA', coef: 4 },
+          { name: 'LVB', coef: 2 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ]
+      },
+      'st2s': {
+        label: 'ST2S',
+        subjects: [
+          { cat: 'Épreuves Terminales' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 4 },
+          { name: 'Sciences & Techniques Sanitaires (Écrit)', coef: 9 },
+          { name: 'Sciences & Techniques Sanitaires (Oral)', coef: 5 },
+          { name: 'Biologie & Physiopathologie', coef: 8 },
+          { name: 'Sciences Physiques (TP)', coef: 3 },
+          { cat: 'Contrôle Continu' },
+          { name: 'Maths', coef: 4 },
+          { name: 'Histoire-Géographie', coef: 4 },
+          { name: 'LVA', coef: 4 },
+          { name: 'LVB', coef: 2 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ]
+      },
+      'stl': {
+        label: 'STL',
+        subjects: [
+          { cat: 'Épreuves Terminales' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 4 },
+          { name: 'Maths (Terminale)', coef: 6 },
+          { name: 'Chimie-Biochimie-Sciences du Vivant', coef: 8 },
+          { name: 'Sciences Physiques (Écrit)', coef: 6 },
+          { name: 'Sciences Physiques (TP)', coef: 8 },
+          { cat: 'Contrôle Continu' },
+          { name: 'Histoire-Géographie', coef: 4 },
+          { name: 'LVA', coef: 4 },
+          { name: 'LVB', coef: 2 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ]
+      },
+      'std2a': {
+        label: 'STD2A',
+        subjects: [
+          { cat: 'Épreuves Terminales' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 4 },
+          { name: 'Arts Appliqués (Analyse)', coef: 6 },
+          { name: 'Arts Appliqués (Pratique)', coef: 12, info: 'Dossier + jury' },
+          { name: 'Design & Arts Appliqués (Oral)', coef: 6 },
+          { cat: 'Contrôle Continu' },
+          { name: 'Maths', coef: 4 },
+          { name: 'Histoire des Arts', coef: 4 },
+          { name: 'LVA', coef: 4 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ]
+      },
+      'hotellerie': {
+        label: 'Hôtellerie',
+        subjects: [
+          { cat: 'Épreuves Terminales' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 4 },
+          { name: 'Hébergement & Communication Pro', coef: 8 },
+          { name: 'Alimentation & Boissons', coef: 8 },
+          { name: 'Économie-Droit-Management', coef: 6 },
+          { cat: 'Contrôle Continu' },
+          { name: 'Maths', coef: 4 },
+          { name: 'Histoire-Géographie', coef: 4 },
+          { name: 'LVA', coef: 6 },
+          { name: 'LVB', coef: 4 },
+          { name: 'EPS', coef: 4 },
+          { name: 'EMC', coef: 2 },
+        ]
+      },
+      'stav': {
+        label: 'STAV',
+        subjects: [
+          { cat: 'Épreuves Terminales' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 4 },
+          { name: 'Sciences et Technologies (Écrit)', coef: 8 },
+          { name: 'Agronomie-Territoire-Citoyenneté', coef: 6 },
+          { name: 'Épreuve de Spécialité', coef: 8 },
+          { cat: 'Contrôle Continu' },
+          { name: 'Maths', coef: 4 },
+          { name: 'Histoire-Géographie', coef: 4 },
+          { name: 'LVA', coef: 4 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ]
+      }
+    }
+  },
+  pro: {
+    label: 'Voie Professionnelle',
+    subs: {
+      'generique': {
+        label: 'Pro Générique',
+        subjects: [
+          { cat: 'Enseignements Généraux' },
+          { name: 'Français / Histoire-Géo', coef: 5 },
+          { name: 'Maths / Sciences', coef: 5 },
+          { name: 'LVA', coef: 4 },
+          { name: 'Arts Appliqués', coef: 2 },
+          { name: 'EPS', coef: 4 },
+          { cat: 'Enseignements Professionnels' },
+          { name: 'Chef d\'œuvre', coef: 4, info: 'Projet pluriannuel' },
+          { name: 'EP1 — Épreuve pratique', coef: 12 },
+          { name: 'EP2 — Dossier professionnel', coef: 8 },
+          { name: 'Économie-Gestion / Droit', coef: 2 },
+          { name: 'Prévention Santé Environnement', coef: 2 },
+        ]
+      }
+    }
+  },
+  internationale: {
+    label: 'Section Internationale',
+    subs: {
+      'bachibac': {
+        label: 'BachiBac 🇪🇸',
+        isBachibac: true,
+        info: 'Les enseignements spécifiques BachiBac représentent 25% de la note finale. Contrôle terminal 51% · Contrôle continu 49%.',
+        subjects: [
+          { cat: '🇪🇸 Épreuves Spécifiques BachiBac — Contrôle Terminal' },
+          { name: 'Langue & Littérature Espagnole (Écrit)', coef: 15, info: 'Remplace LVA — épreuve écrite' },
+          { name: 'Histoire-Géo en Espagnol (Écrit)', coef: 15, info: 'Remplace Hist-Géo du tronc commun' },
+          { cat: '📚 Épreuves du Baccalauréat — Contrôle Terminal' },
+          { name: 'Français Écrit (1ère)', coef: 5 },
+          { name: 'Français Oral (1ère)', coef: 5 },
+          { name: 'Philosophie', coef: 8 },
+          { name: 'Grand Oral', coef: 10 },
+          { name: 'Spécialité 1 (Terminale)', coef: 16, info: 'Épreuve écrite 4h' },
+          { name: 'Spécialité 2 (Terminale)', coef: 16, info: 'Épreuve écrite 4h' },
+          { cat: '📊 Contrôle Continu (49%)' },
+          { name: 'Spécialité abandonnée (1ère)', coef: 8 },
+          { name: 'LVB', coef: 6 },
+          { name: 'Enseignement Scientifique', coef: 6 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ],
+        options: [
+          { name: 'Option facultative (1ère)', coef: 2, info: 'Bonification si > 10' },
+          { name: 'Option facultative (Terminale)', coef: 2, info: 'Bonification si > 10' },
+        ]
+      },
+      'oib': {
+        label: 'OIB',
+        info: 'Option Internationale du Baccalauréat. Les épreuves de langue et littérature étrangère remplacent les épreuves françaises correspondantes.',
+        subjects: [
+          { cat: 'Épreuves Spécifiques OIB' },
+          { name: 'Langue & Littérature Étrangère (Écrit)', coef: 6, info: 'Remplace Français 1ère — écrit' },
+          { name: 'Langue & Littérature Étrangère (Oral)', coef: 4, info: 'Remplace Français 1ère — oral' },
+          { name: 'Histoire-Géo en Langue Étrangère', coef: 4, info: 'Épreuve orale' },
+          { cat: 'Épreuves Terminales' },
+          { name: 'Philosophie', coef: 8 },
+          { name: 'Grand Oral', coef: 10 },
+          { name: 'Spécialité 1 (Terminale)', coef: 16 },
+          { name: 'Spécialité 2 (Terminale)', coef: 16 },
+          { cat: 'Contrôle Continu' },
+          { name: 'Spécialité abandonnée (1ère)', coef: 8 },
+          { name: 'Histoire-Géographie', coef: 6 },
+          { name: 'LVA', coef: 6 },
+          { name: 'LVB', coef: 6 },
+          { name: 'Enseignement Scientifique', coef: 6 },
+          { name: 'EPS', coef: 6 },
+          { name: 'EMC', coef: 2 },
+        ]
+      }
+    }
+  }
+};
+</script>
+
+<!-- ══════════════════════════════════════════════════════
+     FIREBASE + AUTH
+══════════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAjtTCLwbhWJtfLrPhm7UwICaHEb5OBoJI",
+  authDomain: "wikimindata.firebaseapp.com",
+  projectId: "wikimindata",
+  storageBucket: "wikimindata.firebasestorage.app",
+  messagingSenderId: "520734288721",
+  appId: "1:520734288721:web:12035317283a91396d4170",
+  databaseURL: "https://wikimindata-default-rtdb.firebaseio.com"
+});
+
+const auth = getAuth(app);
+const db = getDatabase(app);
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ client_id: '520734288721-3smo9l1122dc2j4ifg6kt2maeb4rm9es.apps.googleusercontent.com' });
+
+window._fbAuth = auth;
+window._fbDb = db;
+window._fbRef = ref;
+window._fbSet = set;
+window._fbGet = get;
+window._fbUpdate = update;
+
+// ── Modal controls ──
+const authModal = document.getElementById('auth-modal');
+document.getElementById('btn-open-login').onclick = () => { switchTab('login'); authModal.classList.add('open'); };
+document.getElementById('btn-open-signup').onclick = () => { switchTab('signup'); authModal.classList.add('open'); };
+document.getElementById('modal-close').onclick = () => authModal.classList.remove('open');
+authModal.addEventListener('click', e => { if (e.target === authModal) authModal.classList.remove('open'); });
+document.getElementById('lnk-login').onclick = () => { switchTab('login'); authModal.classList.add('open'); };
+
+// ── Google ──
+document.getElementById('btn-google-auth').onclick = async () => {
+  const btn = document.getElementById('btn-google-auth');
+  btn.textContent = 'Connexion en cours…'; btn.disabled = true;
+  try {
+    const res = await signInWithPopup(auth, googleProvider);
+    const u = res.user;
+    const snap = await get(ref(db, `users/${u.uid}`));
+    if (!snap.exists()) await set(ref(db, `users/${u.uid}`), { displayName: u.displayName||u.email.split('@')[0], email: u.email, FORFAIT: 0, createdAt: Date.now() });
+    authModal.classList.remove('open');
+    toast('Connexion Google réussie 🎉', 'success');
+  } catch(e) {
+    btn.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Continuer avec Google`;
+    btn.disabled = false;
+    if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') toast('Erreur Google : ' + (e.code||e.message), 'error');
+  }
+};
+
+// ── Login ──
+document.getElementById('btn-login').onclick = async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-password').value;
+  const err = document.getElementById('login-error');
+  err.textContent = '';
+  if (!email || !pw) { err.textContent = 'Remplissez tous les champs.'; return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pw);
+    authModal.classList.remove('open');
+    toast('Connexion réussie 👋', 'success');
+  } catch(e) { err.textContent = friendlyError(e.code); }
+};
+
+// ── Signup ──
+document.getElementById('btn-signup').onclick = async () => {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pw = document.getElementById('signup-password').value;
+  const err = document.getElementById('signup-error');
+  err.textContent = '';
+  if (!name || !email || !pw) { err.textContent = 'Remplissez tous les champs.'; return; }
+  if (pw.length < 8) { err.textContent = 'Mot de passe trop court (8 caractères min.)'; return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pw);
+    await updateProfile(cred.user, { displayName: name });
+    await set(ref(db, `users/${cred.user.uid}`), { displayName: name, email, FORFAIT: 0, createdAt: Date.now() });
+    authModal.classList.remove('open');
+    toast('Compte créé ! Bienvenue 🎉', 'success');
+  } catch(e) { err.textContent = friendlyError(e.code); }
+};
+
+// ── Sign out ──
+document.getElementById('btn-signout').onclick = async () => {
+  await signOut(auth);
+  toast('Déconnecté', 'info');
+};
+
+// ── Auth state ──
+onAuthStateChanged(auth, async user => {
+  const guest = document.getElementById('nav-auth-guest');
+  const userInfo = document.getElementById('nav-user-info');
+  const loginPrompt = document.getElementById('login-prompt');
+
+  if (user) {
+    window._currentUser = user;
+    guest.classList.add('hidden');
+    userInfo.classList.add('visible');
+    loginPrompt.style.display = 'none';
+
+    // Avatar
+    const name = user.displayName || user.email.split('@')[0];
+    const initials = name.charAt(0).toUpperCase();
+    document.getElementById('nav-username').textContent = name;
+    document.getElementById('nav-avatar-initials').textContent = initials;
+    const img = document.getElementById('nav-avatar-img');
+    if (user.photoURL) { img.src = user.photoURL; img.onload = () => img.classList.add('loaded'); }
+
+    // Load saved notes from Firebase
+    await window.loadFromFirebase(user.uid);
+  } else {
+    window._currentUser = null;
+    guest.classList.remove('hidden');
+    userInfo.classList.remove('visible');
+    loginPrompt.style.display = 'flex';
+  }
+});
+
+// ── Enter key shortcuts ──
+document.getElementById('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-login').click(); });
+document.getElementById('signup-password').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-signup').click(); });
+
+function friendlyError(code) {
+  return {
+    'auth/user-not-found': 'Aucun compte avec cet email.',
+    'auth/wrong-password': 'Mot de passe incorrect.',
+    'auth/email-already-in-use': 'Cet email est déjà utilisé.',
+    'auth/invalid-email': 'Email invalide.',
+    'auth/weak-password': 'Mot de passe trop faible.',
+    'auth/invalid-credential': 'Email ou mot de passe incorrect.',
+    'auth/too-many-requests': 'Trop de tentatives. Réessayez plus tard.',
+    'auth/popup-blocked': 'Popup bloquée — autorisez-les pour ce site.'
+  }[code] || 'Une erreur est survenue.';
+}
+
+window.toast = (msg, type = 'info') => {
+  const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<i class="fa-solid ${icons[type]||'fa-circle-info'} ti"></i>${msg}`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+};
+</script>
+
+<!-- ══════════════════════════════════════════════════════
+     APP LOGIC
+══════════════════════════════════════════════════════ -->
+<script>
+window.switchTab = (tab) => {
+  document.getElementById('form-login').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('form-signup').style.display = tab === 'signup' ? '' : 'none';
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('modal-title-text').textContent = tab === 'login' ? 'Bon retour 👋' : 'Créer un compte';
+  document.getElementById('modal-subtitle-text').textContent = tab === 'login' ? 'Connectez-vous pour sauvegarder vos notes' : 'Rejoignez WikiMind gratuitement';
+};
+
+// ── State ──
+let currentVoie = 'generale';
+let currentFiliere = 'standard';
+let saveTimer = null;
+
+// ── Save status indicator ──
+function showSaveStatus(state) {
+  const el = document.getElementById('save-status');
+  const dot = el.querySelector('.dot');
+  const text = document.getElementById('save-text');
+  el.classList.add('visible');
+  if (state === 'saving') {
+    el.classList.add('saving');
+    text.textContent = 'Sauvegarde…';
+  } else {
+    el.classList.remove('saving');
+    text.textContent = 'Sauvegardé';
+    setTimeout(() => el.classList.remove('visible'), 2500);
+  }
+}
+
+// ── Voie / Filière selection ──
+window.selectVoie = (voie, el) => {
+  currentVoie = voie;
+  document.querySelectorAll('.voie-chip').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderSubChips(voie);
+};
+
+function renderSubChips(voie) {
+  const container = document.getElementById('sub-chips');
+  container.innerHTML = '';
+  const subs = FILIERES[voie].subs;
+  Object.keys(subs).forEach((key, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'sub-chip' + (i === 0 ? ' active' : '');
+    btn.textContent = subs[key].label;
+    btn.onclick = () => {
+      document.querySelectorAll('.sub-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFiliere = key;
+      renderCalc(voie, key);
+    };
+    container.appendChild(btn);
+  });
+  currentFiliere = Object.keys(subs)[0];
+  renderCalc(voie, currentFiliere);
+}
+
+// ── Render calculator ──
+function renderCalc(voie, filiere) {
+  const data = FILIERES[voie]?.subs[filiere];
+  if (!data) return;
+
+  document.getElementById('calculator-container').style.display = 'block';
+  document.getElementById('calc-title').textContent = data.label;
+  document.getElementById('result-bar').classList.add('visible');
+
+  const badge = document.getElementById('bachibac-badge');
+  badge.style.display = data.isBachibac ? 'inline-flex' : 'none';
+
+  const container = document.getElementById('subjects-container');
+  container.innerHTML = '';
+
+  // Info banner
+  if (data.info) {
+    const info = document.createElement('div');
+    info.style.cssText = 'background:rgba(250,204,21,.06);border:1px solid rgba(250,204,21,.15);border-radius:14px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:rgba(253,224,71,.75);display:flex;gap:8px;align-items:flex-start;line-height:1.6;';
+    info.innerHTML = `<i class="fa-solid fa-circle-info" style="margin-top:2px;flex-shrink:0;color:#fde047;"></i><span>${data.info}</span>`;
+    container.appendChild(info);
+  }
+
+  // Subjects
+  let subIdx = 0;
+  data.subjects.forEach((item, idx) => {
+    if (item.cat) {
+      const cat = document.createElement('div');
+      cat.className = 'cat-header fade-row';
+      cat.style.animationDelay = (idx * 0.02) + 's';
+      cat.textContent = item.cat;
+      container.appendChild(cat);
+    } else {
+      const row = buildRow(item, 'sub_' + subIdx, idx);
+      container.appendChild(row);
+      subIdx++;
+    }
+  });
+
+  // Options
+  if (data.options && data.options.length > 0) {
+    const details = document.createElement('details');
+    details.className = 'options-section fade-row';
+    details.style.animationDelay = '0.3s';
+    const summary = document.createElement('summary');
+    summary.className = 'options-toggle';
+    summary.innerHTML = `<i class="fa-solid fa-star" style="font-size:10px;"></i> Options Facultatives`;
+    details.appendChild(summary);
+    const grid = document.createElement('div');
+    grid.className = 'options-grid';
+    data.options.forEach((opt, i) => {
+      const row = buildRow(opt, 'opt_' + i, i + 100);
+      grid.appendChild(row);
+    });
+    details.appendChild(grid);
+    container.appendChild(details);
+  }
+
+  // Load saved
+  loadFromLS();
+  updateCalc();
+
+  // Reset AI
+  document.getElementById('ai-loader').style.display = 'none';
+  document.getElementById('ai-response').style.display = 'none';
+  document.getElementById('ai-response').textContent = '';
+  document.getElementById('ai-placeholder').style.display = 'block';
+  document.getElementById('btn-ai-panel').disabled = false;
+  document.getElementById('btn-ai-main').disabled = false;
+
+  try { localStorage.setItem('wm_bac_mode', voie + '_' + filiere); } catch(e) {}
+}
+
+function buildRow(item, id, delay) {
+  const row = document.createElement('div');
+  row.className = 'subject-row fade-row';
+  row.style.animationDelay = (Math.min(delay, 20) * 0.025) + 's';
+  row.innerHTML = `
+    <div class="subject-info">
+      <div class="subject-name">
+        ${item.name}
+        ${item.info ? `<span class="subject-hint" title="${item.info}"><i class="fa-solid fa-circle-info"></i></span>` : ''}
+      </div>
+      <span class="coef-badge">Coef. ${item.coef}</span>
+    </div>
+    <input type="number" min="0" max="20" step="0.5"
+      placeholder="—" inputmode="decimal"
+      class="grade-input"
+      data-coef="${item.coef}"
+      id="inp-${id}"
+      oninput="onGrade(this)">
+  `;
+  return row;
+}
+
+// ── Grade input handler ──
+window.onGrade = (inp) => {
+  const v = parseFloat(inp.value.replace(',', '.'));
+  inp.classList.remove('ok', 'mid', 'low');
+  if (!isNaN(v) && inp.value !== '') {
+    inp.closest('.subject-row').classList.add('has-grade');
+    if (v >= 14) inp.classList.add('ok');
+    else if (v >= 10) inp.classList.add('mid');
+    else inp.classList.add('low');
+  } else {
+    inp.closest('.subject-row')?.classList.remove('has-grade');
+  }
+  updateAndSave();
+};
+
+// ── Calculation ──
+function updateCalc() {
+  const inputs = document.querySelectorAll('#subjects-container .grade-input, .options-section .grade-input');
+  let pts = 0, coefFilled = 0, coefTotal = 0, filled = 0;
+  inputs.forEach(inp => {
+    const c = parseFloat(inp.dataset.coef);
+    coefTotal += c;
+    const v = parseFloat(inp.value.replace(',', '.'));
+    if (!isNaN(v) && inp.value !== '') {
+      pts += Math.max(0, Math.min(20, v)) * c;
+      coefFilled += c;
+      filled++;
+    }
+  });
+
+  const gradeEl = document.getElementById('result-grade');
+  const mentionEl = document.getElementById('result-mention');
+  const progressEl = document.getElementById('result-progress');
+
+  if (progressEl) progressEl.textContent = filled > 0 ? `${filled} note${filled > 1 ? 's' : ''} · coef ${coefFilled}/${Math.round(coefTotal)}` : '';
+
+  if (coefFilled === 0) {
+    gradeEl.textContent = '--';
+    gradeEl.style.color = '#fff';
+    mentionEl.style.display = 'none';
+    return;
+  }
+
+  const avg = pts / coefFilled;
+  gradeEl.textContent = avg.toFixed(2);
+
+  const mentions = [
+    { min: 18, label: 'Félicitations', bg: '#7c3aed' },
+    { min: 16, label: 'TB', bg: '#6366f1' },
+    { min: 14, label: 'Bien', bg: '#10b981' },
+    { min: 12, label: 'Assez Bien', bg: '#3b82f6' },
+    { min: 10, label: 'Admis', bg: '#f59e0b' },
+    { min: 8,  label: 'Rattrapage', bg: '#f97316' },
+    { min: 0,  label: 'Refusé', bg: '#ef4444' },
+  ];
+  const m = mentions.find(x => avg >= x.min) || mentions[mentions.length - 1];
+  gradeEl.style.color = avg >= 10 ? '#fff' : '#fca5a5';
+  mentionEl.style.display = 'inline-flex';
+  mentionEl.textContent = m.label;
+  mentionEl.style.background = m.bg + '22';
+  mentionEl.style.color = m.bg;
+  mentionEl.style.border = `1px solid ${m.bg}44`;
+}
+
+window.updateAndSave = () => {
+  updateCalc();
+  saveToLS();
+  debouncedFirebaseSave();
+};
+
+// ── Reset ──
+window.resetCalc = () => {
+  if (!confirm('Réinitialiser toutes les notes ?')) return;
+  document.querySelectorAll('.grade-input').forEach(inp => {
+    inp.value = '';
+    inp.classList.remove('ok', 'mid', 'low');
+    inp.closest('.subject-row')?.classList.remove('has-grade');
+  });
+  updateCalc();
+  try { localStorage.removeItem('wm_bac_data_' + currentVoie + '_' + currentFiliere); } catch(e) {}
+  if (window._currentUser) {
+    const path = `users/${window._currentUser.uid}/bac_notes/${currentVoie}_${currentFiliere}`;
+    window._fbSet(window._fbRef(window._fbDb, path), null).catch(() => {});
+  }
+};
+
+// ── LocalStorage ──
+function saveToLS() {
+  const key = currentVoie + '_' + currentFiliere;
+  const inputs = document.querySelectorAll('.grade-input');
+  const d = {};
+  inputs.forEach((inp, i) => { if (inp.value !== '') d[i] = inp.value; });
+  try { localStorage.setItem('wm_bac_data_' + key, JSON.stringify(d)); } catch(e) {}
+}
+
+function loadFromLS() {
+  const key = currentVoie + '_' + currentFiliere;
+  try {
+    const raw = localStorage.getItem('wm_bac_data_' + key);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    document.querySelectorAll('.grade-input').forEach((inp, i) => {
+      if (d[i] !== undefined) {
+        inp.value = d[i];
+        const v = parseFloat(d[i]);
+        if (!isNaN(v)) {
+          inp.closest('.subject-row')?.classList.add('has-grade');
+          inp.classList.remove('ok', 'mid', 'low');
+          if (v >= 14) inp.classList.add('ok');
+          else if (v >= 10) inp.classList.add('mid');
+          else inp.classList.add('low');
+        }
+      }
+    });
+  } catch(e) {}
+}
+
+// ── Firebase save/load ──
+function debouncedFirebaseSave() {
+  if (!window._currentUser) return;
+  if (saveTimer) clearTimeout(saveTimer);
+  showSaveStatus('saving');
+  saveTimer = setTimeout(async () => {
+    try {
+      const inputs = document.querySelectorAll('.grade-input');
+      const d = {};
+      inputs.forEach((inp, i) => { if (inp.value !== '') d['n' + i] = inp.value; });
+      const path = `users/${window._currentUser.uid}/bac_notes/${currentVoie}_${currentFiliere}`;
+      await window._fbSet(window._fbRef(window._fbDb, path), d);
+      showSaveStatus('saved');
+    } catch(e) { console.warn('Firebase save error', e); }
+  }, 1200);
+}
+
+window.loadFromFirebase = async (uid) => {
+  try {
+    // Load all notes for current filière
+    const snap = await window._fbGet(window._fbRef(window._fbDb, `users/${uid}/bac_notes`));
+    if (!snap.exists()) return;
+    const allNotes = snap.val();
+    // Cache to LS
+    Object.entries(allNotes).forEach(([key, data]) => {
+      const lsData = {};
+      Object.entries(data).forEach(([k, v]) => { lsData[parseInt(k.slice(1))] = v; });
+      try { localStorage.setItem('wm_bac_data_' + key.replace(/_([^_]+)$/, (m, s) => '_' + s), JSON.stringify(lsData)); } catch(e) {}
+    });
+    // Apply to current view
+    const key = currentVoie + '_' + currentFiliere;
+    const current = allNotes[key];
+    if (current) {
+      document.querySelectorAll('.grade-input').forEach((inp, i) => {
+        const v = current['n' + i];
+        if (v !== undefined) {
+          inp.value = v;
+          const n = parseFloat(v);
+          inp.closest('.subject-row')?.classList.add('has-grade');
+          if (!isNaN(n)) {
+            if (n >= 14) inp.classList.add('ok');
+            else if (n >= 10) inp.classList.add('mid');
+            else inp.classList.add('low');
+          }
+        }
+      });
+      updateCalc();
+    }
+    showSaveStatus('saved');
+  } catch(e) { console.warn('Firebase load error', e); }
+};
+
+// ── Mistral AI ──
+const MISTRAL_KEY = 'kpPb2HNk9QZiOB0MkNZQSCQaaDqHCBef';
+
+async function callMistral(messages, maxTokens = 600) {
+  const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${MISTRAL_KEY}` },
+    body: JSON.stringify({ model: 'mistral-small-latest', messages, max_tokens: maxTokens, temperature: 0.7 })
+  });
+  if (!res.ok) throw new Error(`Erreur ${res.status}`);
+  const d = await res.json();
+  return d.choices?.[0]?.message?.content || '';
+}
+
+window.launchAI = async () => {
+  const loader = document.getElementById('ai-loader');
+  const responseEl = document.getElementById('ai-response');
+  const placeholder = document.getElementById('ai-placeholder');
+  const btnPanel = document.getElementById('btn-ai-panel');
+  const btnMain = document.getElementById('btn-ai-main');
+
+  const inputs = document.querySelectorAll('#subjects-container .grade-input, .options-section .grade-input');
+  const filiere = FILIERES[currentVoie]?.subs[currentFiliere];
+  const subjects = filiere?.subjects.filter(s => !s.cat) || [];
+  let totalPts = 0, totalCoef = 0;
+  const graded = [], missing = [];
+
+  inputs.forEach((inp, i) => {
+    const v = parseFloat(inp.value);
+    const s = subjects[i];
+    if (!s) return;
+    if (!isNaN(v) && inp.value !== '') {
+      totalPts += v * s.coef; totalCoef += s.coef;
+      graded.push({ name: s.name, coef: s.coef, note: v });
+    } else {
+      missing.push(s.name);
+    }
+  });
+
+  if (graded.length === 0) {
+    responseEl.innerHTML = '<div style="color:var(--t3);">⚠️ Saisis au moins quelques notes avant l\'analyse.</div>';
+    responseEl.style.display = 'block';
+    placeholder.style.display = 'none';
+    return;
+  }
+
+  const avg = totalCoef > 0 ? (totalPts / totalCoef).toFixed(2) : '?';
+  const prompt = `Tu es un conseiller pédagogique expert du baccalauréat français${filiere?.isBachibac ? ' et des sections internationales' : ''}.
+
+Filière : ${filiere?.label || currentFiliere}
+Moyenne estimée : ${avg}/20
+
+Notes saisies (${graded.length}) :
+${graded.map(g => `- ${g.name} (coef ${g.coef}) : ${g.note}/20`).join('\n')}
+${missing.length > 0 ? `\nSans note : ${missing.join(', ')}` : ''}
+
+Analyse en 5 points :
+1. Bilan rapide (1-2 phrases directes)
+2. Points forts (impact coef)
+3. Matières prioritaires à améliorer (impact coef × écart à 10)
+4. Mention probable
+5. 2-3 conseils concrets et motivants
+
+Réponds en français, concis et bienveillant. Utilise des emojis. Max 350 mots.`;
+
+  btnPanel.disabled = true;
+  btnMain.disabled = true;
+  loader.style.display = 'flex';
+  responseEl.style.display = 'none';
+  placeholder.style.display = 'none';
+
+  // Scroll to AI panel
+  document.getElementById('ai-panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  try {
+    const text = await callMistral([{ role: 'user', content: prompt }], 650);
+    loader.style.display = 'none';
+    responseEl.innerHTML = formatAI(text);
+    responseEl.style.display = 'block';
+    responseEl.style.animation = 'fadeUp .4s both';
+  } catch(e) {
+    loader.style.display = 'none';
+    responseEl.innerHTML = `<div style="color:var(--t3);font-size:13px;">Erreur : ${e.message}</div>`;
+    responseEl.style.display = 'block';
+  } finally {
+    btnPanel.disabled = false;
+    btnMain.disabled = false;
+  }
+};
+
+function formatAI(text) {
+  return `<div style="font-size:13px;line-height:1.8;color:rgba(255,255,255,.82);">${
+    text
+      .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#fff;font-weight:700;">$1</strong>')
+      .replace(/\n\n/g, '</p><p style="margin-top:10px;">')
+      .replace(/\n/g, '<br>')
+  }</div>`;
+}
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', () => {
+  // Scroll reveal
+  const ro = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); ro.unobserve(e.target); }
+  }), { threshold: 0.06 });
+  document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+  // Last used filière
+  try {
+    const last = localStorage.getItem('wm_bac_mode');
+    if (last) {
+      const [voie, ...rest] = last.split('_');
+      const filiere = rest.join('_');
+      if (voie && FILIERES[voie]?.subs[filiere]) {
+        currentVoie = voie;
+        const btn = document.querySelector(`[data-voie="${voie}"]`);
+        if (btn) {
+          document.querySelectorAll('.voie-chip').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        }
+        renderSubChips(voie);
+        // Select sub
+        setTimeout(() => {
+          const subBtn = [...document.querySelectorAll('.sub-chip')].find(b => b.textContent === FILIERES[voie].subs[filiere]?.label);
+          if (subBtn) { subBtn.click(); }
+        }, 50);
+        return;
+      }
+    }
+  } catch(e) {}
+
+  renderSubChips('generale');
+
+  // Splash
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    if (splash) { splash.classList.add('out'); setTimeout(() => splash.remove(), 700); }
+  }, 1400);
+});
+</script>
+</body>
+</html>
