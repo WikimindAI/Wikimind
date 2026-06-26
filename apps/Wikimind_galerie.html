@@ -95,13 +95,18 @@ a{text-decoration:none;color:inherit;}
 #hero p{color:#9ca3af;font-size:14px;font-weight:500;margin-bottom:16px;}
 
 /* Sources row */
-.sources-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+.sources-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
 .src-pill{
-  display:flex;align-items:center;gap:4px;
-  padding:3px 10px;border-radius:20px;font-size:9px;font-weight:800;
-  border:1px solid var(--border2);color:#999;background:var(--select-bg);
-  text-transform:uppercase;letter-spacing:.06em;
+  display:flex;align-items:center;gap:7px;
+  padding:5px 14px 5px 10px;border-radius:20px;
+  border:1px solid var(--border2);background:var(--select-bg);
+  transition:.18s;
 }
+.src-pill:hover{border-color:var(--text);background:var(--bg);}
+.src-pill img{height:18px;width:auto;object-fit:contain;display:block;flex-shrink:0;}
+.src-pill span{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
+/* NASA logo is red on white — invert in dark mode */
+.dark .src-pill img.invert-dark{filter:invert(1) brightness(2);}
 
 /* SEARCH BOX */
 .search-box{
@@ -400,11 +405,22 @@ onAuthStateChanged(auth,async user=>{
   <p>Recherche d'images IA — toutes sources libres agrégées</p>
 
   <div class="sources-row">
-    <span class="src-pill">🌐 Wikimedia Commons</span>
-    <span class="src-pill">🎨 Openverse CC</span>
-    <span class="src-pill">🚀 NASA</span>
-    <span class="src-pill">📷 Pixabay</span>
-    <span class="src-pill">💚 Pexels</span>
+    <span class="src-pill">
+      <img src="../providers/wikipediacommonslogo.png" alt="Wikimedia Commons">
+      <span>Commons</span>
+    </span>
+    <span class="src-pill">
+      <img src="../providers/openversecclogo.png" alt="Openverse CC">
+      <span>Openverse</span>
+    </span>
+    <span class="src-pill">
+      <img src="../providers/nasalogo.png" alt="NASA" class="invert-dark">
+      <span>NASA</span>
+    </span>
+    <span class="src-pill">
+      <img src="../providers/pixabaylogo.png" alt="Pixabay">
+      <span>Pixabay</span>
+    </span>
   </div>
 
   <div class="search-box">
