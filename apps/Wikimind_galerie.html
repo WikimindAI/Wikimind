@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RRFWS36RWJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-RRFWS36RWJ');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wikimind Galerie</title>
+<link rel="icon" type="image/png" href="../wikimind.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;--text:#111111;--border:#f0f0f0;--border2:#e5e7eb;
+  --input-bg:#ffffff;--select-bg:#f3f4f6;--card-hover:#f9fafb;
+  --accent:#111111;--accent-inv:#ffffff;
+}
+.dark{
+  --bg:#0f0f0f;--text:#eeeeee;--border:#252525;--border2:#2d2d2d;
+  --input-bg:#1a1a1a;--select-bg:#2a2a2a;--card-hover:#1f1f1f;
+  --accent:#ffffff;--accent-inv:#111111;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
+a{text-decoration:none;color:inherit;}
+
+/* HEADER */
+#header{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+  padding:0 24px;height:60px;
+  backdrop-filter:blur(12px);
+}
+.header-logo{
+  display:flex;align-items:center;gap:9px;cursor:pointer;
+  padding:5px 10px 5px 4px;border-radius:12px;
+  transition:background .18s;color:inherit;
+}
+.header-logo:hover{background:var(--select-bg);}
+.header-logo img{width:30px;height:30px;object-fit:contain;border-radius:7px;}
+.header-logo-text{display:flex;flex-direction:column;gap:1px;}
+.header-logo h1{font-size:14px;font-weight:900;letter-spacing:-.04em;text-transform:uppercase;font-style:italic;line-height:1;}
+.header-logo-sub{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#aaa;line-height:1;}
+.header-sep{flex:1;}
+.header-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:10px;font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;cursor:pointer;
+  border:1px solid var(--border2);background:none;color:var(--text);
+  transition:.2s;font-family:'Inter',sans-serif;
+}
+.header-btn:hover{background:var(--select-bg);}
+.header-btn svg{width:14px;height:14px;}
+
+/* AVATAR */
+.plan-chip-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;overflow:visible;flex-shrink:0;cursor:pointer;position:relative;}
+.plan-chip-avatar img{width:30px;height:30px;object-fit:cover;border-radius:50%;position:relative;z-index:2;}
+.plan-chip-avatar>span{position:relative;z-index:2;}
+.plan-chip-avatar::after{content:'';position:absolute;inset:-3px;border-radius:50%;z-index:0;}
+.plan-chip-avatar::before{content:'';position:absolute;inset:2px;border-radius:50%;z-index:1;background:var(--bg);}
+.ring-free::after{background:conic-gradient(#9ca3af,#d1d5db,#9ca3af);}
+.ring-plus::after{background:conic-gradient(#111,#555,#111,#555,#111);animation:ringRotate 4s linear infinite;}
+.dark .ring-plus::after{background:conic-gradient(#fff,#aaa,#fff,#aaa,#fff);animation:ringRotate 4s linear infinite;}
+.ring-pro::after{background:conic-gradient(#22c55e,#4ade80,#16a34a,#86efac,#22c55e);animation:ringRotate 3s linear infinite;}
+.ring-premium::after{background:conic-gradient(#f59e0b,#fcd34d,#d97706,#fef08a,#f59e0b);animation:ringRotate 2.5s linear infinite;}
+.ring-premium-plus::after{background:conic-gradient(#ef4444,#f97316,#eab308,#f97316,#ef4444);animation:ringRotateFire 1.8s linear infinite;}
+@keyframes ringRotate{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes ringRotateFire{0%{transform:rotate(0deg);filter:brightness(1);}50%{transform:rotate(180deg);filter:brightness(1.3);}100%{transform:rotate(360deg);filter:brightness(1);}}
+
+.plan-badge{font-size:9px;font-weight:800;text-transform:uppercase;padding:2px 7px;border-radius:20px;letter-spacing:.04em;}
+.plan-free{background:#f3f4f6;color:#6b7280;}
+.plan-plus{background:#dbeafe;color:#1d4ed8;}
+.plan-pro{background:#ede9fe;color:#7c3aed;}
+.plan-premium{background:#fef3c7;color:#d97706;}
+.plan-premium-plus{background:linear-gradient(135deg,#fee2e2,#fef3c7);color:#c2410c;}
+.dark .plan-free{background:#27272a;color:#a1a1aa;}
+.dark .plan-plus{background:#1e3a5f;color:#60a5fa;}
+.dark .plan-pro{background:#3b1f5e;color:#c084fc;}
+.dark .plan-premium{background:#44330f;color:#fbbf24;}
+.dark .plan-premium-plus{background:linear-gradient(135deg,#44110f,#44330f);color:#fb923c;}
+
+/* HERO */
+#hero{
+  padding:60px 24px 40px;
+  max-width:800px;margin:0 auto;text-align:center;
+  animation:fadeUp .5s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+#hero h2{font-size:clamp(28px,6vw,52px);font-weight:900;letter-spacing:-.04em;text-transform:uppercase;margin-bottom:10px;}
+#hero p{color:#9ca3af;font-size:14px;font-weight:500;margin-bottom:16px;}
+
+/* Sources row */
+.sources-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;}
+.src-pill{
+  display:flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:20px;font-size:9px;font-weight:800;
+  border:1px solid var(--border2);color:#999;background:var(--select-bg);
+  text-transform:uppercase;letter-spacing:.06em;
+}
+
+/* SEARCH BOX */
+.search-box{
+  background:var(--input-bg);border:1.5px solid var(--border2);
+  border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,.06);
+  overflow:hidden;transition:border-color .2s,box-shadow .3s;
+}
+.search-box:focus-within{border-color:#888;box-shadow:0 12px 40px rgba(0,0,0,.1);}
+.search-top{display:flex;align-items:center;padding:14px 18px;gap:10px;}
+.search-top input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-size:15px;color:var(--text);font-family:'Inter',sans-serif;
+}
+.search-top input::placeholder{color:#bbb;}
+#search-btn{
+  background:var(--accent);color:var(--accent-inv);
+  border:none;padding:10px 20px;border-radius:12px;
+  font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+  cursor:pointer;transition:.2s;font-family:'Inter',sans-serif;white-space:nowrap;
+  display:flex;align-items:center;gap:6px;
+}
+#search-btn:hover{opacity:.85;}
+#search-btn:disabled{opacity:.4;cursor:not-allowed;}
+.search-footer{
+  display:flex;gap:6px;padding:10px 14px 12px;flex-wrap:wrap;align-items:center;
+  border-top:1px solid var(--border);
+}
+.search-chip{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;
+  cursor:pointer;border:1px solid var(--border2);background:none;color:#888;
+  transition:.2s;font-family:'Inter',sans-serif;text-transform:uppercase;letter-spacing:.05em;
+}
+.search-chip:hover{background:var(--select-bg);color:var(--text);}
+.search-chip.active{background:var(--accent);color:var(--accent-inv);border-color:transparent;}
+.search-chip svg{width:12px;height:12px;}
+
+/* IMAGE UPLOAD TAB */
+#img-search-tab{padding:10px 14px 12px;border-top:1px solid var(--border);display:none;}
+#img-search-tab.show{display:block;}
+.img-drop-area{
+  border:2px dashed var(--border2);border-radius:12px;padding:24px;
+  text-align:center;cursor:pointer;transition:.2s;font-size:13px;color:#888;
+}
+.img-drop-area:hover,.img-drop-area.dragging{border-color:var(--text);color:var(--text);background:var(--select-bg);}
+.img-drop-area.has-image{border-style:solid;border-color:var(--text);padding:10px;}
+#img-preview-wrap{display:none;text-align:center;margin-top:8px;}
+#img-preview-wrap img{max-height:120px;border-radius:8px;object-fit:cover;}
+
+/* FILTERS */
+#filters-bar{
+  max-width:1200px;margin:0 auto;
+  padding:0 24px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+}
+.filter-btn{
+  padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;cursor:pointer;
+  border:1px solid var(--border2);background:none;color:#888;
+  transition:.2s;font-family:'Inter',sans-serif;
+}
+.filter-btn:hover{background:var(--select-bg);color:var(--text);}
+.filter-btn.active{background:var(--accent);color:var(--accent-inv);border-color:transparent;}
+.results-count{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin-left:auto;}
+
+/* GALLERY */
+#gallery-section{max-width:1200px;margin:0 auto;padding:0 24px 60px;}
+#gallery-status{text-align:center;padding:80px 24px;color:#bbb;font-size:13px;}
+#gallery-status .status-icon{font-size:48px;margin-bottom:12px;display:block;}
+#gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:12px;
+}
+.img-card{
+  border-radius:14px;overflow:hidden;background:var(--select-bg);
+  border:1px solid var(--border);cursor:pointer;position:relative;
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .28s,border-color .2s;
+  animation:cardIn .35s ease both;
+}
+@keyframes cardIn{from{opacity:0;transform:scale(.94) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.img-card:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 20px 50px rgba(0,0,0,.13);border-color:var(--border2);}
+.img-card-thumb-wrap{overflow:hidden;}
+.img-card-thumb{
+  width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
+  background:var(--select-bg);transition:transform .4s ease;
+}
+.img-card:hover .img-card-thumb{transform:scale(1.06);}
+.img-card-info{padding:10px 12px;}
+.img-card-title{font-size:11px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.img-card-meta{font-size:10px;color:#aaa;margin-top:3px;display:flex;align-items:center;gap:6px;}
+.img-card-actions{
+  position:absolute;top:8px;right:8px;
+  display:flex;gap:4px;opacity:0;transition:.2s;
+}
+.img-card:hover .img-card-actions{opacity:1;}
+.img-action-btn{
+  width:30px;height:30px;border-radius:8px;
+  background:rgba(0,0,0,.6);color:#fff;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:.15s;backdrop-filter:blur(4px);
+}
+.img-action-btn:hover{background:rgba(0,0,0,.85);}
+.img-action-btn svg{width:14px;height:14px;}
+/* Source badge on card (visible on hover) */
+.img-src-badge{
+  position:absolute;bottom:46px;left:8px;
+  font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  padding:2px 7px;border-radius:20px;backdrop-filter:blur(6px);
+  opacity:0;transition:.2s;pointer-events:none;
+}
+.img-card:hover .img-src-badge{opacity:1;}
+.src-wikimedia{background:rgba(0,80,180,.82);color:#fff;}
+.src-openverse{background:rgba(100,0,180,.82);color:#fff;}
+.src-nasa{background:rgba(11,55,140,.85);color:#fff;}
+.src-pixabay{background:rgba(0,150,0,.82);color:#fff;}
+.src-pexels{background:rgba(5,140,95,.85);color:#fff;}
+
+/* LIGHTBOX */
+#lightbox{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.93);backdrop-filter:blur(16px);
+  align-items:center;justify-content:center;
+}
+#lightbox.show{display:flex;animation:lbIn .2s ease both;}
+@keyframes lbIn{from{opacity:0;}to{opacity:1;}}
+.lb-close{
+  position:absolute;top:20px;right:24px;
+  width:38px;height:38px;border-radius:50%;
+  background:rgba(255,255,255,.1);color:#fff;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:.2s;font-size:18px;
+}
+.lb-close:hover{background:rgba(255,255,255,.25);transform:scale(1.1);}
+.lb-prev,.lb-next{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.1);color:#fff;border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:.2s;
+}
+.lb-prev{left:20px;}
+.lb-next{right:20px;}
+.lb-prev:hover{background:rgba(255,255,255,.25);transform:translateY(-50%) scale(1.08);}
+.lb-next:hover{background:rgba(255,255,255,.25);transform:translateY(-50%) scale(1.08);}
+.lb-content{
+  display:flex;flex-direction:column;align-items:center;
+  max-width:90vw;max-height:90vh;
+  animation:lbContentIn .22s .04s ease both;
+}
+@keyframes lbContentIn{from{opacity:0;transform:scale(.97);}to{opacity:1;transform:scale(1);}}
+#lb-img{
+  max-width:100%;max-height:70vh;object-fit:contain;
+  border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,.5);
+  transition:opacity .3s;
+}
+.lb-info{margin-top:16px;text-align:center;color:#fff;}
+.lb-title{font-size:15px;font-weight:700;margin-bottom:8px;}
+.lb-source{font-size:11px;color:rgba(255,255,255,.5);}
+.lb-actions{display:flex;gap:8px;margin-top:14px;justify-content:center;flex-wrap:wrap;}
+.lb-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:9px 18px;border-radius:10px;font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;cursor:pointer;border:none;
+  transition:.2s;font-family:'Inter',sans-serif;
+}
+.lb-btn.primary{background:#fff;color:#111;}
+.lb-btn.primary:hover{opacity:.9;transform:translateY(-1px);}
+.lb-btn.secondary{background:rgba(255,255,255,.12);color:#fff;}
+.lb-btn.secondary:hover{background:rgba(255,255,255,.22);transform:translateY(-1px);}
+.lb-btn svg{width:14px;height:14px;}
+
+/* TOAST */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--accent);color:var(--accent-inv);
+  padding:10px 20px;border-radius:10px;font-size:12px;font-weight:700;
+  z-index:9999;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* Skeleton */
+.img-skeleton{border-radius:14px;overflow:hidden;background:var(--select-bg);border:1px solid var(--border);}
+.img-skeleton-thumb{width:100%;aspect-ratio:4/3;background:linear-gradient(90deg,var(--select-bg) 25%,var(--border2) 50%,var(--select-bg) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
+.img-skeleton-line{height:10px;border-radius:4px;background:linear-gradient(90deg,var(--select-bg) 25%,var(--border2) 50%,var(--select-bg) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;margin:10px 12px 4px;}
+.img-skeleton-line.short{width:60%;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* Load more */
+#load-more-btn{
+  display:none;margin:24px auto;
+  padding:12px 28px;border-radius:12px;font-size:12px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;cursor:pointer;
+  border:1.5px solid var(--border2);background:none;color:var(--text);
+  transition:.2s;font-family:'Inter',sans-serif;
+}
+#load-more-btn:hover{background:var(--select-bg);transform:translateY(-1px);}
+
+/* Similar tags */
+.similar-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;justify-content:center;}
+.similar-tag{
+  padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.05em;cursor:pointer;
+  background:var(--select-bg);color:#888;border:1px solid var(--border2);
+  transition:.18s;
+}
+.similar-tag:hover{background:var(--border2);color:var(--text);transform:translateY(-1px);}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+@media(max-width:600px){
+  #hero h2{font-size:28px;}
+  #gallery-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+  #header{padding:0 14px;}
+  #hero{padding:32px 14px 24px;}
+  .header-logo-sub{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- FIREBASE wikimindata -->
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js';
+import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,GoogleAuthProvider,signInWithPopup}from'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
+import{getDatabase,ref,get}from'https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js';
+const app=initializeApp({
+  apiKey:"AIzaSyAjtTCLwbhWJtfLrPhm7UwICaHEb5OBoJI",
+  authDomain:"wikimindata.firebaseapp.com",
+  projectId:"wikimindata",
+  storageBucket:"wikimindata.firebasestorage.app",
+  messagingSenderId:"520734288721",
+  appId:"1:520734288721:web:12035317283a91396d4170",
+  databaseURL:"https://wikimindata-default-rtdb.firebaseio.com"
+});
+const auth=getAuth(app);const db=getDatabase(app);
+window._fb={auth,db,ref,get,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut,GoogleAuthProvider,signInWithPopup};
+onAuthStateChanged(auth,async user=>{
+  if(user){
+    try{
+      const snap=await get(ref(db,`users/${user.uid}`));
+      const d=snap.exists()?snap.val():{};
+      const plan=d.FORFAIT??d.plan??2;
+      const name=d.name||user.displayName||user.email||'Utilisateur';
+      const photoURL=d.photoURL||user.photoURL||null;
+      bootUser({uid:user.uid,displayName:name,photoURL,plan,isGuest:false});
+    }catch(e){bootUser({uid:user.uid,displayName:user.displayName||'Utilisateur',photoURL:user.photoURL,plan:2,isGuest:false});}
+  } else {
+    bootUser({uid:'guest',displayName:'Invité',photoURL:null,plan:1,isGuest:true});
+  }
+});
+</script>
+
+<!-- HEADER -->
+<div id="header">
+  <!-- Logo Wikimind → retour #apps -->
+  <a class="header-logo" href="https://wikimindai.github.io/Wikimind/#apps" title="Retour aux apps Wikimind">
+    <img src="../wikimind.png" alt="Wikimind">
+    <div class="header-logo-text">
+      <h1>WikiMind</h1>
+      <span class="header-logo-sub">Galerie</span>
+    </div>
+  </a>
+
+  <div class="header-sep"></div>
+
+  <!-- Dark mode -->
+  <button class="header-btn" onclick="toggleDark()" title="Mode sombre">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+  </button>
+
+  <!-- Apps -->
+  <a href="https://wikimindai.github.io/Wikimind/#apps" class="header-btn" title="Toutes les apps">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Apps
+  </a>
+
+  <!-- User -->
+  <div style="display:flex;align-items:center;gap:8px" id="user-area">
+    <div class="plan-chip-avatar ring-free" id="user-avatar">
+      <span id="user-initial">?</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <span style="font-size:12px;font-weight:700;line-height:1" id="user-name">Chargement…</span>
+      <span class="plan-badge plan-free" id="user-plan">Free</span>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div id="hero">
+  <h2>Galerie Wikimind</h2>
+  <p>Recherche d'images IA — toutes sources libres agrégées</p>
+
+  <div class="sources-row">
+    <span class="src-pill">🌐 Wikimedia Commons</span>
+    <span class="src-pill">🎨 Openverse CC</span>
+    <span class="src-pill">🚀 NASA</span>
+    <span class="src-pill">📷 Pixabay</span>
+    <span class="src-pill">💚 Pexels</span>
+  </div>
+
+  <div class="search-box">
+    <div class="search-top">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#bbb;flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search-input" placeholder="Ex : tour Eiffel, panda géant, aurore boréale…" onkeydown="if(event.key==='Enter')doSearch()">
+      <button id="search-btn" onclick="doSearch()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Chercher
+      </button>
+    </div>
+    <div class="search-footer">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#bbb">Mode :</span>
+      <button class="search-chip active" id="chip-text" onclick="switchMode('text')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Texte
+      </button>
+      <button class="search-chip" id="chip-image" onclick="switchMode('image')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Par image
+      </button>
+      <button class="search-chip" id="chip-ai" onclick="switchMode('ai')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        IA naturel
+      </button>
+    </div>
+
+    <!-- IMAGE UPLOAD TAB -->
+    <div id="img-search-tab">
+      <div class="img-drop-area" id="img-drop-area"
+           onclick="document.getElementById('img-file-input').click()"
+           ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 8px;display:block;opacity:.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <div style="font-size:13px;font-weight:600">Glissez une image ici ou cliquez</div>
+        <div style="font-size:10px;color:#bbb;margin-top:4px">PNG, JPG, WEBP · Analyse IA → mots-clés → recherche multi-sources</div>
+      </div>
+      <div id="img-preview-wrap">
+        <img id="img-preview" src="" alt="Aperçu">
+        <div style="font-size:11px;color:#888;margin-top:6px" id="img-preview-name"></div>
+        <button style="margin-top:8px;padding:8px 16px;border-radius:8px;border:none;background:var(--accent);color:var(--accent-inv);font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;font-family:Inter,sans-serif" onclick="doImageSearch()">🔍 Chercher similaires</button>
+        <button style="margin-top:8px;margin-left:8px;padding:8px 16px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text);font-size:11px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif" onclick="clearImageSearch()">Effacer</button>
+      </div>
+      <input type="file" id="img-file-input" accept="image/*" style="display:none" onchange="onImageFileSelected(event)">
+    </div>
+  </div>
+
+  <!-- Quick tags -->
+  <div class="similar-tags" id="quick-tags" style="margin-top:16px">
+    <span class="similar-tag" onclick="quickSearch('architecture')">Architecture</span>
+    <span class="similar-tag" onclick="quickSearch('nature landscape')">Nature</span>
+    <span class="similar-tag" onclick="quickSearch('astronomy nebula galaxy')">Astronomie</span>
+    <span class="similar-tag" onclick="quickSearch('wildlife animal')">Animaux</span>
+    <span class="similar-tag" onclick="quickSearch('portrait photography')">Portraits</span>
+    <span class="similar-tag" onclick="quickSearch('ocean sea waves')">Océan</span>
+    <span class="similar-tag" onclick="quickSearch('mountains snow alps')">Montagnes</span>
+    <span class="similar-tag" onclick="quickSearch('city urban skyline')">Villes</span>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div id="filters-bar" style="display:none">
+  <button class="filter-btn active" id="filter-all" onclick="filterResults('all')">Tout</button>
+  <button class="filter-btn" id="filter-jpg" onclick="filterResults('jpg')">Photos</button>
+  <button class="filter-btn" id="filter-png" onclick="filterResults('png')">PNG</button>
+  <button class="filter-btn" id="filter-svg" onclick="filterResults('svg')">SVG</button>
+  <button class="filter-btn" id="filter-gif" onclick="filterResults('gif')">GIF</button>
+  <span class="results-count" id="results-count">0 résultats</span>
+</div>
+
+<!-- GALLERY -->
+<div id="gallery-section">
+  <div id="gallery-status">
+    <span class="status-icon">🖼️</span>
+    <div style="font-size:16px;font-weight:700;margin-bottom:6px">Galerie Wikimind</div>
+    <div style="font-size:13px;color:#bbb">Recherche multi-sources : Wikimedia Commons · Openverse · NASA · Pixabay · Pexels</div>
+    <div style="margin-top:16px;font-size:11px;color:#bbb">Images libres de droits · Toutes licences CC</div>
+  </div>
+  <div id="gallery-grid"></div>
+  <div style="text-align:center">
+    <button id="load-more-btn" onclick="loadMore()">Charger plus</button>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <button class="lb-prev" onclick="event.stopPropagation();navLightbox(-1)">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <button class="lb-next" onclick="event.stopPropagation();navLightbox(1)">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+  <div class="lb-content" onclick="event.stopPropagation()">
+    <img id="lb-img" src="" alt="">
+    <div class="lb-info">
+      <div class="lb-title" id="lb-title"></div>
+      <div class="lb-source" id="lb-source"></div>
+    </div>
+    <div class="lb-actions">
+      <button class="lb-btn primary" onclick="downloadImage()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Télécharger
+      </button>
+      <button class="lb-btn secondary" onclick="copyImageUrl()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        Copier URL
+      </button>
+      <a class="lb-btn secondary" id="lb-wiki-link" href="#" target="_blank" style="display:flex">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Voir source
+      </a>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const MISTRAL_KEY = 'SIf4f6UfrvZYKRTBcgcwvLq1Xi8888k9';
+const PIXABAY_KEY = '49879225-65aba84af1bfcf59fcb1d3d58';
+const G = id => document.getElementById(id);
+
+let allImages = [], filteredImages = [];
+let currentPage = 0;
+const PAGE_SIZE = 24;
+let lbIndex = 0, currentMode = 'text', uploadedImageData = null;
+
+// DARK MODE
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  localStorage.setItem('wm_dark', document.body.classList.contains('dark')?'1':'0');
+}
+if(localStorage.getItem('wm_dark')==='1') document.body.classList.add('dark');
+
+// USER BOOT
+function bootUser(user){
+  const nm = user.displayName||'Invité';
+  G('user-initial').textContent = nm.charAt(0).toUpperCase();
+  G('user-name').textContent = nm;
+  const PM = {1:['Free','plan-free'],2:['AI Plus','plan-plus'],3:['AI Pro','plan-pro'],4:['AI Premium','plan-premium'],5:['AI Premium+','plan-premium-plus']};
+  const [pn,pc] = PM[user.plan]||PM[1];
+  G('user-plan').textContent = pn;
+  G('user-plan').className = 'plan-badge '+pc;
+  const rc = {1:'ring-free',2:'ring-plus',3:'ring-pro',4:'ring-premium',5:'ring-premium-plus'}[user.plan]||'ring-free';
+  const av = G('user-avatar');
+  av.className = 'plan-chip-avatar '+rc;
+  av.innerHTML = user.photoURL
+    ? `<img src="${user.photoURL}" alt="${nm}" onerror="this.parentElement.innerHTML='<span>${nm.charAt(0).toUpperCase()}</span>'">`
+    : `<span>${nm.charAt(0).toUpperCase()}</span>`;
+}
+
+// MODE
+function switchMode(mode){
+  currentMode = mode;
+  ['text','image','ai'].forEach(m => G('chip-'+m).classList.toggle('active', m===mode));
+  const tab = G('img-search-tab'), inp = G('search-input');
+  if(mode==='image'){ tab.classList.add('show'); inp.placeholder='Ou entrez un mot-clé pour affiner…'; }
+  else { tab.classList.remove('show'); inp.placeholder = mode==='ai' ? 'Décrivez ce que vous cherchez…' : 'Ex : tour Eiffel, panda géant, aurore boréale…'; }
+}
+
+// MISTRAL
+async function callMistral(messages, max=100){
+  const r = await fetch('https://api.mistral.ai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+MISTRAL_KEY},
+    body:JSON.stringify({model:'mistral-small-latest',messages,max_tokens:max,temperature:0.4})
+  });
+  if(!r.ok) throw new Error('Mistral '+r.status);
+  const d = await r.json();
+  return d.choices?.[0]?.message?.content||'';
+}
+
+// BUILD QUERY VARIANTS (core improvement: multiple phrasings for better recall)
+async function buildQueryVariants(raw, mode){
+  try{
+    const p = mode==='ai'
+      ? `You are a search expert for open image databases. For this query, produce 4 distinct English keyword variants (synonyms, related terms, different phrasings) that would find visually matching images. Reply ONLY with the 4 variants separated by | no other text. Query: ${raw}`
+      : `Translate to English, then produce 3 keyword variants/synonyms for image search on Wikimedia Commons and Openverse. Reply ONLY with 3 variants separated by |. Term: ${raw}`;
+    const res = await callMistral([{role:'user',content:p}], 100);
+    const parts = res.split('|').map(s=>s.trim()).filter(s=>s.length>1&&s.length<80);
+    return parts.length>0 ? parts : [raw];
+  }catch(e){ return [raw]; }
+}
+
+// MAIN SEARCH
+async function doSearch(){
+  const raw = G('search-input').value.trim();
+  if(!raw && currentMode!=='image'){toast('Entrez un terme de recherche');return;}
+  if(currentMode==='image'){doImageSearch();return;}
+  const btn = G('search-btn');
+  btn.disabled=true;
+  btn.innerHTML='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation:spin .8s linear infinite"><circle cx="12" cy="12" r="10" stroke-dasharray="30 50"/></svg> IA…';
+  try{
+    toast('🤖 Optimisation multi-sources…');
+    const variants = await buildQueryVariants(raw, currentMode);
+    await searchAllProviders(variants[0], variants, raw);
+    if(raw) generateSuggestions(raw);
+  }catch(e){
+    await searchAllProviders(raw,[raw],raw);
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> Chercher';
+  }
+}
+
+// MULTI-PROVIDER ORCHESTRATOR
+async function searchAllProviders(primaryQuery, variants, originalQuery){
+  showSkeletons();
+  G('filters-bar').style.display='none';
+
+  const [wm, ov, ns, px] = await Promise.allSettled([
+    searchWikimedia(primaryQuery, variants),
+    searchOpenverse(primaryQuery, variants),
+    searchNASA(primaryQuery),
+    searchPixabay(primaryQuery, variants),
+  ]);
+
+  let images = [];
+  [wm,ov,ns,px].forEach(r=>{ if(r.status==='fulfilled'&&r.value?.length) images=images.concat(r.value); });
+
+  // Deduplicate by URL
+  const seen = new Set();
+  images = images.filter(img=>{ if(seen.has(img.fullUrl)) return false; seen.add(img.fullUrl); return true; });
+
+  // Relevance sort: keyword overlap with original query
+  const kw = (originalQuery||primaryQuery).toLowerCase().split(/\s+/).filter(k=>k.length>2);
+  images.sort((a,b)=>{
+    const sa = kw.filter(k=>(a.title+' '+a.desc).toLowerCase().includes(k)).length;
+    const sb = kw.filter(k=>(b.title+' '+b.desc).toLowerCase().includes(k)).length;
+    return sb-sa;
+  });
+
+  allImages = images;
+  filteredImages = [...images];
+  currentPage = 0;
+
+  if(!images.length){
+    G('gallery-status').innerHTML=`<span class="status-icon">🔍</span><div style="font-size:15px;font-weight:700;margin-bottom:6px">Aucun résultat pour "${esc(originalQuery||primaryQuery)}"</div><div style="font-size:13px;color:#bbb">Essayez un autre terme, ou reformulez.</div>`;
+    G('gallery-status').style.display='block';
+    G('gallery-grid').innerHTML='';
+    return;
+  }
+  G('gallery-status').style.display='none';
+  G('filters-bar').style.display='flex';
+  G('results-count').textContent=`${images.length} résultats`;
+  renderGallery(true);
+}
+
+// WIKIMEDIA COMMONS
+async function searchWikimedia(query, variants=[]){
+  const qs = [query,...variants].slice(0,3);
+  let pages={};
+  for(const q of qs){
+    try{
+      const url=`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(q)}&gsrlimit=40&prop=imageinfo&iiprop=url|size|extmetadata|mime&iiurlwidth=400&format=json&origin=*`;
+      const r=await fetch(url,{signal:AbortSignal.timeout(10000)});
+      const d=await r.json();
+      Object.assign(pages,d?.query?.pages||{});
+    }catch(e){}
+  }
+  return Object.values(pages).map(p=>{
+    const ii=p.imageinfo?.[0];
+    if(!ii) return null;
+    const ext=(ii.url||'').split('.').pop().toLowerCase().split('?')[0];
+    if(!['jpg','jpeg','png','gif','svg','webp'].includes(ext)) return null;
+    return {
+      url:ii.thumburl||ii.url, fullUrl:ii.url,
+      desc:ii.extmetadata?.ImageDescription?.value?.replace(/<[^>]*>/g,'').trim()||'',
+      title:(p.title||'').replace('File:',''),
+      ext, mime:ii.mime||'',
+      author:ii.extmetadata?.Artist?.value?.replace(/<[^>]*>/g,'').substring(0,50)||'Wikimedia',
+      license:ii.extmetadata?.LicenseShortName?.value||'CC',
+      wikiPage:`https://commons.wikimedia.org/wiki/${encodeURIComponent(p.title||'')}`,
+      source:'wikimedia'
+    };
+  }).filter(Boolean);
+}
+
+// OPENVERSE (WordPress Foundation, open CC images)
+async function searchOpenverse(query, variants=[]){
+  const qs=[query,...variants].slice(0,2);
+  let imgs=[];
+  for(const q of qs){
+    try{
+      const url=`https://api.openverse.org/v1/images/?q=${encodeURIComponent(q)}&page_size=30&license_type=commercial,modification&format=json`;
+      const r=await fetch(url,{signal:AbortSignal.timeout(10000)});
+      if(!r.ok) continue;
+      const d=await r.json();
+      const batch=(d.results||[]).map(img=>{
+        const ext=(img.url||'').split('.').pop().toLowerCase().split('?')[0]||'jpg';
+        const safeExt=['jpg','jpeg','png','gif','svg','webp'].includes(ext)?ext:'jpg';
+        return {
+          url:img.thumbnail||img.url, fullUrl:img.url,
+          desc:img.title||'',
+          title:img.title||'Openverse image',
+          ext:safeExt, mime:'image/'+safeExt,
+          author:img.creator||'Openverse',
+          license:img.license?(img.license.toUpperCase()+(img.license_version?' '+img.license_version:'')):('CC'),
+          wikiPage:img.foreign_landing_url||img.url,
+          source:'openverse'
+        };
+      });
+      imgs=imgs.concat(batch);
+    }catch(e){}
+  }
+  return imgs;
+}
+
+// NASA Images (public domain)
+async function searchNASA(query){
+  try{
+    const url=`https://images-api.nasa.gov/search?q=${encodeURIComponent(query)}&media_type=image&page_size=20`;
+    const r=await fetch(url,{signal:AbortSignal.timeout(10000)});
+    if(!r.ok) return [];
+    const d=await r.json();
+    const items=d.collection?.items||[];
+    return items.slice(0,20).map(item=>{
+      const link=(item.links||[]).find(l=>l.rel==='preview');
+      if(!link) return null;
+      const meta=item.data?.[0]||{};
+      return {
+        url:link.href, fullUrl:link.href,
+        desc:meta.description||'',
+        title:meta.title||'NASA image',
+        ext:'jpg', mime:'image/jpeg',
+        author:meta.photographer||'NASA',
+        license:'Public Domain',
+        wikiPage:`https://images.nasa.gov/details/${meta.nasa_id||''}`,
+        source:'nasa'
+      };
+    }).filter(Boolean);
+  }catch(e){return [];}
+}
+
+// PIXABAY (free API, royalty-free)
+async function searchPixabay(query, variants=[]){
+  const qs=[query,...variants].slice(0,2);
+  let imgs=[];
+  for(const q of qs){
+    try{
+      const url=`https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${encodeURIComponent(q)}&image_type=photo&per_page=30&safesearch=true`;
+      const r=await fetch(url,{signal:AbortSignal.timeout(8000)});
+      if(!r.ok) continue;
+      const d=await r.json();
+      const batch=(d.hits||[]).map(img=>({
+        url:img.webformatURL, fullUrl:img.largeImageURL||img.webformatURL,
+        desc:img.tags||'',
+        title:(img.tags||'Pixabay').split(',')[0].trim(),
+        ext:'jpg', mime:'image/jpeg',
+        author:img.user||'Pixabay',
+        license:'Pixabay License',
+        wikiPage:img.pageURL||'https://pixabay.com',
+        source:'pixabay'
+      }));
+      imgs=imgs.concat(batch);
+    }catch(e){}
+  }
+  return imgs;
+}
+
+// UTILS
+function quickSearch(term){ G('search-input').value=term; doSearch(); }
+function showSkeletons(){
+  G('gallery-status').style.display='none';
+  G('gallery-grid').innerHTML=Array(16).fill(0).map(()=>`<div class="img-skeleton"><div class="img-skeleton-thumb"></div><div class="img-skeleton-line"></div><div class="img-skeleton-line short"></div></div>`).join('');
+  G('load-more-btn').style.display='none';
+}
+
+// FILTERS
+function filterResults(type){
+  ['all','jpg','png','svg','gif'].forEach(t=>G('filter-'+t)?.classList.toggle('active',t===type));
+  const extMap={jpg:['jpg','jpeg'],png:['png'],svg:['svg'],gif:['gif']};
+  filteredImages = type==='all' ? [...allImages] : allImages.filter(img=>(extMap[type]||[type]).includes(img.ext));
+  G('results-count').textContent=`${filteredImages.length} résultats`;
+  renderGallery(true);
+}
+
+// SOURCE STYLES
+const SRC={
+  wikimedia:{label:'Commons',cls:'src-wikimedia'},
+  openverse:{label:'Openverse',cls:'src-openverse'},
+  nasa:{label:'NASA',cls:'src-nasa'},
+  pixabay:{label:'Pixabay',cls:'src-pixabay'},
+  pexels:{label:'Pexels',cls:'src-pexels'},
+};
+
+// RENDER
+function renderGallery(reset=false){
+  const grid=G('gallery-grid');
+  if(reset){grid.innerHTML='';currentPage=0;}
+  const start=currentPage*PAGE_SIZE, end=start+PAGE_SIZE;
+  const batch=filteredImages.slice(start,end);
+  batch.forEach((img,i)=>{
+    const card=document.createElement('div');
+    card.className='img-card';
+    card.style.animationDelay=(i*20)+'ms';
+    const s=SRC[img.source]||{label:'Image',cls:''};
+    card.innerHTML=`
+      <div class="img-card-thumb-wrap">
+        <img class="img-card-thumb" src="${esc(img.url)}" alt="${esc(img.title)}" loading="lazy" onerror="this.closest('.img-card').style.display='none'">
+      </div>
+      <span class="img-src-badge ${s.cls}">${s.label}</span>
+      <div class="img-card-info">
+        <div class="img-card-title">${esc(img.title.substring(0,60))}</div>
+        <div class="img-card-meta">
+          <span class="plan-badge" style="background:var(--select-bg);color:#888;font-size:8px">${img.ext.toUpperCase()}</span>
+          <span>${esc(img.license)}</span>
+        </div>
+      </div>
+      <div class="img-card-actions">
+        <button class="img-action-btn" onclick="event.stopPropagation();downloadImgCard('${esc(img.fullUrl)}','${esc(img.title)}')" title="Télécharger">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </button>
+        <button class="img-action-btn" onclick="event.stopPropagation();copyUrl('${esc(img.fullUrl)}')" title="Copier URL">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        </button>
+      </div>`;
+    card.onclick=()=>openLightbox(allImages.indexOf(img));
+    grid.appendChild(card);
+  });
+  currentPage++;
+  G('load-more-btn').style.display=(end<filteredImages.length)?'block':'none';
+}
+function loadMore(){ renderGallery(false); }
+
+// LIGHTBOX
+function openLightbox(idx){
+  lbIndex=idx;
+  const img=allImages[idx];
+  if(!img) return;
+  const lbImg=G('lb-img');
+  lbImg.style.opacity='0';
+  lbImg.src=img.fullUrl;
+  lbImg.onload=()=>{lbImg.style.opacity='1';};
+  G('lb-title').textContent=img.title.substring(0,80);
+  const s=SRC[img.source]||{};
+  G('lb-source').textContent=`${img.author} · ${img.license} · ${s.label||img.source||''}`;
+  G('lb-wiki-link').href=img.wikiPage;
+  window._lbCurrentImg=img;
+  G('lightbox').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeLightbox(){ G('lightbox').classList.remove('show'); document.body.style.overflow=''; }
+function navLightbox(dir){ lbIndex=(lbIndex+dir+allImages.length)%allImages.length; openLightbox(lbIndex); }
+function downloadImage(){ const img=window._lbCurrentImg; if(img) downloadImgCard(img.fullUrl,img.title); }
+function copyImageUrl(){ const img=window._lbCurrentImg; if(img) copyUrl(img.fullUrl); }
+
+// DOWNLOAD
+async function downloadImgCard(url,name){
+  try{
+    toast('⏳ Téléchargement…');
+    const r=await fetch(url,{mode:'cors'});
+    if(!r.ok) throw new Error();
+    const blob=await r.blob();
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=(name||'wikimind').replace(/[<>:"/\\|?*]/g,'_')+'.'+(url.split('.').pop().split('?')[0]||'jpg');
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('✓ Image téléchargée !');
+  }catch(e){ window.open(url,'_blank'); toast('Image ouverte dans un nouvel onglet'); }
+}
+function copyUrl(url){ navigator.clipboard.writeText(url).then(()=>toast('✓ URL copiée !')).catch(()=>toast('URL: '+url)); }
+
+// IMAGE SEARCH
+function onImageFileSelected(e){ const f=e.target.files[0]; if(f) processImageFile(f); }
+function onDragOver(e){ e.preventDefault(); G('img-drop-area').classList.add('dragging'); }
+function onDragLeave(){ G('img-drop-area').classList.remove('dragging'); }
+function onDrop(e){
+  e.preventDefault(); G('img-drop-area').classList.remove('dragging');
+  const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/')) processImageFile(f);
+}
+function processImageFile(file){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    uploadedImageData=e.target.result;
+    const drop=G('img-drop-area');
+    drop.classList.add('has-image'); drop.innerHTML='';
+    G('img-preview').src=uploadedImageData;
+    G('img-preview-name').textContent=file.name;
+    G('img-preview-wrap').style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+function clearImageSearch(){
+  uploadedImageData=null;
+  G('img-drop-area').classList.remove('has-image');
+  G('img-drop-area').innerHTML=`<svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 8px;display:block;opacity:.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><div style="font-size:13px;font-weight:600">Glissez une image ici ou cliquez</div><div style="font-size:10px;color:#bbb;margin-top:4px">PNG, JPG, WEBP · Analyse IA → mots-clés → recherche multi-sources</div>`;
+  G('img-preview-wrap').style.display='none';
+}
+async function doImageSearch(){
+  if(!uploadedImageData){toast('Importez d\'abord une image');return;}
+  toast('🤖 Analyse visuelle IA…');
+  try{
+    const r=await fetch('https://api.mistral.ai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+MISTRAL_KEY},
+      body:JSON.stringify({
+        model:'pixtral-12b-2409',
+        messages:[{role:'user',content:[
+          {type:'image_url',image_url:{url:uploadedImageData}},
+          {type:'text',text:'Analyze this image. Return 5-6 precise English keywords (subject, style, composition, colors, setting) for finding similar images in open databases. Reply ONLY with space-separated keywords.'}
+        ]}],
+        max_tokens:60
+      })
+    });
+    let kw='';
+    if(r.ok){ const d=await r.json(); kw=d.choices?.[0]?.message?.content?.trim()||''; }
+    if(!kw) kw=G('search-input').value.trim()||'photography landscape';
+    toast(`🔍 "${kw}"`);
+    G('search-input').value=kw;
+    const variants=await buildQueryVariants(kw,'text');
+    await searchAllProviders(kw,variants,kw);
+  }catch(e){
+    const fb=G('search-input').value.trim()||'photograph';
+    await searchAllProviders(fb,[fb],fb);
+  }
+}
+
+// AI SUGGESTIONS
+async function generateSuggestions(query){
+  try{
+    const s=await callMistral([
+      {role:'system',content:'Génère 8 termes de recherche connexes en français courts (1-2 mots max) pour une galerie d\'images. Réponds UNIQUEMENT avec les termes séparés par virgules, sans ponctuation supplémentaire.'},
+      {role:'user',content:query}
+    ],90);
+    const tags=s.split(',').map(t=>t.trim()).filter(t=>t.length>1&&t.length<28).slice(0,8);
+    if(tags.length>0) G('quick-tags').innerHTML=tags.map(t=>`<span class="similar-tag" onclick="quickSearch('${esc(t)}')">${esc(t)}</span>`).join('');
+  }catch(e){}
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg){
+  const t=G('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+document.addEventListener('keydown',e=>{
+  if(G('lightbox').classList.contains('show')){
+    if(e.key==='Escape') closeLightbox();
+    if(e.key==='ArrowLeft') navLightbox(-1);
+    if(e.key==='ArrowRight') navLightbox(1);
+  }
+  if(e.key==='Enter'&&document.activeElement===G('search-input')) doSearch();
+});
+</script>
+</body>
+</html>
