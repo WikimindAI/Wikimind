@@ -13,6 +13,7 @@
   <!-- Librairies séparées sans conflit -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -276,7 +277,7 @@
 
       <!-- Étape 2 : recadrage de l'image choisie -->
       <div class="crop-area" id="crop-area">
-        <p class="crop-hint">Ajustez le cadre autour du QR Code pour améliorer la lecture, puis validez.</p>
+        <p class="crop-hint" id="crop-hint">Ajustez le cadre autour du QR Code pour améliorer la lecture, puis validez.</p>
         <div class="crop-stage" id="crop-stage">
           <img id="crop-img" alt="Image à recadrer">
           <div class="crop-box" id="crop-box">
@@ -468,7 +469,7 @@
       const img = document.getElementById('crop-img');
       img.onload = () => {
         cropImgNatural = { w: img.naturalWidth, h: img.naturalHeight };
-        initCropBox();
+        initCropBox(img);
       };
       img.src = e.target.result;
     };
@@ -478,18 +479,78 @@
     cropArea.classList.add('active');
   }
 
-  function initCropBox() {
+  // Détecte automatiquement la zone du QR Code dans l'image via jsQR, en
+  // analysant les pixels réels (pas juste le texte) pour trouver les 4
+  // coins du motif. Retourne {x,y,w,h} en pixels image, ou null si rien trouvé.
+  function detectQrBoundingBox(img) {
+    try {
+      const analysisCanvas = document.createElement('canvas');
+      // jsQR travaille mieux sur une résolution raisonnable, on plafonne pour la vitesse
+      const scale = Math.min(1, 900 / Math.max(img.naturalWidth, img.naturalHeight));
+      analysisCanvas.width = Math.round(img.naturalWidth * scale);
+      analysisCanvas.height = Math.round(img.naturalHeight * scale);
+      const actx = analysisCanvas.getContext('2d', { willReadFrequently: true });
+      actx.drawImage(img, 0, 0, analysisCanvas.width, analysisCanvas.height);
+      const imageData = actx.getImageData(0, 0, analysisCanvas.width, analysisCanvas.height);
+      const code = window.jsQR ? window.jsQR(imageData.data, analysisCanvas.width, analysisCanvas.height) : null;
+      if (!code) return null;
+
+      const pts = [code.location.topLeftCorner, code.location.topRightCorner, code.location.bottomLeftCorner, code.location.bottomRightCorner];
+      const xs = pts.map(p => p.x / scale);
+      const ys = pts.map(p => p.y / scale);
+      const minX = Math.min(...xs), maxX = Math.max(...xs);
+      const minY = Math.min(...ys), maxY = Math.max(...ys);
+      return { x: minX, y: minY, w: maxX - minX, h: maxY - minY, text: code.data };
+    } catch (e) {
+      console.warn('Détection auto QR impossible', e);
+      return null;
+    }
+  }
+
+  function initCropBox(imgEl) {
     const stage = document.getElementById('crop-stage');
+    const hint = document.getElementById('crop-hint');
     // Laisse le navigateur poser la taille rendue de l'image avant de mesurer
     requestAnimationFrame(() => {
       const rect = stage.getBoundingClientRect();
-      const size = Math.min(rect.width, rect.height) * 0.7 || rect.width * 0.7;
-      cropState = {
-        x: (rect.width - size) / 2,
-        y: (rect.height - size) / 2,
-        w: size,
-        h: size
-      };
+      const auto = imgEl ? detectQrBoundingBox(imgEl) : null;
+
+      if (auto) {
+        // Conversion des coordonnées image -> coordonnées écran affichées,
+        // avec une marge de 18% autour du motif détecté pour rester tolérant
+        // si le décodeur final a besoin d'un peu de contexte autour.
+        const imgRect = imgEl.getBoundingClientRect();
+        const scaleX = imgRect.width / cropImgNatural.w;
+        const scaleY = imgRect.height / cropImgNatural.h;
+        const offsetX = imgRect.left - rect.left;
+        const offsetY = imgRect.top - rect.top;
+
+        const margin = 0.18;
+        const mw = auto.w * margin, mh = auto.h * margin;
+        const sx = (auto.x - mw) * scaleX + offsetX;
+        const sy = (auto.y - mh) * scaleY + offsetY;
+        const sw = (auto.w + mw * 2) * scaleX;
+        const sh = (auto.h + mh * 2) * scaleY;
+        // Cadre carré centré sur la zone détectée, basé sur la plus grande dimension
+        const size = Math.max(sw, sh);
+        cropState = {
+          x: sx - (size - sw) / 2,
+          y: sy - (size - sh) / 2,
+          w: size,
+          h: size
+        };
+        clampCropState();
+        hint.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" style="color:#a78bfa"></i> QR Code détecté automatiquement — ajustez si besoin, puis validez.';
+      } else {
+        const size = Math.min(rect.width, rect.height) * 0.7 || rect.width * 0.7;
+        cropState = {
+          x: (rect.width - size) / 2,
+          y: (rect.height - size) / 2,
+          w: size,
+          h: size
+        };
+        hint.textContent = "Aucune détection automatique — ajustez le cadre autour du QR Code, puis validez.";
+      }
       renderCropBox();
     });
   }
