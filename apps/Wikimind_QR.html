@@ -152,6 +152,37 @@
     .scan-result-text { font-size: 15px; color: #fff; word-break: break-all; line-height: 1.5; font-family: monospace; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; }
     .scan-actions { display: flex; gap: 10px; }
 
+    /* SOURCE PICKER (photo vs fichier) */
+    .source-picker { display: flex; flex-direction: column; gap: 12px; }
+    .source-picker.hidden { display: none; }
+    .source-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 480px) { .source-options { grid-template-columns: 1fr; } }
+    .source-option { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 28px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; cursor: pointer; transition: all .2s; text-align: center; }
+    .source-option:hover { background: rgba(255,255,255,0.07); border-color: var(--border-h); transform: translateY(-2px); }
+    .source-option-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.25); display: flex; align-items: center; justify-content: center; font-size: 18px; color: #a78bfa; }
+    .source-option-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .source-option-sub { font-size: 12px; color: var(--t3); line-height: 1.4; }
+
+    /* CROP MODAL */
+    .crop-area { display: none; flex-direction: column; gap: 16px; }
+    .crop-area.active { display: flex; }
+    .crop-stage { position: relative; width: 100%; max-width: 440px; margin: 0 auto; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--border); touch-action: none; user-select: none; }
+    .crop-stage img { display: block; width: 100%; height: auto; max-height: 60vh; object-fit: contain; pointer-events: none; }
+    .crop-box { position: absolute; border: 2px solid #fff; box-shadow: 0 0 0 9999px rgba(0,0,0,0.55); cursor: move; }
+    .crop-handle { position: absolute; width: 18px; height: 18px; background: #fff; border-radius: 50%; box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+    .crop-handle.nw { top: -9px; left: -9px; cursor: nwse-resize; }
+    .crop-handle.ne { top: -9px; right: -9px; cursor: nesw-resize; }
+    .crop-handle.sw { bottom: -9px; left: -9px; cursor: nesw-resize; }
+    .crop-handle.se { bottom: -9px; right: -9px; cursor: nwse-resize; }
+    .crop-hint { font-size: 12px; color: var(--t3); text-align: center; }
+    .crop-actions { display: flex; gap: 10px; }
+
+    /* RESULT REGEN */
+    .regen-block { margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .regen-canvas-wrapper { background: #fff; padding: 14px; border-radius: 14px; box-shadow: 0 8px 26px rgba(0,0,0,0.45); }
+    .regen-canvas-wrapper canvas { display: block; border-radius: 4px; max-width: 100%; max-height: 220px; }
+    .regen-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #a78bfa; display: flex; align-items: center; gap: 6px; }
+
   </style>
 </head>
 <body>
@@ -224,22 +255,45 @@
 
     <!-- SCANNER SECTION -->
     <div class="qr-scan-area" id="section-scan">
-      
-      <div class="scan-modes">
-        <button class="scan-mode-btn active" id="mode-cam-btn" onclick="setScanMode('cam')"><i class="fa-solid fa-camera"></i> Caméra</button>
-        <button class="scan-mode-btn" id="mode-file-btn" onclick="setScanMode('file')"><i class="fa-solid fa-image"></i> Fichier Image</button>
+
+      <!-- Étape 1 : choix de la source -->
+      <div class="source-picker" id="source-picker">
+        <div class="source-options">
+          <button class="source-option" id="opt-take-photo" type="button">
+            <div class="source-option-icon"><i class="fa-solid fa-camera"></i></div>
+            <div class="source-option-title">Prendre une photo</div>
+            <div class="source-option-sub">Ouvre l'appareil photo pour capturer le QR Code</div>
+          </button>
+          <button class="source-option" id="opt-import-image" type="button">
+            <div class="source-option-icon"><i class="fa-solid fa-image"></i></div>
+            <div class="source-option-title">Importer une image</div>
+            <div class="source-option-sub">Choisissez une photo déjà enregistrée</div>
+          </button>
+        </div>
+        <input type="file" id="qr-capture-input" accept="image/*" capture="environment" style="display:none">
+        <input type="file" id="qr-import-input" accept="image/*" style="display:none">
       </div>
 
-      <!-- Cam Reader -->
+      <!-- Étape 2 : recadrage de l'image choisie -->
+      <div class="crop-area" id="crop-area">
+        <p class="crop-hint">Ajustez le cadre autour du QR Code pour améliorer la lecture, puis validez.</p>
+        <div class="crop-stage" id="crop-stage">
+          <img id="crop-img" alt="Image à recadrer">
+          <div class="crop-box" id="crop-box">
+            <div class="crop-handle nw"></div>
+            <div class="crop-handle ne"></div>
+            <div class="crop-handle sw"></div>
+            <div class="crop-handle se"></div>
+          </div>
+        </div>
+        <div class="crop-actions">
+          <button class="btn-ghost" id="btn-crop-cancel" type="button"><i class="fa-solid fa-arrow-left"></i> Changer d'image</button>
+          <button class="btn-primary" id="btn-crop-confirm" type="button" style="margin-top:0"><i class="fa-solid fa-crop-simple"></i> Recadrer et scanner</button>
+        </div>
+      </div>
+
+      <!-- Caméra live (lancée seulement si l'utilisateur choisit explicitement ce mode) -->
       <div id="reader"></div>
-
-      <!-- File Reader -->
-      <div class="file-scan-wrapper" id="file-scanner-ui" style="display: none;">
-        <i class="fa-solid fa-cloud-arrow-up file-scan-icon"></i>
-        <p style="font-size: 14px; font-weight: 500; color: var(--t2);">Sélectionnez une image contenant un QR Code</p>
-        <input type="file" id="qr-upload-file" accept="image/*" style="display: none;" onchange="handleFileUpload(event)">
-        <button class="btn-ghost" onclick="document.getElementById('qr-upload-file').click()" style="max-width: 200px;">Parcourir...</button>
-      </div>
 
       <!-- Result -->
       <div class="scan-result-box" id="scan-result-box">
@@ -249,6 +303,14 @@
           <button class="btn-primary" style="flex:1; padding: 10px;" onclick="copyScanResult()"><i class="fa-regular fa-copy"></i> Copier</button>
           <button class="btn-ghost" style="flex:1; padding: 10px; display:none;" id="btn-open-link" onclick="openScanLink()"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ouvrir</button>
         </div>
+        <div class="regen-block">
+          <div class="regen-label"><i class="fa-solid fa-wand-magic-sparkles"></i> QR Code régénéré en haute qualité</div>
+          <div class="regen-canvas-wrapper">
+            <canvas id="regen-canvas"></canvas>
+          </div>
+          <button class="btn-ghost" id="btn-download-regen" style="max-width:280px"><i class="fa-solid fa-download"></i> Télécharger ce QR Code (PNG)</button>
+        </div>
+        <button class="btn-ghost" id="btn-scan-again" type="button"><i class="fa-solid fa-rotate-left"></i> Scanner un autre code</button>
       </div>
 
     </div>
@@ -313,20 +375,20 @@
   // Switch App Tabs (Gen / Scan)
   let html5QrCode = null;
   let isCameraStarting = false;
-  
+
   window.switchTool = async (mode) => {
     document.getElementById('tab-gen-btn').classList.toggle('active', mode === 'gen');
     document.getElementById('tab-scan-btn').classList.toggle('active', mode === 'scan');
-    
+
     document.getElementById('section-gen').style.display = mode === 'gen' ? 'flex' : 'none';
     const scanArea = document.getElementById('section-scan');
 
-    // Forcer l'arrêt de la caméra à chaque changement
+    // Forcer l'arrêt de la caméra live à chaque changement (sécurité, plus utilisée par défaut)
     await stopCamera();
 
     if (mode === 'scan') {
       scanArea.classList.add('active');
-      setScanMode('cam'); // Default to cam
+      resetScanFlow(); // Revient toujours sur le sélecteur de source, jamais sur la caméra directe
     } else {
       scanArea.classList.remove('active');
     }
@@ -367,31 +429,191 @@
     link.click();
   });
 
-  // --- SCANNER ---
-  window.setScanMode = async (mode) => {
-    document.getElementById('mode-cam-btn').classList.toggle('active', mode === 'cam');
-    document.getElementById('mode-file-btn').classList.toggle('active', mode === 'file');
-    
-    const reader = document.getElementById('reader');
-    const fileUi = document.getElementById('file-scanner-ui');
-    const resultBox = document.getElementById('scan-result-box');
-    
+  // ───────────────────────────────────────────────────────────
+  // SCANNER : sélecteur de source -> recadrage -> lecture -> régénération
+  // ───────────────────────────────────────────────────────────
+
+  const sourcePicker  = document.getElementById('source-picker');
+  const cropArea      = document.getElementById('crop-area');
+  const readerEl      = document.getElementById('reader');
+  const resultBox     = document.getElementById('scan-result-box');
+  const captureInput  = document.getElementById('qr-capture-input');
+  const importInput   = document.getElementById('qr-import-input');
+
+  function resetScanFlow() {
+    sourcePicker.classList.remove('hidden');
+    cropArea.classList.remove('active');
+    readerEl.style.display = 'none';
     resultBox.classList.remove('visible');
+    captureInput.value = '';
+    importInput.value = '';
+  }
 
-    // On s'assure d'arrêter systématiquement la caméra existante 
-    // pour éviter l'erreur "ongoing camera scan"
-    await stopCamera();
+  // Étape 1 : choix de la source. Aucun appel caméra/permission tant que
+  // l'utilisateur n'a pas explicitement cliqué sur une des deux options.
+  document.getElementById('opt-take-photo').addEventListener('click', () => captureInput.click());
+  document.getElementById('opt-import-image').addEventListener('click', () => importInput.click());
+  captureInput.addEventListener('change', e => openCropForFile(e.target.files[0]));
+  importInput.addEventListener('change', e => openCropForFile(e.target.files[0]));
 
-    if (mode === 'cam') {
-      fileUi.style.display = 'none';
-      reader.style.display = 'block';
-      startCamera();
+  // --- Étape 2 : recadrage ---
+  let cropImgNatural = { w: 0, h: 0 };
+  let cropState = null; // {x,y,w,h} en pixels écran, relatif à crop-stage
+  let cropDrag = null;
+
+  function openCropForFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = document.getElementById('crop-img');
+      img.onload = () => {
+        cropImgNatural = { w: img.naturalWidth, h: img.naturalHeight };
+        initCropBox();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    sourcePicker.classList.add('hidden');
+    cropArea.classList.add('active');
+  }
+
+  function initCropBox() {
+    const stage = document.getElementById('crop-stage');
+    // Laisse le navigateur poser la taille rendue de l'image avant de mesurer
+    requestAnimationFrame(() => {
+      const rect = stage.getBoundingClientRect();
+      const size = Math.min(rect.width, rect.height) * 0.7 || rect.width * 0.7;
+      cropState = {
+        x: (rect.width - size) / 2,
+        y: (rect.height - size) / 2,
+        w: size,
+        h: size
+      };
+      renderCropBox();
+    });
+  }
+
+  function renderCropBox() {
+    const box = document.getElementById('crop-box');
+    box.style.left = cropState.x + 'px';
+    box.style.top = cropState.y + 'px';
+    box.style.width = cropState.w + 'px';
+    box.style.height = cropState.h + 'px';
+  }
+
+  function stageRect() {
+    return document.getElementById('crop-stage').getBoundingClientRect();
+  }
+
+  function clampCropState() {
+    const rect = stageRect();
+    cropState.w = Math.max(40, Math.min(cropState.w, rect.width));
+    cropState.h = Math.max(40, Math.min(cropState.h, rect.height));
+    cropState.x = Math.max(0, Math.min(cropState.x, rect.width - cropState.w));
+    cropState.y = Math.max(0, Math.min(cropState.y, rect.height - cropState.h));
+  }
+
+  function pointerPos(ev) {
+    const p = ev.touches ? ev.touches[0] : ev;
+    return { x: p.clientX, y: p.clientY };
+  }
+
+  document.getElementById('crop-box').addEventListener('pointerdown', startDrag('move'));
+  document.querySelectorAll('.crop-handle').forEach(h => {
+    h.addEventListener('pointerdown', ev => {
+      ev.stopPropagation();
+      startDrag(h.classList.contains('nw') ? 'nw' : h.classList.contains('ne') ? 'ne' : h.classList.contains('sw') ? 'sw' : 'se')(ev);
+    });
+  });
+
+  function startDrag(type) {
+    return (ev) => {
+      ev.preventDefault();
+      const start = pointerPos(ev);
+      const initial = { ...cropState };
+      cropDrag = { type, start, initial };
+      document.addEventListener('pointermove', onDrag);
+      document.addEventListener('pointerup', endDrag);
+    };
+  }
+
+  function onDrag(ev) {
+    if (!cropDrag) return;
+    const pos = pointerPos(ev);
+    const dx = pos.x - cropDrag.start.x;
+    const dy = pos.y - cropDrag.start.y;
+    const { type, initial } = cropDrag;
+
+    if (type === 'move') {
+      cropState.x = initial.x + dx;
+      cropState.y = initial.y + dy;
     } else {
-      reader.style.display = 'none';
-      fileUi.style.display = 'flex';
+      // Redimensionnement par coin, on garde un carré pour une lecture QR optimale
+      const delta = Math.max(dx, dy, -dx, -dy) * (type === 'nw' ? -1 : type === 'se' ? 1 : (Math.abs(dx) > Math.abs(dy) ? (type==='ne'?1:-1) : (type==='ne'?-1:1)));
+      let newSize = initial.w + delta;
+      newSize = Math.max(50, newSize);
+      if (type === 'nw') { cropState.x = initial.x + (initial.w - newSize); cropState.y = initial.y + (initial.h - newSize); }
+      if (type === 'ne') { cropState.y = initial.y + (initial.h - newSize); }
+      if (type === 'sw') { cropState.x = initial.x + (initial.w - newSize); }
+      cropState.w = newSize;
+      cropState.h = newSize;
     }
-  };
+    clampCropState();
+    renderCropBox();
+  }
 
+  function endDrag() {
+    cropDrag = null;
+    document.removeEventListener('pointermove', onDrag);
+    document.removeEventListener('pointerup', endDrag);
+  }
+
+  document.getElementById('btn-crop-cancel').addEventListener('click', () => {
+    resetScanFlow();
+  });
+
+  document.getElementById('btn-crop-confirm').addEventListener('click', async () => {
+    const img = document.getElementById('crop-img');
+    const rect = stageRect();
+    // Convertit le cadre affiché (coordonnées écran) en coordonnées de l'image réelle
+    const imgRect = img.getBoundingClientRect();
+    const scaleX = cropImgNatural.w / imgRect.width;
+    const scaleY = cropImgNatural.h / imgRect.height;
+    const offsetX = imgRect.left - rect.left;
+    const offsetY = imgRect.top - rect.top;
+
+    const sx = (cropState.x - offsetX) * scaleX;
+    const sy = (cropState.y - offsetY) * scaleY;
+    const sw = cropState.w * scaleX;
+    const sh = cropState.h * scaleY;
+
+    const canvas = document.createElement('canvas');
+    // On upscale légèrement le crop pour aider le décodeur sur les petits QR
+    const targetSize = Math.max(500, Math.round(sw));
+    canvas.width = targetSize;
+    canvas.height = targetSize;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, Math.max(0, sx), Math.max(0, sy), sw, sh, 0, 0, targetSize, targetSize);
+
+    cropArea.classList.remove('active');
+
+    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+    try {
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+      const file = new File([blob], 'crop.png', { type: 'image/png' });
+      const decodedText = await html5QrCode.scanFile(file, true);
+      handleScanSuccess(decodedText);
+    } catch (err) {
+      toast("Aucun QR Code détecté dans ce cadrage, réessayez", "error");
+      sourcePicker.classList.remove('hidden');
+    }
+  });
+
+  // --- Caméra live : conservée en interne pour compatibilité, mais plus
+  // jamais lancée automatiquement. Seul un appel explicite la démarre. ---
   async function startCamera() {
     if (isCameraStarting) return;
     isCameraStarting = true;
@@ -399,18 +621,18 @@
     if (!html5QrCode) {
       html5QrCode = new Html5Qrcode("reader");
     }
-    
+
     try {
       const hasCameras = await Html5Qrcode.getCameras();
       if (hasCameras && hasCameras.length > 0) {
         await html5QrCode.start(
           { facingMode: "environment" },
           { fps: 10, qrbox: { width: 250, height: 250 } },
-          (decodedText, decodedResult) => {
+          (decodedText) => {
             handleScanSuccess(decodedText);
-            stopCamera(); // Auto-stop après la réussite du scan
+            stopCamera();
           },
-          (errorMessage) => { /* Ignore les erreurs continues en arrière-plan */ }
+          () => { /* Ignore les erreurs continues en arrière-plan */ }
         );
       } else {
         toast("Aucune caméra détectée", "error");
@@ -424,61 +646,76 @@
   }
 
   async function stopCamera() {
-    // Si une instance tourne et scanne, on l'arrête en attente (await)
     if (html5QrCode && html5QrCode.isScanning) {
       try {
         await html5QrCode.stop();
-        html5QrCode.clear(); // Nettoie le canvas du flux vidéo
+        html5QrCode.clear();
       } catch (err) {
         console.error("Erreur stop caméra", err);
       }
     }
   }
 
-  window.handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Par sécurité, on force l'arrêt encore une fois
-    await stopCamera();
-
-    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-
-    try {
-      const decodedText = await html5QrCode.scanFile(file, true);
-      handleScanSuccess(decodedText);
-    } catch (err) {
-      toast("Aucun QR Code détecté dans cette image", "error");
-    }
-      
-    // Reset l'input file pour permettre d'uploader le même fichier deux fois
-    event.target.value = '';
-  };
-
   function handleScanSuccess(text) {
-    const box = document.getElementById('scan-result-box');
+    sourcePicker.classList.add('hidden');
+    cropArea.classList.remove('active');
+    readerEl.style.display = 'none';
+
     const textBox = document.getElementById('scan-result-text');
     const btnLink = document.getElementById('btn-open-link');
-    
+
     textBox.innerText = text;
-    box.classList.add('visible');
-    
-    // Check if it's a URL
+    resultBox.classList.add('visible');
+
     if (text.startsWith('http://') || text.startsWith('https://')) {
       btnLink.style.display = 'inline-flex';
       btnLink.onclick = () => window.open(text, '_blank');
     } else {
       btnLink.style.display = 'none';
     }
-    
+
+    regenerateQr(text);
     toast('QR Code scanné avec succès', 'success');
   }
+
+  // Régénère un QR Code propre et net à partir du contenu décodé, pour
+  // que la personne puisse télécharger une version optimisée du code.
+  function regenerateQr(text) {
+    const canvas = document.getElementById('regen-canvas');
+    try {
+      new QRious({
+        element: canvas,
+        value: text,
+        size: 500,
+        background: '#ffffff',
+        foreground: '#000000',
+        level: 'H'
+      });
+    } catch (e) {
+      console.error('Erreur régénération QR', e);
+    }
+  }
+
+  document.getElementById('btn-download-regen').addEventListener('click', () => {
+    const canvas = document.getElementById('regen-canvas');
+    const link = document.createElement('a');
+    link.download = 'WikiMind_QRCode_regenere.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+
+  document.getElementById('btn-scan-again').addEventListener('click', resetScanFlow);
 
   window.copyScanResult = () => {
     const text = document.getElementById('scan-result-text').innerText;
     navigator.clipboard.writeText(text).then(() => {
       toast('Texte copié dans le presse-papier !', 'success');
     });
+  };
+
+  window.openScanLink = () => {
+    const text = document.getElementById('scan-result-text').innerText;
+    if (text.startsWith('http://') || text.startsWith('https://')) window.open(text, '_blank');
   };
 
 </script>
