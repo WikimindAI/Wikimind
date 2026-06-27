@@ -5845,23 +5845,174 @@ async function _searchWikipediaImages(query, count = 2) {
   } catch { return []; }
 }
 
-// Rendu HTML d'une grille d'images open source
+// ── Nouvelles sources d'images ──────────────────────────────────────────────
+
+// Openverse (CC search — Wikipedia, Flickr, Smithsonian, etc.)
+async function _searchOpenverse(query, count = 4) {
+  try {
+    const url = `https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=${count}&license_type=commercial,modification&mature=false`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.results || []).slice(0, count).map(r => ({
+      url: r.thumbnail || r.url,
+      source: r.source ? r.source.replace(/_/g, ' ') : 'Openverse',
+      sourceUrl: r.foreign_landing_url || r.url,
+      title: (r.title || query).slice(0, 60)
+    }));
+  } catch { return []; }
+}
+
+// iNaturalist (biodiversité — faune/flore open)
+async function _searchINaturalist(query, count = 3) {
+  try {
+    const url = `https://api.inaturalist.org/v1/observations?q=${encodeURIComponent(query)}&per_page=${count}&photos=true&license=cc-by,cc-by-sa,cc0&order=votes&order_by=votes`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const results = [];
+    for (const obs of (data.results || [])) {
+      const photo = obs.photos?.[0];
+      if (photo?.url) results.push({
+        url: photo.url.replace('/square.', '/medium.'),
+        source: 'iNaturalist',
+        sourceUrl: `https://www.inaturalist.org/observations/${obs.id}`,
+        title: obs.species_guess || obs.taxon?.preferred_common_name || query
+      });
+    }
+    return results.slice(0, count);
+  } catch { return []; }
+}
+
+// Rendu HTML — carrés, source au clic, lightbox intégré
 function _renderOpenImagesGrid(images, query) {
   if (!images.length) return '';
-  const cols = images.length === 1 ? 1 : images.length === 2 ? 2 : Math.min(images.length, 3);
-  const cards = images.map(img => `
-    <a href="${img.sourceUrl}" target="_blank" rel="noopener" class="wm-open-img-card" title="${escHtml(img.title)} — ${img.source}">
-      <div class="wm-open-img-wrap">
-        <img src="${img.url}" alt="${escHtml(img.title)}" loading="lazy" onerror="this.closest('.wm-open-img-card').remove()">
-        <div class="wm-open-img-overlay">
-          <span class="wm-open-img-source">${img.source}</span>
+  const cards = images.map((img, i) => `
+    <div class="wm-open-img-card" data-idx="${i}" data-src="${img.url}" data-source="${escHtml(img.source)}" data-source-url="${escHtml(img.sourceUrl)}" data-title="${escHtml(img.title)}" onclick="wmOpenLightbox(this.closest('.wm-open-images'), ${i})">
+      <div class="wm-open-img-sq">
+        <img src="${img.url}" alt="${escHtml(img.title)}" loading="lazy" onerror="this.closest('.wm-open-img-card').style.display='none'">
+        <div class="wm-open-img-hover">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
         </div>
       </div>
-      <div class="wm-open-img-caption">${escHtml(img.title.length > 40 ? img.title.slice(0,38)+'…' : img.title)}</div>
-    </a>`).join('');
+    </div>`).join('');
 
-  return `<div class="wm-open-images" data-query="${escHtml(query)}" style="--cols:${cols}">${cards}</div>`;
+  return `<div class="wm-open-images">${cards}</div>`;
 }
+
+// ── LIGHTBOX WIKIMIND ────────────────────────────────────────────────────────
+function wmOpenLightbox(gridEl, startIdx) {
+  // Collecter toutes les images de la grille (visibles)
+  const cards = [...gridEl.querySelectorAll('.wm-open-img-card')].filter(c => c.style.display !== 'none');
+  const imgs = cards.map(c => ({
+    src: c.dataset.src,
+    title: c.dataset.title,
+    source: c.dataset.source,
+    sourceUrl: c.dataset.sourceUrl
+  }));
+  if (!imgs.length) return;
+
+  let current = Math.max(0, Math.min(startIdx, imgs.length - 1));
+
+  // Supprimer un éventuel lightbox existant
+  document.getElementById('wm-lightbox')?.remove();
+
+  const lb = document.createElement('div');
+  lb.id = 'wm-lightbox';
+  lb.innerHTML = `
+    <div class="wm-lb-backdrop" onclick="document.getElementById('wm-lightbox').remove()"></div>
+    <div class="wm-lb-panel">
+      <button class="wm-lb-close" onclick="document.getElementById('wm-lightbox').remove()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <button class="wm-lb-nav wm-lb-prev" onclick="wmLbNav(-1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="wm-lb-img-wrap">
+        <img id="wm-lb-img" src="" alt="">
+        <div id="wm-lb-loader" class="wm-lb-loader"><span class="wm-img-spinner" style="width:24px;height:24px;border-width:3px"></span></div>
+      </div>
+      <button class="wm-lb-nav wm-lb-next" onclick="wmLbNav(1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="wm-lb-footer">
+        <div class="wm-lb-info">
+          <span id="wm-lb-title" class="wm-lb-title"></span>
+          <span id="wm-lb-counter" class="wm-lb-counter"></span>
+        </div>
+        <a id="wm-lb-source" href="#" target="_blank" rel="noopener" class="wm-lb-source-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          Source
+        </a>
+      </div>
+    </div>`;
+  document.body.appendChild(lb);
+
+  // Keyboard nav
+  lb._keyHandler = (e) => {
+    if (e.key === 'Escape') lb.remove();
+    if (e.key === 'ArrowLeft')  wmLbNav(-1);
+    if (e.key === 'ArrowRight') wmLbNav(1);
+  };
+  document.addEventListener('keydown', lb._keyHandler);
+  lb.addEventListener('remove', () => document.removeEventListener('keydown', lb._keyHandler), { once: true });
+
+  // Observer suppression pour cleanup
+  new MutationObserver((_, obs) => {
+    if (!document.getElementById('wm-lightbox')) {
+      document.removeEventListener('keydown', lb._keyHandler);
+      obs.disconnect();
+    }
+  }).observe(document.body, { childList: true });
+
+  window._wmLbImgs = imgs;
+  window._wmLbCurrent = current;
+  _wmLbShow(imgs, current);
+
+  // Cacher nav si 1 seule image
+  lb.querySelectorAll('.wm-lb-nav').forEach(b => b.style.display = imgs.length < 2 ? 'none' : '');
+}
+
+function _wmLbShow(imgs, idx) {
+  const img   = document.getElementById('wm-lb-img');
+  const loader= document.getElementById('wm-lb-loader');
+  const title = document.getElementById('wm-lb-title');
+  const counter = document.getElementById('wm-lb-counter');
+  const srcBtn= document.getElementById('wm-lb-source');
+  if (!img) return;
+
+  const item = imgs[idx];
+  loader.style.display = 'flex';
+  img.style.opacity = '0';
+
+  const tmp = new Image();
+  tmp.onload = () => {
+    img.src = item.src;
+    img.alt = item.title;
+    img.style.opacity = '1';
+    loader.style.display = 'none';
+  };
+  tmp.onerror = () => {
+    img.src = item.src; // tenter quand même
+    img.style.opacity = '1';
+    loader.style.display = 'none';
+  };
+  tmp.src = item.src;
+
+  title.textContent = item.title;
+  counter.textContent = imgs.length > 1 ? `${idx + 1} / ${imgs.length}` : '';
+  srcBtn.href = item.sourceUrl;
+  srcBtn.title = `Voir sur ${item.source}`;
+  srcBtn.querySelector('svg').nextSibling.textContent = ` ${item.source}`;
+}
+
+window.wmOpenLightbox = wmOpenLightbox;
+window.wmLbNav = function(dir) {
+  const imgs = window._wmLbImgs;
+  if (!imgs) return;
+  window._wmLbCurrent = (window._wmLbCurrent + dir + imgs.length) % imgs.length;
+  _wmLbShow(imgs, window._wmLbCurrent);
+};
 
 // Fonction principale — appelée après chaque réponse de stream
 async function injectOpenImages(aiText, bubbleEl) {
@@ -5871,32 +6022,37 @@ async function injectOpenImages(aiText, bubbleEl) {
   const query = _extractSearchQuery(aiText);
   if (!query || query.length < 3) return;
 
-  // Placeholder pendant le chargement
   const placeholder = document.createElement('div');
   placeholder.className = 'wm-open-images-loading';
   placeholder.innerHTML = `<span class="wm-img-spinner"></span><span style="color:var(--text3);font-size:0.78rem">Images en cours de chargement…</span>`;
   bubbleEl.appendChild(placeholder);
 
   try {
-    // Requêtes en parallèle — Wikimedia en priorité puis compléments
-    const [wikiCommons, wikipedia, pixabay] = await Promise.allSettled([
-      _searchWikimedia(query, 3),
+    // Toutes les sources en parallèle
+    const [wikiCommons, wikipedia, pixabay, openverse, inaturalist, nasa] = await Promise.allSettled([
+      _searchWikimedia(query, 4),
       _searchWikipediaImages(query, 2),
-      _searchPixabay(query, 2)
+      _searchPixabay(query, 3),
+      _searchOpenverse(query, 4),
+      _searchINaturalist(query, 3),
+      _searchNASA(query, 2)
     ]);
 
-    // Fusionner, dédupliquer par URL, limiter à 4
     const all = [
-      ...(wikiCommons.value || []),
-      ...(wikipedia.value || []),
-      ...(pixabay.value || [])
+      ...(wikiCommons.value   || []),
+      ...(wikipedia.value     || []),
+      ...(openverse.value     || []),
+      ...(pixabay.value       || []),
+      ...(inaturalist.value   || []),
+      ...(nasa.value          || [])
     ];
+
     const seen = new Set();
     const images = all.filter(img => {
       if (!img?.url || seen.has(img.url)) return false;
       seen.add(img.url);
       return true;
-    }).slice(0, 4);
+    }).slice(0, 10);
 
     placeholder.remove();
     if (!images.length) return;
@@ -5910,67 +6066,176 @@ async function injectOpenImages(aiText, bubbleEl) {
   }
 }
 
-// ── CSS pour la grille d'images open source ──
+// ── CSS — carrés, sans caption, source dans lightbox ──
 (function() {
   const style = document.createElement('style');
   style.textContent = `
 .wm-open-images {
   display: grid;
-  grid-template-columns: repeat(var(--cols, 3), 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 6px;
   margin-top: 14px;
   border-top: 1px solid rgba(255,255,255,0.07);
   padding-top: 12px;
 }
 .wm-open-img-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  text-decoration: none;
-  color: inherit;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: transform 0.15s;
-  background: var(--bg2, #18182a);
-}
-.wm-open-img-card:hover { transform: translateY(-2px); }
-.wm-open-img-wrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4/3;
+  cursor: pointer;
+  border-radius: 7px;
   overflow: hidden;
   background: var(--bg3, #222236);
+  aspect-ratio: 1;
+  position: relative;
 }
-.wm-open-img-wrap img {
+.wm-open-img-sq {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.wm-open-img-sq img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.2s;
+  transition: transform 0.18s, filter 0.18s;
 }
-.wm-open-img-card:hover .wm-open-img-wrap img { transform: scale(1.04); }
-.wm-open-img-overlay {
+.wm-open-img-card:hover .wm-open-img-sq img {
+  transform: scale(1.06);
+  filter: brightness(0.7);
+}
+.wm-open-img-hover {
   position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+.wm-open-img-card:hover .wm-open-img-hover { opacity: 1; }
+
+/* ── Lightbox ── */
+#wm-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wm-lb-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(6px);
+}
+.wm-lb-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(92vw, 1000px);
+  max-height: 92vh;
+  flex-direction: row;
+}
+.wm-lb-img-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+#wm-lb-img {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 10px;
+  object-fit: contain;
+  transition: opacity 0.2s;
+  display: block;
+}
+.wm-lb-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wm-lb-close {
+  position: fixed;
+  top: 16px; right: 16px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+  transition: background 0.15s;
+}
+.wm-lb-close:hover { background: rgba(255,255,255,0.22); }
+.wm-lb-nav {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.wm-lb-nav:hover { background: rgba(255,255,255,0.18); }
+.wm-lb-footer {
+  position: fixed;
   bottom: 0; left: 0; right: 0;
-  padding: 4px 6px;
-  background: linear-gradient(transparent, rgba(0,0,0,0.65));
-  display: flex; align-items: flex-end;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  z-index: 2;
 }
-.wm-open-img-source {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.75);
-  font-family: var(--font-mono, monospace);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.wm-lb-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-.wm-open-img-caption {
-  font-size: 0.7rem;
-  color: var(--text3, #888);
-  padding: 4px 6px 5px;
-  line-height: 1.3;
+.wm-lb-title {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.85);
+  max-width: 400px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.wm-lb-counter {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.45);
+  font-family: var(--font-mono, monospace);
+  flex-shrink: 0;
+}
+.wm-lb-source-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.75);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.wm-lb-source-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-color: rgba(255,255,255,0.4);
 }
 .wm-open-images-loading {
   display: flex;
@@ -5991,7 +6256,9 @@ async function injectOpenImages(aiText, bubbleEl) {
 }
 @keyframes wm-spin { to { transform: rotate(360deg); } }
 @media (max-width: 500px) {
-  .wm-open-images { grid-template-columns: repeat(2, 1fr) !important; }
+  .wm-open-images { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 4px; }
+  .wm-lb-panel { gap: 6px; }
+  .wm-lb-nav { width: 34px; height: 34px; }
 }
   `;
   document.head.appendChild(style);
