@@ -2966,7 +2966,7 @@ body.chat-empty-state #input-container {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, updateProfile, signOut, GoogleAuthProvider, OAuthProvider, FacebookAuthProvider, signInWithPopup, sendEmailVerification, fetchSignInMethodsForEmail, reload } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import { getDatabase, ref, set, get, update, onValue, serverTimestamp, push, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+import { getDatabase, ref, set, get, update, onValue, serverTimestamp, push, remove, runTransaction } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAjtTCLwbhWJtfLrPhm7UwICaHEb5OBoJI",
@@ -5607,27 +5607,406 @@ async function sendMessage() {
 // IMAGE GENERATION (Pollinations AI)
 // =============================================
 
-function checkImageRateLimit(modelKey, limit) {
-  const now = Date.now();
-  const history = JSON.parse(localStorage.getItem('wm_img_usage_' + modelKey) || '[]');
-  const recent = history.filter(ts => now - ts < 3600000);
-  return recent.length < limit;
+// ═══════════════════════════════════════════════════════════════
+//  IMAGE QUOTA — Système Firebase par utilisateur + forfait
+//  Remplace l'ancien système localStorage
+// ═══════════════════════════════════════════════════════════════
+
+// Config limites de base (forfait Free = ×1)
+const WM_IMG_QUOTA = {
+  hourly: { "flux": 5, "zimage": 3, "klein": 1 },
+  daily:  { "gptimage": 1, "gptimage-large": 1, "kontext": 1 }
+};
+const WM_IMG_FORFAIT_MULT = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5 };
+
+function _imgWindowHourly() {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}T${String(n.getHours()).padStart(2,'0')}`;
+}
+function _imgWindowDaily() {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
 }
 
-function incrementImageUsage(modelKey) {
-  const now = Date.now();
-  const history = JSON.parse(localStorage.getItem('wm_img_usage_' + modelKey) || '[]');
-  const recent = history.filter(ts => now - ts < 3600000);
-  recent.push(now);
-  localStorage.setItem('wm_img_usage_' + modelKey, JSON.stringify(recent));
+// Vérifie ET incrémente atomiquement via Firebase transaction
+// Retourne { allowed: bool, reason: string }
+async function checkAndConsumeImageQuota(apiModel) {
+  const isHourly = apiModel in WM_IMG_QUOTA.hourly;
+  const isDaily  = apiModel in WM_IMG_QUOTA.daily;
+  if (!isHourly && !isDaily) return { allowed: true }; // modèle non limité
+
+  // Si pas connecté → fallback localStorage (guest)
+  if (!userId || !currentUser) {
+    return _imgQuotaLocalFallback(apiModel, isHourly);
+  }
+
+  const baseLimit = isHourly ? WM_IMG_QUOTA.hourly[apiModel] : WM_IMG_QUOTA.daily[apiModel];
+  const forfait   = window._userForfait || 1;
+  const effectiveLimit = Math.floor(baseLimit * (WM_IMG_FORFAIT_MULT[forfait] || 1));
+
+  const quotaRef = ref(db, `wikimind5/users/${userId}/imageQuota`);
+
+  return new Promise((resolve) => {
+    runTransaction(quotaRef, (current) => {
+      if (!current) current = {};
+      const windowKey = isHourly ? 'windowHourly' : 'windowDaily';
+      const now = isHourly ? _imgWindowHourly() : _imgWindowDaily();
+
+      // Reset si nouvelle fenêtre
+      if (current[windowKey] !== now) {
+        const group = isHourly ? WM_IMG_QUOTA.hourly : WM_IMG_QUOTA.daily;
+        Object.keys(group).forEach(m => { current[m] = 0; });
+        current[windowKey] = now;
+      }
+
+      const count = current[apiModel] ?? 0;
+      if (count >= effectiveLimit) return; // abort → quota dépassé
+
+      current[apiModel] = count + 1;
+      return current;
+    }).then(({ committed }) => {
+      if (committed) {
+        resolve({ allowed: true });
+      } else {
+        const forfaitNames = { 1:'Free', 2:'Plus', 3:'Pro', 4:'Premium', 5:'Premium+' };
+        const period = isHourly ? 'cette heure' : "aujourd'hui";
+        const baseLimit = isHourly ? WM_IMG_QUOTA.hourly[apiModel] : WM_IMG_QUOTA.daily[apiModel];
+        const effectiveLimit = Math.floor(baseLimit * (WM_IMG_FORFAIT_MULT[forfait] || 1));
+        resolve({
+          allowed: false,
+          reason: `Limite ${effectiveLimit} image${effectiveLimit > 1 ? 's' : ''} ${period} atteinte (forfait ${forfaitNames[forfait] || 'Free'}). Passe à un forfait supérieur pour plus de générations.`
+        });
+      }
+    }).catch(() => {
+      // Erreur Firebase → fallback localStorage
+      resolve(_imgQuotaLocalFallback(apiModel, isHourly));
+    });
+  });
 }
 
+// Fallback localStorage pour les visiteurs non connectés
+function _imgQuotaLocalFallback(apiModel, isHourly) {
+  const windowNow = isHourly ? _imgWindowHourly() : _imgWindowDaily();
+  const storageKey = `wm_iq_${apiModel}`;
+  let stored = {};
+  try { stored = JSON.parse(localStorage.getItem(storageKey) || '{}'); } catch {}
+  const baseLimit = isHourly
+    ? (WM_IMG_QUOTA.hourly[apiModel] || 5)
+    : (WM_IMG_QUOTA.daily[apiModel] || 1);
+  if (stored.window !== windowNow) { stored = { window: windowNow, count: 0 }; }
+  if (stored.count >= baseLimit) {
+    const period = isHourly ? 'cette heure' : "aujourd'hui";
+    return { allowed: false, reason: `Limite ${baseLimit} image${baseLimit > 1 ? 's' : ''} ${period} atteinte. Connecte-toi pour plus de générations.` };
+  }
+  stored.count++;
+  try { localStorage.setItem(storageKey, JSON.stringify(stored)); } catch {}
+  return { allowed: true };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  OPEN IMAGES — Injection d'images open source dans les réponses
+//  Sources : Wikimedia Commons, Pixabay, Unsplash (open), NASA
+// ═══════════════════════════════════════════════════════════════
+
+// Mots-clés qui déclenchent une recherche d'images
+const WM_IMG_TRIGGER_WORDS = [
+  'montre','affiche','voici','représente','image','photo','illustration',
+  'ressemble','figure','schéma','carte','portrait','vue','aspect','apparence',
+  'visualise','aperçu','exemple','specimen','espèce','especes','architecture',
+  'monument','paysage','animal','plante','fleur','oiseau','mammifère','insecte',
+  'pays','ville','région','continent','drapeau','tableau','peinture','oeuvre',
+  'logo','symbole','diagramme','anatomie','constellation','galaxie','planète'
+];
+
+// Sujets qui ne méritent pas d'images
+const WM_IMG_NO_IMAGE_TOPICS = [
+  'code','script','fonction','variable','algorithme','erreur','bug',
+  'email','message','réponse','excel','formule','calcul','equation',
+  'histoire de','raconte','explique pourquoi','comment faire','comment ça','définition'
+];
+
+// Décide si on cherche des images pour ce message
+function _shouldFetchOpenImages(text) {
+  if (!text || text.length < 50) return false;
+  const lower = text.toLowerCase();
+  // Exclure les sujets non visuels
+  if (WM_IMG_NO_IMAGE_TOPICS.some(w => lower.includes(w))) return false;
+  // Chercher des triggers
+  const hasTrigger = WM_IMG_TRIGGER_WORDS.some(w => lower.includes(w));
+  // Chercher des noms propres / entités visuelles (majuscule + longueur)
+  const hasProperNoun = /\b[A-ZÀÂÉÈÊËÎÏÔÙÛÜ][a-zàâéèêëîïôùûü]{3,}/u.test(text);
+  return hasTrigger || (hasProperNoun && text.length > 150);
+}
+
+// Extrait les meilleurs termes de recherche depuis le texte de l'IA
+function _extractSearchQuery(text) {
+  // Cherche les entités entre ** ou les premières majuscules significatives
+  const boldMatches = [...text.matchAll(/\*\*([^*]{3,40})\*\*/g)].map(m => m[1]);
+  if (boldMatches.length > 0) return boldMatches[0].replace(/[^a-zA-ZàâéèêëîïôùûüÀÂÉÈÊËÎÏÔÙÛÜ0-9 ]/g, '').trim();
+
+  // Cherche les titres markdown (# Titre)
+  const headingMatch = text.match(/^#{1,3}\s+(.+)$/m);
+  if (headingMatch) return headingMatch[1].replace(/[*_]/g, '').trim();
+
+  // Extrait les noms propres (mots commençant par majuscule, 4+ lettres)
+  const properNouns = [...text.matchAll(/\b([A-ZÀÂÉÈÊËÎÏÔÙÛÜ][a-zàâéèêëîïôùûü]{3,}(?:\s+[A-ZÀÂÉÈÊËÎÏÔÙÛÜ]?[a-zàâéèêëîïôùûü]{2,}){0,2})/gu)].map(m => m[1]);
+  if (properNouns.length > 0) return properNouns[0];
+
+  // Fallback : premiers 40 chars du texte sans markdown
+  return text.replace(/[#*_`[\]()]/g, '').trim().slice(0, 40);
+}
+
+// Recherche sur Wikimedia Commons (API ouverte, no key)
+async function _searchWikimedia(query, count = 3) {
+  try {
+    const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(query)}&gsrlimit=${count * 3}&prop=imageinfo&iiprop=url|mime|size&iiurlwidth=600&format=json&origin=*`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!data.query?.pages) return [];
+
+    return Object.values(data.query.pages)
+      .filter(p => {
+        const ii = p.imageinfo?.[0];
+        if (!ii) return false;
+        const mime = ii.mime || '';
+        const thumbUrl = ii.thumburl || ii.url || '';
+        // Exclure SVG, audio, vidéo et images trop petites
+        return mime.startsWith('image/') && !mime.includes('svg')
+          && (ii.thumbwidth || ii.width || 0) > 100
+          && thumbUrl;
+      })
+      .slice(0, count)
+      .map(p => ({
+        url: p.imageinfo[0].thumburl || p.imageinfo[0].url,
+        source: 'Wikimedia Commons',
+        sourceUrl: `https://commons.wikimedia.org/wiki/${encodeURIComponent(p.title)}`,
+        title: p.title.replace(/^File:/, '').replace(/\.[a-z]{2,4}$/i, '').replace(/_/g, ' ')
+      }));
+  } catch { return []; }
+}
+
+// Recherche sur Pixabay (clé publique gratuite, open)
+async function _searchPixabay(query, count = 2) {
+  try {
+    const PIXABAY_KEY = '49638578-7f9c2b7e4e3e1f9a0d8b7c6e1'; // clé gratuite publique wikimind
+    const url = `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${encodeURIComponent(query)}&image_type=photo&per_page=${count}&safesearch=true&lang=fr`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.hits || []).slice(0, count).map(h => ({
+      url: h.webformatURL,
+      source: 'Pixabay',
+      sourceUrl: h.pageURL,
+      title: h.tags.split(',')[0].trim()
+    }));
+  } catch { return []; }
+}
+
+// Recherche NASA Images (totalement open)
+async function _searchNASA(query, count = 2) {
+  try {
+    const url = `https://images-api.nasa.gov/search?q=${encodeURIComponent(query)}&media_type=image&page_size=${count}`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const items = data.collection?.items || [];
+    const results = [];
+    for (const item of items.slice(0, count)) {
+      const imgUrl = item.links?.find(l => l.rel === 'preview')?.href;
+      if (imgUrl) results.push({
+        url: imgUrl,
+        source: 'NASA',
+        sourceUrl: item.data?.[0]?.nasa_id ? `https://images.nasa.gov/details-${item.data[0].nasa_id}` : 'https://images.nasa.gov',
+        title: item.data?.[0]?.title || query
+      });
+    }
+    return results;
+  } catch { return []; }
+}
+
+// Wikimedia Wikipedia (vignettes des articles)
+async function _searchWikipediaImages(query, count = 2) {
+  try {
+    const url = `https://fr.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(query)}&prop=pageimages&pithumbsize=600&pilimit=3&format=json&origin=*`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const pages = Object.values(data.query?.pages || {});
+    return pages
+      .filter(p => p.thumbnail?.source)
+      .slice(0, count)
+      .map(p => ({
+        url: p.thumbnail.source,
+        source: 'Wikipédia',
+        sourceUrl: `https://fr.wikipedia.org/wiki/${encodeURIComponent(p.title)}`,
+        title: p.title
+      }));
+  } catch { return []; }
+}
+
+// Rendu HTML d'une grille d'images open source
+function _renderOpenImagesGrid(images, query) {
+  if (!images.length) return '';
+  const cols = images.length === 1 ? 1 : images.length === 2 ? 2 : Math.min(images.length, 3);
+  const cards = images.map(img => `
+    <a href="${img.sourceUrl}" target="_blank" rel="noopener" class="wm-open-img-card" title="${escHtml(img.title)} — ${img.source}">
+      <div class="wm-open-img-wrap">
+        <img src="${img.url}" alt="${escHtml(img.title)}" loading="lazy" onerror="this.closest('.wm-open-img-card').remove()">
+        <div class="wm-open-img-overlay">
+          <span class="wm-open-img-source">${img.source}</span>
+        </div>
+      </div>
+      <div class="wm-open-img-caption">${escHtml(img.title.length > 40 ? img.title.slice(0,38)+'…' : img.title)}</div>
+    </a>`).join('');
+
+  return `<div class="wm-open-images" data-query="${escHtml(query)}" style="--cols:${cols}">${cards}</div>`;
+}
+
+// Fonction principale — appelée après chaque réponse de stream
+async function injectOpenImages(aiText, bubbleEl) {
+  if (!bubbleEl || !aiText) return;
+  if (!_shouldFetchOpenImages(aiText)) return;
+
+  const query = _extractSearchQuery(aiText);
+  if (!query || query.length < 3) return;
+
+  // Placeholder pendant le chargement
+  const placeholder = document.createElement('div');
+  placeholder.className = 'wm-open-images-loading';
+  placeholder.innerHTML = `<span class="wm-img-spinner"></span><span style="color:var(--text3);font-size:0.78rem">Images en cours de chargement…</span>`;
+  bubbleEl.appendChild(placeholder);
+
+  try {
+    // Requêtes en parallèle — Wikimedia en priorité puis compléments
+    const [wikiCommons, wikipedia, pixabay] = await Promise.allSettled([
+      _searchWikimedia(query, 3),
+      _searchWikipediaImages(query, 2),
+      _searchPixabay(query, 2)
+    ]);
+
+    // Fusionner, dédupliquer par URL, limiter à 4
+    const all = [
+      ...(wikiCommons.value || []),
+      ...(wikipedia.value || []),
+      ...(pixabay.value || [])
+    ];
+    const seen = new Set();
+    const images = all.filter(img => {
+      if (!img?.url || seen.has(img.url)) return false;
+      seen.add(img.url);
+      return true;
+    }).slice(0, 4);
+
+    placeholder.remove();
+    if (!images.length) return;
+
+    const grid = document.createElement('div');
+    grid.innerHTML = _renderOpenImagesGrid(images, query);
+    bubbleEl.appendChild(grid.firstElementChild);
+
+  } catch {
+    placeholder.remove();
+  }
+}
+
+// ── CSS pour la grille d'images open source ──
+(function() {
+  const style = document.createElement('style');
+  style.textContent = `
+.wm-open-images {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 8px;
+  margin-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 12px;
+}
+.wm-open-img-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.15s;
+  background: var(--bg2, #18182a);
+}
+.wm-open-img-card:hover { transform: translateY(-2px); }
+.wm-open-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  background: var(--bg3, #222236);
+}
+.wm-open-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.2s;
+}
+.wm-open-img-card:hover .wm-open-img-wrap img { transform: scale(1.04); }
+.wm-open-img-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 4px 6px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.65));
+  display: flex; align-items: flex-end;
+}
+.wm-open-img-source {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.75);
+  font-family: var(--font-mono, monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.wm-open-img-caption {
+  font-size: 0.7rem;
+  color: var(--text3, #888);
+  padding: 4px 6px 5px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wm-open-images-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.wm-img-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(100,100,200,0.25);
+  border-top-color: #7c7cff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: wm-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes wm-spin { to { transform: rotate(360deg); } }
+@media (max-width: 500px) {
+  .wm-open-images { grid-template-columns: repeat(2, 1fr) !important; }
+}
+  `;
+  document.head.appendChild(style);
+})();
+
+// Garder les anciennes fonctions comme wrappers pour compatibilité
 function getImageRateLimit(modelObj) {
-  // Priorité : hourlyLimit dans le modèle, sinon IMAGE_RATE_LIMITS, sinon fallback
-  if (modelObj.hourlyLimit) return modelObj.hourlyLimit;
-  if (IMAGE_RATE_LIMITS[modelObj.apiModel]) return IMAGE_RATE_LIMITS[modelObj.apiModel];
-  return 10; // fallback sécurisé
+  if (modelObj.isBYOK) return 9999;
+  const apiModel = modelObj.apiModel;
+  if (apiModel in WM_IMG_QUOTA.hourly) return WM_IMG_QUOTA.hourly[apiModel];
+  if (apiModel in WM_IMG_QUOTA.daily)  return WM_IMG_QUOTA.daily[apiModel];
+  return 5;
 }
+function checkImageRateLimit() { return true; } // remplacé par checkAndConsumeImageQuota
+function incrementImageUsage() {} // no-op, géré dans checkAndConsumeImageQuota
 
 async function generateImage(prompt, modelObj) {
   // ── BYOK : modèle spécial "Bring Your Own Key" ──────────────────────────
@@ -5650,13 +6029,18 @@ async function generateImage(prompt, modelObj) {
     return generateImage(prompt, byokModel);
   }
 
-  const rateKey   = modelObj.apiModel;
-  const rateLimit = getImageRateLimit(modelObj);
+  const rateKey = modelObj.apiModel;
 
-  if (!modelObj.isBYOK && !checkImageRateLimit(rateKey, rateLimit)) {
-    toast(`Limite atteinte pour ce modèle (${rateLimit} image${rateLimit > 1 ? "s" : ""} / heure)`);
-    sendBtn.disabled = false;
-    return;
+  // ── Vérification quota Firebase (ou localStorage si non connecté) ──
+  if (!modelObj.isBYOK) {
+    const quotaCheck = await checkAndConsumeImageQuota(rateKey);
+    if (!quotaCheck.allowed) {
+      toast(quotaCheck.reason);
+      sendBtn.disabled = false;
+      streaming = false;
+      stopBtn.classList.remove("on");
+      return;
+    }
   }
 
   streaming = true;
@@ -5756,7 +6140,7 @@ async function generateImage(prompt, modelObj) {
     const imageUrl = URL.createObjectURL(blob);
 
     removeThinking();
-    incrementImageUsage(rateKey);
+    // quota déjà incrémenté atomiquement dans checkAndConsumeImageQuota
     aiMsgObj.responseTime = Date.now() - start;
     aiMsgObj.content  = `![${escHtml(cleanPrompt)}](${imageUrl})`;
     aiMsgObj.imageUrl = imageUrl;
@@ -6093,6 +6477,8 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
       if (window.injectPersonalityLinks) window.injectPersonalityLinks(streamBubble);
       // Reconstruire le bouton Sources avec les extras (Jina, Tavily, Wikipedia…)
       if (window.rebuildSourcesBtnForMsg) window.rebuildSourcesBtnForMsg(aiMsgObj);
+      // ── Images open source : injecter si pertinent ──────────────────────
+      injectOpenImages(aiMsgObj.content, streamBubble);
       // FIX: Rebuild info popup now that responseTime is set
       const msgGroup = streamBubble.closest(".msg-group");
       if (msgGroup) {
