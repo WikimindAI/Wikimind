@@ -36,15 +36,15 @@
       "apiModel": "flux",
       "tier": "flash",
       "category": "main",
-      "description": "Images ultra-rapides (Limite: ~222/h)",
+      "description": "Images ultra-rapides (Limite: 5/h)",
       "provider": "pollinations",
       "apiEndpoint": "https://gen.pollinations.ai/image/",
       "supportsVision": false,
       "supportsStreaming": false,
       "isImageModel": true,
       "logo": "pollinationai.png",
-      "imageRateLimited": false,
-      "hourlyLimit": 222,
+      "imageRateLimited": true,
+      "hourlyLimit": 5,
       "sourceProviders": ["pollinations", "blackforestlabs"]
     },
     {
@@ -53,14 +53,15 @@
       "apiModel": "gptimage",
       "tier": "medium",
       "category": "image",
-      "description": "Génération d'images GPT (Limite: 5/h)",
+      "description": "Génération d'images GPT (Limite: 1/jour)",
       "provider": "pollinations",
       "apiEndpoint": "https://gen.pollinations.ai/image/",
       "supportsVision": false,
       "supportsStreaming": false,
       "isImageModel": true,
-      "hourlyLimit": 5,
-      "imageRateLimited": false,
+      "dailyLimit": 1,
+      "imageRateLimited": true,
+      "limitMode": "daily",
       "logo": "pollinationai.png",
       "sourceProviders": ["pollinations", "openai"]
     },
@@ -70,15 +71,16 @@
       "apiModel": "gptimage-large",
       "tier": "large",
       "category": "image",
-      "description": "Génération d'images haute qualité (Limite: 5/h)",
+      "description": "Génération d'images haute qualité (Limite: 1/jour)",
       "provider": "pollinations",
       "apiEndpoint": "https://gen.pollinations.ai/image/",
       "supportsVision": false,
       "supportsStreaming": false,
       "isImageModel": true,
       "logo": "pollinationai.png",
-      "imageRateLimited": false,
-      "hourlyLimit": 5,
+      "imageRateLimited": true,
+      "limitMode": "daily",
+      "dailyLimit": 1,
       "sourceProviders": ["pollinations", "openai"]
     },
     {
@@ -87,7 +89,7 @@
       "apiModel": "kontext",
       "tier": "large",
       "category": "image",
-      "description": "FLUX.1 Kontext · Édition contextuelle (Limite: 10/h)",
+      "description": "FLUX.1 Kontext · Édition contextuelle (Limite: 1/jour)",
       "provider": "pollinations",
       "apiEndpoint": "https://gen.pollinations.ai/image/",
       "supportsVision": false,
@@ -95,8 +97,43 @@
       "isImageModel": true,
       "isImageEditModel": true,
       "supportsImageInput": true,
-      "hourlyLimit": 10,
-      "imageRateLimited": false,
+      "dailyLimit": 1,
+      "imageRateLimited": true,
+      "limitMode": "daily",
+      "logo": "pollinationai.png",
+      "sourceProviders": ["pollinations", "blackforestlabs"]
+    },
+    {
+      "id": "wm-image-zimage",
+      "displayName": "Z-Image Turbo",
+      "apiModel": "zimage",
+      "tier": "flash",
+      "category": "image",
+      "description": "Alibaba Z-Image Turbo · ultra-rapide (Limite: 3/h)",
+      "provider": "pollinations",
+      "apiEndpoint": "https://gen.pollinations.ai/image/",
+      "supportsVision": false,
+      "supportsStreaming": false,
+      "isImageModel": true,
+      "imageRateLimited": true,
+      "hourlyLimit": 3,
+      "logo": "pollinationai.png",
+      "sourceProviders": ["pollinations", "alibaba"]
+    },
+    {
+      "id": "wm-image-klein",
+      "displayName": "FLUX.2 Klein 4B",
+      "apiModel": "klein",
+      "tier": "small",
+      "category": "image",
+      "description": "FLUX.2 Klein 4B · compact et précis (Limite: 1/h)",
+      "provider": "pollinations",
+      "apiEndpoint": "https://gen.pollinations.ai/image/",
+      "supportsVision": false,
+      "supportsStreaming": false,
+      "isImageModel": true,
+      "imageRateLimited": true,
+      "hourlyLimit": 1,
       "logo": "pollinationai.png",
       "sourceProviders": ["pollinations", "blackforestlabs"]
     },
@@ -906,8 +943,41 @@
       "sourceProviders": ["openrouter", "cohere"]
     }
   ],
+  "imageQuota": {
+    "note": "Limites de génération d'images par utilisateur. Le forfait multiplie la base. Les limites horaires (hourly) se réinitialisent chaque heure ; les limites journalières (daily) se réinitialisent à minuit.",
+    "forfaitMultiplier": {
+      "1": 1.0,
+      "2": 2.0,
+      "3": 3.0,
+      "4": 4.0,
+      "5": 5.0
+    },
+    "forfaitNames": {
+      "1": "Free",
+      "2": "Plus",
+      "3": "Pro",
+      "4": "Premium",
+      "5": "Premium+"
+    },
+    "models": {
+      "flux":         { "limitMode": "hourly", "baseLimit": 5 },
+      "zimage":       { "limitMode": "hourly", "baseLimit": 3 },
+      "klein":        { "limitMode": "hourly", "baseLimit": 1 },
+      "gptimage":     { "limitMode": "daily",  "baseLimit": 1 },
+      "gptimage-large": { "limitMode": "daily","baseLimit": 1 },
+      "kontext":      { "limitMode": "daily",  "baseLimit": 1 }
+    },
+    "firebasePath": "wikimind5/users/{uid}/imageQuota",
+    "schema": {
+      "windowHourly": "YYYY-MM-DDTHH  (ex: 2026-06-26T14)",
+      "windowDaily":  "YYYY-MM-DD     (ex: 2026-06-26)",
+      "counts": {
+        "{apiModel}": "nombre de générations dans la fenêtre courante (int)"
+      }
+    }
+  },
   "imageRateLimit": {
-    "note": "Limites par modèle : flux ~222/h, gptimage 5/h, gptimage-large 5/h, kontext 10/h",
-    "scope": "local"
+    "note": "Remplacé par imageQuota. Conservé pour compatibilité.",
+    "scope": "firebase-per-user"
   }
 }
