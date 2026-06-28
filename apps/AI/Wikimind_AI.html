@@ -3273,7 +3273,7 @@ $("sidebar-code-btn").addEventListener("click", () => {
     }
   } else {
     // Retour au modèle par défaut
-    const defModel = WIKIMIND_MODELS.find(m => m.id === 'wm-small-5.5') || WIKIMIND_MODELS[0];
+    const defModel = WIKIMIND_MODELS.find(m => m.id === 'wm-small-2.5') || WIKIMIND_MODELS[0];
     if (defModel) applyModelById(defModel.id);
     toast("Mode Code désactivé");
   }
@@ -4081,10 +4081,11 @@ async function loadModels() {
   } catch (err) {
     console.warn("models.json introuvable, fallback intégré.", err);
     WIKIMIND_MODELS = [
-      { id:"wm-small-5.5", displayName:"Small 5.5", apiModel:"mistral-small-latest", tier:"small", category:"main", description:"Rapide, idéal pour le quotidien", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
-      { id:"wm-medium-5.5", displayName:"Medium 5.5", apiModel:"mistral-medium-latest", tier:"medium", category:"main", description:"Équilibre performance / vitesse", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
-      { id:"wm-large-5.5", displayName:"Large 5.5", apiModel:"mistral-large-latest", tier:"large", category:"main", description:"Puissant, tâches complexes", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
-      { id:"wm-flash-5.5", displayName:"Flash 5.5", apiModel:"gemini-2.5-flash", tier:"flash", category:"main", description:"Gemini 2.5 Flash · ultra-rapide", provider:"google", apiEndpoint:"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent", supportsVision:true, supportsStreaming:true, maxTokens:8192, contextWindow:1000000 },
+      { id:"wm-flash-1.9", displayName:"Flash 1.9", apiModel:"gemini-2.5-flash", tier:"flash", category:"main", description:"Gemini 2.5 Flash · ultra-rapide", provider:"google", apiEndpoint:"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent", supportsVision:true, supportsStreaming:true, maxTokens:8192, contextWindow:1000000 },
+      { id:"wm-small-2.5", displayName:"Small 2.5", apiModel:"mistral-small-latest", tier:"small", category:"main", description:"Rapide, idéal pour le quotidien", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
+      { id:"wm-medium-3.9", displayName:"Medium 3.9", apiModel:"mistral-medium-latest", tier:"medium", category:"main", description:"Équilibre performance / vitesse", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
+      { id:"wm-large-5.5", displayName:"Large 5.5", apiModel:"codestral-latest", tier:"large", category:"main", description:"Spécialisé code, 80+ langages", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true, isCodeModel:true },
+      { id:"wm-large-5.9", displayName:"Large 5.9", apiModel:"mistral-large-latest", tier:"large", category:"main", description:"Puissant, tâches complexes", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
       { id:"wm-compound-1.0", displayName:"Compound 1.0", apiModel:"compound", tier:"large", category:"more", description:"Groq Compound, recherche web intégrée", provider:"groq", apiEndpoint:"https://api.groq.com/openai/v1/chat/completions", supportsVision:false, supportsStreaming:true, maxTokens:8192, contextWindow:131072 },
       { id:"wm-compound-mini-1.0", displayName:"Compound Mini", apiModel:"compound-mini", tier:"medium", category:"more", description:"Groq Compound Mini, léger avec web search", provider:"groq", apiEndpoint:"https://api.groq.com/openai/v1/chat/completions", supportsVision:false, supportsStreaming:true, maxTokens:8192, contextWindow:131072 }
     ];
