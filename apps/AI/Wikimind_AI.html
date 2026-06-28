@@ -1719,6 +1719,9 @@ body.chat-empty-state #input-container {
 .model-opt-desc { font-size: 0.75rem; color: var(--text2); margin-top: 2px; display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
 .model-opt-check { color: var(--text2); opacity: 0; flex-shrink: 0; }
 .model-opt.selected .model-opt-check { opacity: 1; color: #fff; }
+.model-opt-down { opacity: 0.55; }
+.model-opt-down:hover { opacity: 0.8; }
+.model-opt-down .model-opt-name { color: var(--text2); }
 
 /* More models row */
 .model-opt-more {
@@ -4022,6 +4025,96 @@ const IMAGE_RATE_LIMITS = {
   "kontext":        10    // 10 images Kontext
 };
 
+// =============================================
+// STATUT DES MODÈLES — wikimind5_model_status
+// Statut partagé entre tous les utilisateurs : si un modèle
+// échoue pour quelqu'un, il apparaît grisé pour tout le monde
+// jusqu'à ce qu'un appel réussisse à nouveau (peu importe qui).
+// =============================================
+const MODEL_STATUS = {}; // { [modelId]: { status: 'ok'|'down', lastError: {...}, updatedAt } }
+
+function modelStatusRef(modelId) {
+  return ref(db, `wikimind5_model_status/${modelId}`);
+}
+
+// Écoute en temps réel : tous les statuts changent en live pour tout le monde
+function listenModelStatus() {
+  try {
+    onValue(ref(db, "wikimind5_model_status"), (snap) => {
+      const val = snap.val() || {};
+      Object.keys(MODEL_STATUS).forEach(k => delete MODEL_STATUS[k]);
+      Object.assign(MODEL_STATUS, val);
+      // Rafraîchir l'UI du dropdown si elle est déjà construite
+      if (typeof buildMainDropdown === "function" && WIKIMIND_MODELS.length) {
+        buildMainDropdown();
+        if (modelMorePanel && modelMorePanel.innerHTML) buildMorePanel();
+      }
+    });
+  } catch (e) {
+    console.debug("listenModelStatus error:", e);
+  }
+}
+
+// Marque un modèle comme en panne (appelé après un échec d'appel API)
+async function markModelDown(modelObj, errLabel) {
+  if (!modelObj) return;
+  try {
+    await set(modelStatusRef(modelObj.id), {
+      status: "down",
+      lastError: errLabel || "Erreur inconnue",
+      updatedAt: Date.now()
+    });
+  } catch (e) {
+    console.debug("markModelDown error:", e);
+  }
+}
+
+// Marque un modèle comme rétabli (appelé après un succès d'appel API)
+async function markModelUp(modelObj) {
+  if (!modelObj) return;
+  // Évite des écritures inutiles si déjà "ok" ou inconnu
+  const current = MODEL_STATUS[modelObj.id];
+  if (!current || current.status !== "ok") {
+    try {
+      await set(modelStatusRef(modelObj.id), {
+        status: "ok",
+        updatedAt: Date.now()
+      });
+    } catch (e) {
+      console.debug("markModelUp error:", e);
+    }
+  }
+}
+
+// Trouve un modèle de remplacement "proche" : même tier en priorité, sinon tier voisin,
+// en excluant les modèles eux-mêmes marqués "down", et en respectant vision/image si besoin.
+function findSimilarAvailableModel(modelObj) {
+  if (!modelObj) return null;
+  const isUp = (m) => (MODEL_STATUS[m.id]?.status) !== "down";
+  const sameKind = (m) => !!m.isImageModel === !!modelObj.isImageModel && !!m.isVideoModel === !!modelObj.isVideoModel;
+
+  const pool = WIKIMIND_MODELS.filter(m => m.id !== modelObj.id && sameKind(m) && isUp(m) && !m.isBYOK);
+  if (!pool.length) return null;
+
+  const TIER_RANK = { flash: 0, small: 1, medium: 2, large: 3, plus: 4, volume: 5 };
+  const myRank = TIER_RANK[modelObj.tier] ?? 2;
+
+  // Priorité : même tier > tier le plus proche > supporte vision si l'original le faisait
+  pool.sort((a, b) => {
+    const da = Math.abs((TIER_RANK[a.tier] ?? 2) - myRank);
+    const db_ = Math.abs((TIER_RANK[b.tier] ?? 2) - myRank);
+    if (da !== db_) return da - db_;
+    if (modelObj.supportsVision) {
+      if (a.supportsVision !== b.supportsVision) return a.supportsVision ? -1 : 1;
+    }
+    // Préfère un modèle "isMainPick" (plus fiable / mis en avant) en cas d'égalité
+    if (!!a.isMainPick !== !!b.isMainPick) return a.isMainPick ? -1 : 1;
+    return 0;
+  });
+
+  return pool[0];
+}
+
 async function loadModels() {
   try {
     const res = await fetch("models.json");
@@ -4118,6 +4211,9 @@ if (window.WMBYOK) {
 const modelOverlay   = document.getElementById("model-dropdown-overlay");
 const modelMorePanel = document.getElementById("model-more-panel");
 
+// Démarre l'écoute live du statut des modèles (maintenant que le DOM du dropdown existe)
+listenModelStatus();
+
 // ── Helpers visuels ──────────────────────────────────────────────────────────
 const TIER_LABELS = { small:"Small", medium:"Medium", large:"Large", flash:"Flash", volume:"Volume" };
 
@@ -4175,17 +4271,29 @@ function checkSVG() {
   return `<svg class="model-opt-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
 }
 
+// ── Badge "modèle indisponible" ──────────────────────────────────────────────
+function isModelDown(m) {
+  return MODEL_STATUS[m.id]?.status === "down";
+}
+
+function downBadge() {
+  return `<span style="display:inline-flex;align-items:center;gap:2px;font-size:0.58rem;font-weight:700;letter-spacing:0.03em;background:rgba(248,113,113,0.12);color:#f87171;border-radius:5px;padding:1px 5px;margin-left:3px;">
+    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Indisponible</span>`;
+}
+
 // ── Build main dropdown ──────────────────────────────────────────────────────
 function buildMainDropdown() {
-  const mainModels = WIKIMIND_MODELS.filter(m => m.category === "main");
+  const mainModels = WIKIMIND_MODELS.filter(m => m.isMainPick);
   let html = "";
   mainModels.forEach(m => {
     const sel = m.apiModel === selectedModel;
-    const logoHtml = m.logo ? `<img src="${m.logo}" alt="${m.provider}" width="14" height="14" style="flex-shrink:0;border-radius:3px;margin-right:4px;object-fit:contain;" onerror="this.replaceWith(document.createTextNode(''))">` : '';
-    html += `<div class="model-opt${sel?" selected":""}" data-model-id="${m.id}">
+    const down = isModelDown(m);
+    const logoHtml = m.logo ? `<img src="${m.logo}" alt="${m.provider}" width="14" height="14" style="flex-shrink:0;border-radius:3px;margin-right:4px;object-fit:contain;${down?'filter:grayscale(1);opacity:0.5;':''}" onerror="this.replaceWith(document.createTextNode(''))">` : '';
+    html += `<div class="model-opt${sel?" selected":""}${down?" model-opt-down":""}" data-model-id="${m.id}">
       <div class="model-opt-info">
-        <div class="model-opt-name" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;">${logoHtml}${m.displayName}${m.supportsVision?visionBadge():""}${m.isImageModel?imgBadge():""}</div>
-        <div class="model-opt-desc" style="display:flex;align-items:center;gap:4px;">${providerBadge(m.provider)}${m.description}</div>
+        <div class="model-opt-name" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;">${logoHtml}${m.displayName}${down?downBadge():""}${m.supportsVision?visionBadge():""}${m.isImageModel?imgBadge():""}</div>
+        <div class="model-opt-desc" style="display:flex;align-items:center;gap:4px;">${providerBadge(m.provider)}${down?'Réessayez ou choisissez un autre modèle':m.description}</div>
       </div>${checkSVG()}</div>`;
   });
   html += `<div class="model-opt-more" id="model-more-btn">
@@ -4203,40 +4311,48 @@ function buildMainDropdown() {
 
 // ── Build "Plus de modèles" sub-panel ───────────────────────────────────────
 function buildMorePanel() {
-  // Modèles image (catégorie dédiée)
-  const imageModels = WIKIMIND_MODELS.filter(m => m.category === "image");
-  const moreModels  = WIKIMIND_MODELS.filter(m => m.category === "more");
+  // Modèles image (catégorie dédiée) — le pick "main" (Flux Schnell) reste aussi visible ici pour cohérence
+  const imageModels = WIKIMIND_MODELS.filter(m => m.isImageModel || m.isVideoModel);
+  const moreModels  = WIKIMIND_MODELS.filter(m => !m.isImageModel && !m.isVideoModel);
   const groups = { flash:[], small:[], medium:[], large:[], volume:[] };
   moreModels.forEach(m => { if (groups[m.tier]) groups[m.tier].push(m); });
   const groupOrder = ["flash","small","medium","large","volume"];
+  // L'ordre déjà appliqué dans models.json (tier puis numéro de version croissant) est préservé ;
+  // on s'assure juste ici que chaque sous-groupe reste trié par version croissante au cas où.
+  function versionNum(m) {
+    const match = /(\d+(?:\.\d+)?)/.exec(m.displayName || "");
+    return match ? parseFloat(match[1]) : 999;
+  }
+  groupOrder.forEach(t => groups[t].sort((a, b) => versionNum(a) - versionNum(b)));
 
   function modelRow(m) {
     const sel = m.apiModel === selectedModel;
-    const mLogoHtml = m.logo ? `<img src="${m.logo}" alt="${m.provider}" width="14" height="14" style="flex-shrink:0;border-radius:3px;margin-right:4px;object-fit:contain;" onerror="this.replaceWith(document.createTextNode(''))">` : '';
-    return `<div class="model-opt${sel?" selected":""}" data-model-id="${m.id}" style="padding:10px 16px;">
+    const down = isModelDown(m);
+    const mLogoHtml = m.logo ? `<img src="${m.logo}" alt="${m.provider}" width="14" height="14" style="flex-shrink:0;border-radius:3px;margin-right:4px;object-fit:contain;${down?'filter:grayscale(1);opacity:0.5;':''}" onerror="this.replaceWith(document.createTextNode(''))">` : '';
+    return `<div class="model-opt${sel?" selected":""}${down?" model-opt-down":""}" data-model-id="${m.id}" style="padding:10px 16px;">
       <div class="model-opt-info">
         <div class="model-opt-name" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;">
-          ${mLogoHtml}${m.displayName}${m.supportsVision?visionBadge():""}${m.isImageModel?imgBadge():""}${m.isBYOK?byokBadge():""}${m.isPaid?paidBadge():""}
+          ${mLogoHtml}${m.displayName}${down?downBadge():""}${m.supportsVision?visionBadge():""}${m.isImageModel?imgBadge():""}${m.isBYOK?byokBadge():""}${m.isPaid?paidBadge():""}
         </div>
-        <div class="model-opt-desc" style="display:flex;align-items:center;gap:4px;">${providerBadge(m.provider)}${m.description}</div>
+        <div class="model-opt-desc" style="display:flex;align-items:center;gap:4px;">${providerBadge(m.provider)}${down?'Réessayez ou choisissez un autre modèle':m.description}</div>
       </div>${checkSVG()}</div>`;
   }
 
   let html = `<div class="model-more-header">Plus de modèles</div>`;
 
-  // ── Section Images ──
+  // ── Section Images & Vidéo ──
   if (imageModels.length) {
     html += `<div style="padding:6px 16px 2px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">
       <span style="display:inline-flex;align-items:center;gap:5px;">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        Images IA
+        Images & Vidéo IA
       </span>
     </div>`;
     imageModels.forEach(m => { html += modelRow(m); });
     html += `<div style="height:1px;background:var(--border);margin:6px 0;opacity:0.5;"></div>`;
   }
 
-  // ── Section texte Flash→Large ──
+  // ── Section texte Flash→Large (ordre croissant) ──
   groupOrder.forEach(tier => {
     if (!groups[tier].length) return;
     html += `<div style="padding:6px 16px 2px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">${TIER_LABELS[tier]||tier}</div>`;
@@ -5063,8 +5179,37 @@ function appendAIMsg(msgObj, isStreaming = false) {
   bubble.className = "bubble ai";
   if (isStreaming) bubble.id = "stream-bubble";
 
+  // ── Cas erreur texte structurée : code, détail précis, bouton modèle de secours ──
+  if (msgObj.isError && msgObj.errorInfo) {
+    const info = msgObj.errorInfo;
+    const errDiv = document.createElement("div");
+    errDiv.style.cssText = "padding:12px 14px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:10px;font-size:0.85rem;line-height:1.5;";
+    errDiv.innerHTML = `
+      <div style="display:flex;align-items:center;gap:7px;font-weight:600;color:#f87171;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        ${escHtml(info.modelName || "Ce modèle")} n'est pas disponible pour le moment
+      </div>
+      <div style="margin-top:6px;color:var(--text2);">${escHtml(info.label)}${info.code ? ` — code ${escHtml(String(info.code))}` : ''}</div>
+      <div style="margin-top:6px;font-family:monospace;font-size:0.74rem;color:var(--text3);background:rgba(0,0,0,0.15);border-radius:6px;padding:6px 9px;word-break:break-word;">${escHtml(info.detail || '')}</div>
+    `;
+    if (info.altModelId) {
+      const switchBtn = document.createElement("button");
+      switchBtn.style.cssText = "margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;background:rgba(255,255,255,0.08);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:0.8rem;font-weight:600;cursor:pointer;transition:background 0.15s;";
+      switchBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Essayer avec ${escHtml(info.altModelName)}`;
+      switchBtn.addEventListener("mouseenter", () => switchBtn.style.background = "rgba(255,255,255,0.14)");
+      switchBtn.addEventListener("mouseleave", () => switchBtn.style.background = "rgba(255,255,255,0.08)");
+      switchBtn.addEventListener("click", () => retryWithModel(msgObj, g, info.altModelId));
+      errDiv.appendChild(switchBtn);
+    } else {
+      const retryBtn = document.createElement("button");
+      retryBtn.style.cssText = "margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;background:rgba(255,255,255,0.08);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:0.8rem;font-weight:600;cursor:pointer;";
+      retryBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Réessayer`;
+      retryBtn.addEventListener("click", () => retryWithModel(msgObj, g, null));
+      errDiv.appendChild(retryBtn);
+    }
+    bubble.appendChild(errDiv);
   // ── Cas image erreur : animation persistante + message d'erreur ──
-  if (msgObj.isImage && msgObj.imageError) {
+  } else if (msgObj.isImage && msgObj.imageError) {
     const animObj = createWmAnim();
     bubble.appendChild(animObj.el);
     const errDiv = document.createElement("div");
@@ -5097,7 +5242,9 @@ function appendAIMsg(msgObj, isStreaming = false) {
   actBar.className = "msg-actions";
 
   // ── Barre d'actions adaptée selon le type de message ──
-  if (msgObj.isImage && !msgObj.imageError) {
+  if (msgObj.isError && msgObj.errorInfo) {
+    // === Pas de barre d'actions : le bouton "Réessayer / Essayer avec X" est déjà dans la bulle ===
+  } else if (msgObj.isImage && !msgObj.imageError) {
     // === BOUTONS IMAGE ===
     const btnCopyImg = mkActBtn(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`, "Copier le lien");
     btnCopyImg.addEventListener("click", () => {
@@ -5391,6 +5538,18 @@ async function handleReaction(msgObj, val, btnLike, btnDislike, groupEl) {
 // =============================================
 async function regenMsg(msgObj, groupEl) {
   if (streaming) return;
+  groupEl.remove();
+  const idx = messages.findIndex(m => m.msgId === msgObj.msgId);
+  if (idx >= 0) messages.splice(idx, 1);
+  const lastUser = [...messages].reverse().find(m => m.role === "user");
+  if (!lastUser) return;
+  await doStream(lastUser.content, true);
+}
+
+// ── Réessayer un message d'erreur avec un modèle de remplacement ──────────────
+async function retryWithModel(msgObj, groupEl, modelId) {
+  if (streaming) return;
+  if (modelId) applyModelById(modelId);
   groupEl.remove();
   const idx = messages.findIndex(m => m.msgId === msgObj.msgId);
   if (idx >= 0) messages.splice(idx, 1);
@@ -6708,7 +6867,23 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
       body: _reqBody
     });
 
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    if (!res.ok) {
+      let _detail = "";
+      try {
+        const _errBody = await res.clone().text();
+        // On essaie d'extraire un message lisible si la réponse est du JSON (format provider habituel)
+        try {
+          const _errJson = JSON.parse(_errBody);
+          _detail = _errJson.error?.message || _errJson.message || _errJson.error || _errBody.slice(0, 200);
+        } catch {
+          _detail = _errBody.slice(0, 200);
+        }
+      } catch { /* corps illisible, on continue sans détail */ }
+      const _httpErr = new Error(`HTTP error! status: ${res.status}`);
+      _httpErr.status = res.status;
+      _httpErr.detail = _detail;
+      throw _httpErr;
+    }
     if (!res.body) throw new Error("No response body");
 
     const reader = res.body.getReader();
@@ -6782,6 +6957,9 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
     aiMsgObj.responseTime = Date.now() - _streamStart;
     removeThinking();
 
+    // ── Le modèle a répondu avec succès : on lève le flag "indisponible" s'il était posé ──
+    markModelUp(window._wmSelectedModelObj || WIKIMIND_MODELS.find(m => m.apiModel === selectedModel));
+
     // ── Statistiques publiques ──────────────────────────────────────────────
     savePublicStat(aiMsgObj);
 
@@ -6824,17 +7002,34 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
       messages.pop();
       if (userId && currentConvId) await saveConversation();
     } else {
-      const codeMatch = error.message?.match(/\b([345]\d{2})\b/);
-      const errCode = codeMatch ? codeMatch[1] : null;
-      const errLabel = errCode === '401' ? 'Clé API invalide (401)'
-        : errCode === '403' ? 'Accès refusé (403)'
-        : errCode === '429' ? 'Limite de requêtes atteinte (429)'
-        : errCode === '500' ? 'Erreur serveur (500)'
-        : errCode === '503' ? 'Service indisponible (503)'
-        : (error.message?.slice(0, 80) || 'Erreur inconnue');
-      const errText = `Désolé, notre modèle n'est pas disponible pour le moment. Veuillez réessayer ou contactez-nous si cela persiste.\n\n*Erreur : ${errLabel}*`;
-      aiMsgObj.content = errText;
+      const _mObjForError = window._wmSelectedModelObj || WIKIMIND_MODELS.find(m => m.apiModel === selectedModel);
+      const errCode = error.status || (error.message?.match(/\b([345]\d{2})\b/)?.[1]) || null;
+      const errLabelShort = errCode === 401 || errCode === '401' ? 'Clé API invalide'
+        : errCode === 403 || errCode === '403' ? 'Accès refusé'
+        : errCode === 404 || errCode === '404' ? 'Modèle introuvable'
+        : errCode === 429 || errCode === '429' ? 'Limite de requêtes atteinte'
+        : errCode === 500 || errCode === '500' ? 'Erreur serveur du fournisseur'
+        : errCode === 503 || errCode === '503' ? 'Service indisponible'
+        : 'Erreur de connexion';
+      const errCodeText = errCode ? ` (${errCode})` : '';
+      const errDetailText = error.detail ? error.detail : (error.message?.slice(0, 160) || 'Erreur inconnue');
+
+      // ── Marquer ce modèle comme indisponible (statut partagé Firebase) ──
+      markModelDown(_mObjForError, `${errLabelShort}${errCodeText}`);
+
+      // ── Trouver un modèle de remplacement proche et toujours dispo ──
+      const altModel = findSimilarAvailableModel(_mObjForError);
+
+      aiMsgObj.content = "";
       aiMsgObj.isError = true;
+      aiMsgObj.errorInfo = {
+        modelName: _mObjForError?.displayName || selectedModelName,
+        label: errLabelShort,
+        code: errCode,
+        detail: errDetailText,
+        altModelId: altModel ? altModel.id : null,
+        altModelName: altModel ? altModel.displayName : null
+      };
       appendAIMsg(aiMsgObj);
       if (userId && currentConvId) await saveConversation();
     }
@@ -7049,6 +7244,8 @@ async function saveConversation() {
       imageUrl: msg.imageUrl || null,
       imageError: msg.imageError || false,
       imageErrorDetail: msg.imageErrorDetail || null,
+      isError: msg.isError || false,
+      errorInfo: msg.errorInfo || null,
       flagged: msg.flagged || false
     }));
 
@@ -7248,6 +7445,8 @@ async function loadConversation(convId) {
           imageUrl: msg.imageUrl || null,
           imageError: msg.imageError || false,
           imageErrorDetail: msg.imageErrorDetail || null,
+          isError: msg.isError || false,
+          errorInfo: msg.errorInfo || null,
           flagged: msg.flagged || false
         });
       });
