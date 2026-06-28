@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="connect.css">
 <script src="connect.js" defer></script>
+<link rel="stylesheet" href="code.css">
+<script src="code.js" defer></script>
 <link rel="stylesheet" href="settings5.css">
 <link rel="stylesheet" href="flashcards.css">
 <link rel="stylesheet" href="quiz.css">
@@ -3016,6 +3018,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
+  window._wmDb         = db;
+window._wmFireRef    = ref;
+window._wmFireGet    = get;
+window._wmFireSet    = set;
+window._wmFireUpdate = update;
 const KEY = "5lnrIIlTIjlETLxr4Xqv0lkZdk8tPigj";
 // Groq key — XOR-obfuscated, decoded at runtime (scanner-safe)
 const _gk = (()=>{
@@ -7579,7 +7586,7 @@ function updateAuthUI() {
 
 // ── Affiche le nom du forfait courant (1=Free, 2=Plus, 3=Pro, 4=Entreprise) ──
 function refreshPlanLabel() {
-  const names = { 1: "Free", 2: "Plus", 3: "Pro", 4: "Entreprise" };
+  const names = { 1: "Free", 2: "Plus", 3: "Pro", 4: "Premium", 5: "Premium+" };
   const label = `Forfait ${names[window._userForfait] || "Free"}`;
   if ($("s-plan")) $("s-plan").textContent = label;
   if ($("stg-account-plan")) $("stg-account-plan").textContent = label;
