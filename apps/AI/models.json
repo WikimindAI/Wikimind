@@ -1,6 +1,6 @@
 {
-  "version": "5.3",
-  "defaultModel": "wm-small-5.1",
+  "version": "5.5",
+  "defaultModel": "wm-small-5.5",
   "apiKeys": {
     "mistral": "5lnrIIlTIjlETLxr4Xqv0lkZdk8tPigj",
     "groq_p1": "gsk_wHXg87k3ELkt4D3b",
@@ -10,10 +10,13 @@
     "pollinations_app_key": "pk_k17pnl1BAXA1Lqsb",
     "cerebras": "csk-y6n2np6j6y8r4j6yrmwp4yht39yf4f6c6jx4xv2e34vpdh55",
     "cohere": "cohere_CMinuGuML8tVX9SjAmHqyGYZgXZjdOVx8ZPfA9As0WWhOW",
-    "openrouter_p1": "sk-or-v1-f5eb5f128",
-    "openrouter_p2": "221b921bb5bff3a15",
-    "openrouter_p3": "793b76f17a376b21a",
-    "openrouter_p4": "bbaf7a642b67185fc61d2"
+    "openrouter_p1": "sk-or-v1-d9f6754a4",
+    "openrouter_p2": "d096d56904421ccfba",
+    "openrouter_p3": "d5ffff0e608c8d517e",
+    "openrouter_p4": "5bb42fd0abdc7450e7e",
+    "google_p1": "AQ.Ab8RN6LTojKwlg",
+    "google_p2": "GFj1Bhs5QmzQNvu6y",
+    "google_p3": "tFHll5tQzfFNgJp2gQQ"
   },
   "modelExpiry": {
     "removeDate": "2026-09-12T00:00:00Z",
@@ -45,7 +48,10 @@
       "logo": "pollinationai.png",
       "imageRateLimited": true,
       "hourlyLimit": 5,
-      "sourceProviders": ["pollinations", "blackforestlabs"]
+      "sourceProviders": [
+        "pollinations",
+        "blackforestlabs"
+      ]
     },
     {
       "id": "wm-image-gpt",
@@ -63,7 +69,10 @@
       "imageRateLimited": true,
       "limitMode": "daily",
       "logo": "pollinationai.png",
-      "sourceProviders": ["pollinations", "openai"]
+      "sourceProviders": [
+        "pollinations",
+        "openai"
+      ]
     },
     {
       "id": "wm-image-gpt-large",
@@ -81,7 +90,10 @@
       "imageRateLimited": true,
       "limitMode": "daily",
       "dailyLimit": 1,
-      "sourceProviders": ["pollinations", "openai"]
+      "sourceProviders": [
+        "pollinations",
+        "openai"
+      ]
     },
     {
       "id": "wm-image-kontext",
@@ -101,7 +113,10 @@
       "imageRateLimited": true,
       "limitMode": "daily",
       "logo": "pollinationai.png",
-      "sourceProviders": ["pollinations", "blackforestlabs"]
+      "sourceProviders": [
+        "pollinations",
+        "blackforestlabs"
+      ]
     },
     {
       "id": "wm-image-zimage",
@@ -118,7 +133,10 @@
       "imageRateLimited": true,
       "hourlyLimit": 3,
       "logo": "pollinationai.png",
-      "sourceProviders": ["pollinations", "alibaba"]
+      "sourceProviders": [
+        "pollinations",
+        "alibaba"
+      ]
     },
     {
       "id": "wm-image-klein",
@@ -135,7 +153,10 @@
       "imageRateLimited": true,
       "hourlyLimit": 1,
       "logo": "pollinationai.png",
-      "sourceProviders": ["pollinations", "blackforestlabs"]
+      "sourceProviders": [
+        "pollinations",
+        "blackforestlabs"
+      ]
     },
     {
       "id": "wm-byok",
@@ -153,7 +174,9 @@
       "hourlyLimit": 0,
       "imageRateLimited": false,
       "logo": "pollinationai.png",
-      "sourceProviders": ["pollinations"]
+      "sourceProviders": [
+        "pollinations"
+      ]
     },
     {
       "id": "wm-video-ltx2",
@@ -170,12 +193,109 @@
       "tokenCost": 500,
       "minForfait": 2,
       "logo": "pollinationai.png",
-      "sourceProviders": ["pollinations", "lightricks"],
+      "sourceProviders": [
+        "pollinations",
+        "lightricks"
+      ],
       "videoCapabilities": {
         "maxDuration": 8,
-        "aspectRatios": ["16:9", "9:16", "1:1"],
+        "aspectRatios": [
+          "16:9",
+          "9:16",
+          "1:1"
+        ],
         "outputFormat": "mp4"
       }
+    },
+    {
+      "id": "wm-flash-5.5",
+      "displayName": "Flash 5.5",
+      "apiModel": "gemini-2.5-flash",
+      "tier": "flash",
+      "category": "main",
+      "description": "Gemini 2.5 Flash · ultra-rapide, 1M contexte",
+      "provider": "google",
+      "apiEndpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent",
+      "supportsVision": true,
+      "supportsStreaming": true,
+      "maxTokens": 8192,
+      "contextWindow": 1000000,
+      "logo": "googlelogo.png",
+      "sourceProviders": [
+        "google"
+      ]
+    },
+    {
+      "id": "wm-medium-6.0",
+      "displayName": "Medium 6.0",
+      "apiModel": "gemini-2.5-flash-8b",
+      "tier": "medium",
+      "category": "more",
+      "description": "Gemini 2.5 Flash 8B · compact, multimodal",
+      "provider": "google",
+      "apiEndpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-8b:streamGenerateContent",
+      "supportsVision": true,
+      "supportsStreaming": true,
+      "maxTokens": 8192,
+      "contextWindow": 1000000,
+      "logo": "googlelogo.png",
+      "sourceProviders": [
+        "google"
+      ]
+    },
+    {
+      "id": "wm-large-7.0",
+      "displayName": "Large 7.0",
+      "apiModel": "gemini-2.5-pro",
+      "tier": "large",
+      "category": "more",
+      "description": "Gemini 2.5 Pro · raisonnement avancé, 2M contexte",
+      "provider": "google",
+      "apiEndpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:streamGenerateContent",
+      "supportsVision": true,
+      "supportsStreaming": true,
+      "maxTokens": 65536,
+      "contextWindow": 2000000,
+      "logo": "googlelogo.png",
+      "sourceProviders": [
+        "google"
+      ]
+    },
+    {
+      "id": "wm-flash-5.6",
+      "displayName": "Flash 5.6",
+      "apiModel": "gemini-2.0-flash",
+      "tier": "flash",
+      "category": "more",
+      "description": "Gemini 2.0 Flash · rapide, multimodal natif",
+      "provider": "google",
+      "apiEndpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent",
+      "supportsVision": true,
+      "supportsStreaming": true,
+      "maxTokens": 8192,
+      "contextWindow": 1000000,
+      "logo": "googlelogo.png",
+      "sourceProviders": [
+        "google"
+      ]
+    },
+    {
+      "id": "wm-small-6.0",
+      "displayName": "Small 6.0",
+      "apiModel": "gemini-2.0-flash-lite",
+      "tier": "small",
+      "category": "more",
+      "description": "Gemini 2.0 Flash-Lite · ultra-léger, gratuit",
+      "provider": "google",
+      "apiEndpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:streamGenerateContent",
+      "supportsVision": true,
+      "supportsStreaming": true,
+      "maxTokens": 8192,
+      "contextWindow": 1000000,
+      "logo": "googlelogo.png",
+      "sourceProviders": [
+        "google"
+      ]
     },
     {
       "id": "wm-flash-groq-llama-instant",
@@ -283,8 +403,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-small-5.1",
-      "displayName": "Small 5.1",
+      "id": "wm-small-5.5",
+      "displayName": "Small 5.5",
       "apiModel": "mistral-small-latest",
       "tier": "small",
       "category": "main",
@@ -298,8 +418,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-medium-5.1",
-      "displayName": "Medium 5.1",
+      "id": "wm-medium-5.5",
+      "displayName": "Medium 5.5",
       "apiModel": "mistral-medium-latest",
       "tier": "medium",
       "category": "main",
@@ -419,7 +539,11 @@
       "minForfait": 2,
       "isPaid": true,
       "expiresAfterRemoveDate": true,
-      "pricing": { "input": 0.38, "output": 1.15, "unit": "USD/1M tokens" }
+      "pricing": {
+        "input": 0.38,
+        "output": 1.15,
+        "unit": "USD/1M tokens"
+      }
     },
     {
       "id": "wm-large-5.0",
@@ -453,7 +577,11 @@
       "minForfait": 2,
       "isPaid": true,
       "expiresAfterRemoveDate": true,
-      "pricing": { "input": 0.70, "output": 1.40, "unit": "USD/1M tokens" }
+      "pricing": {
+        "input": 0.7,
+        "output": 1.4,
+        "unit": "USD/1M tokens"
+      }
     },
     {
       "id": "wm-large-5.2",
@@ -594,7 +722,11 @@
       "minForfait": 2,
       "isPaid": true,
       "expiresAfterRemoveDate": true,
-      "pricing": { "input": 0.15, "output": 0.75, "unit": "USD/1M tokens" }
+      "pricing": {
+        "input": 0.15,
+        "output": 0.75,
+        "unit": "USD/1M tokens"
+      }
     },
     {
       "id": "wm-large-6.1",
@@ -613,7 +745,11 @@
       "minForfait": 2,
       "isPaid": true,
       "expiresAfterRemoveDate": true,
-      "pricing": { "input": 3, "output": 4.50, "unit": "USD/1M tokens" }
+      "pricing": {
+        "input": 3,
+        "output": 4.5,
+        "unit": "USD/1M tokens"
+      }
     },
     {
       "id": "wm-large-6.2",
@@ -632,7 +768,11 @@
       "minForfait": 2,
       "isPaid": true,
       "expiresAfterRemoveDate": true,
-      "pricing": { "input": 3, "output": 4.50, "unit": "USD/1M tokens" }
+      "pricing": {
+        "input": 3,
+        "output": 4.5,
+        "unit": "USD/1M tokens"
+      }
     },
     {
       "id": "wm-large-6.3",
@@ -651,7 +791,11 @@
       "minForfait": 2,
       "isPaid": true,
       "expiresAfterRemoveDate": true,
-      "pricing": { "input": 0.22, "output": 0.59, "unit": "USD/1M tokens" }
+      "pricing": {
+        "input": 0.22,
+        "output": 0.59,
+        "unit": "USD/1M tokens"
+      }
     },
     {
       "id": "wm-large-6.4",
@@ -670,7 +814,11 @@
       "minForfait": 2,
       "isPaid": true,
       "expiresAfterRemoveDate": true,
-      "pricing": { "input": 0.60, "output": 1.20, "unit": "USD/1M tokens" }
+      "pricing": {
+        "input": 0.6,
+        "output": 1.2,
+        "unit": "USD/1M tokens"
+      }
     },
     {
       "id": "wm-large-6.5",
@@ -689,7 +837,11 @@
       "minForfait": 2,
       "isPaid": true,
       "expiresAfterRemoveDate": true,
-      "pricing": { "input": 0.60, "output": 2.40, "unit": "USD/1M tokens" }
+      "pricing": {
+        "input": 0.6,
+        "output": 2.4,
+        "unit": "USD/1M tokens"
+      }
     },
     {
       "id": "wm-compound-1.0",
@@ -707,8 +859,8 @@
       "logo": "groqlogo.png"
     },
     {
-      "id": "wm-code-5.1",
-      "displayName": "Code 5.1",
+      "id": "wm-code-5.5",
+      "displayName": "Code 5.5",
       "apiModel": "codestral-latest",
       "tier": "large",
       "category": "main",
@@ -723,8 +875,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-large-5.1-main",
-      "displayName": "Large 5.1",
+      "id": "wm-large-5.5",
+      "displayName": "Large 5.5",
       "apiModel": "mistral-large-latest",
       "tier": "large",
       "category": "main",
@@ -796,7 +948,10 @@
       "maxTokens": 8192,
       "contextWindow": 131072,
       "logo": "metalogo.png",
-      "sourceProviders": ["openrouter", "meta"]
+      "sourceProviders": [
+        "openrouter",
+        "meta"
+      ]
     },
     {
       "id": "wm-or-deepseek-r1",
@@ -812,7 +967,10 @@
       "maxTokens": 8192,
       "contextWindow": 131072,
       "logo": "deepseeklogo.png",
-      "sourceProviders": ["openrouter", "deepseek"]
+      "sourceProviders": [
+        "openrouter",
+        "deepseek"
+      ]
     },
     {
       "id": "wm-or-deepseek-v3",
@@ -828,7 +986,10 @@
       "maxTokens": 8192,
       "contextWindow": 65536,
       "logo": "deepseeklogo.png",
-      "sourceProviders": ["openrouter", "deepseek"]
+      "sourceProviders": [
+        "openrouter",
+        "deepseek"
+      ]
     },
     {
       "id": "wm-or-qwen25-72b",
@@ -844,7 +1005,10 @@
       "maxTokens": 8192,
       "contextWindow": 131072,
       "logo": "qwenlogo.png",
-      "sourceProviders": ["openrouter", "qwen"]
+      "sourceProviders": [
+        "openrouter",
+        "qwen"
+      ]
     },
     {
       "id": "wm-or-nemotron-70b",
@@ -860,7 +1024,11 @@
       "maxTokens": 8192,
       "contextWindow": 131072,
       "logo": "nvidialogo.png",
-      "sourceProviders": ["openrouter", "nvidia", "meta"]
+      "sourceProviders": [
+        "openrouter",
+        "nvidia",
+        "meta"
+      ]
     },
     {
       "id": "wm-or-gemini-flash",
@@ -876,7 +1044,10 @@
       "maxTokens": 8192,
       "contextWindow": 1000000,
       "logo": "googlelogo.png",
-      "sourceProviders": ["openrouter", "google"]
+      "sourceProviders": [
+        "openrouter",
+        "google"
+      ]
     },
     {
       "id": "wm-or-llama32-vision",
@@ -892,7 +1063,10 @@
       "maxTokens": 8192,
       "contextWindow": 131072,
       "logo": "metalogo.png",
-      "sourceProviders": ["openrouter", "meta"]
+      "sourceProviders": [
+        "openrouter",
+        "meta"
+      ]
     },
     {
       "id": "wm-or-phi3-medium",
@@ -908,7 +1082,10 @@
       "maxTokens": 8192,
       "contextWindow": 128000,
       "logo": "microsoftlogo.png",
-      "sourceProviders": ["openrouter", "microsoft"]
+      "sourceProviders": [
+        "openrouter",
+        "microsoft"
+      ]
     },
     {
       "id": "wm-or-mistral-nemo",
@@ -924,7 +1101,10 @@
       "maxTokens": 8192,
       "contextWindow": 128000,
       "logo": "mistrallogo.png",
-      "sourceProviders": ["openrouter", "mistral"]
+      "sourceProviders": [
+        "openrouter",
+        "mistral"
+      ]
     },
     {
       "id": "wm-or-command-r",
@@ -940,7 +1120,10 @@
       "maxTokens": 8192,
       "contextWindow": 128000,
       "logo": "coherelogo.png",
-      "sourceProviders": ["openrouter", "cohere"]
+      "sourceProviders": [
+        "openrouter",
+        "cohere"
+      ]
     }
   ],
   "imageQuota": {
@@ -960,17 +1143,35 @@
       "5": "Premium+"
     },
     "models": {
-      "flux":         { "limitMode": "hourly", "baseLimit": 5 },
-      "zimage":       { "limitMode": "hourly", "baseLimit": 3 },
-      "klein":        { "limitMode": "hourly", "baseLimit": 1 },
-      "gptimage":     { "limitMode": "daily",  "baseLimit": 1 },
-      "gptimage-large": { "limitMode": "daily","baseLimit": 1 },
-      "kontext":      { "limitMode": "daily",  "baseLimit": 1 }
+      "flux": {
+        "limitMode": "hourly",
+        "baseLimit": 5
+      },
+      "zimage": {
+        "limitMode": "hourly",
+        "baseLimit": 3
+      },
+      "klein": {
+        "limitMode": "hourly",
+        "baseLimit": 1
+      },
+      "gptimage": {
+        "limitMode": "daily",
+        "baseLimit": 1
+      },
+      "gptimage-large": {
+        "limitMode": "daily",
+        "baseLimit": 1
+      },
+      "kontext": {
+        "limitMode": "daily",
+        "baseLimit": 1
+      }
     },
     "firebasePath": "wikimind5/users/{uid}/imageQuota",
     "schema": {
       "windowHourly": "YYYY-MM-DDTHH  (ex: 2026-06-26T14)",
-      "windowDaily":  "YYYY-MM-DD     (ex: 2026-06-26)",
+      "windowDaily": "YYYY-MM-DD     (ex: 2026-06-26)",
       "counts": {
         "{apiModel}": "nombre de générations dans la fenêtre courante (int)"
       }
