@@ -1723,6 +1723,38 @@ body.chat-empty-state #input-container {
 .model-opt-down:hover { opacity: 0.8; }
 .model-opt-down .model-opt-name { color: var(--text2); }
 
+/* ── Animation message d'erreur modèle : signal qui pulse, façon radar perdu ── */
+@media (prefers-reduced-motion: no-preference) {
+  .wm-err-pulse-ring {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(248,113,113,0.18);
+    animation: wm-err-pulse 1.8s ease-out infinite;
+  }
+  .wm-err-switch-arrow {
+    animation: wm-err-arrow-nudge 1.6s ease-in-out infinite;
+  }
+}
+.wm-err-pulse-ring {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(248,113,113,0.18);
+}
+@keyframes wm-err-pulse {
+  0%   { transform: scale(0.6); opacity: 0.9; }
+  70%  { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes wm-err-arrow-nudge {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(3px); }
+}
+.wm-err-card details summary::-webkit-details-marker { display: none; }
+
 /* More models row */
 .model-opt-more {
   display: flex;
@@ -5181,30 +5213,64 @@ function appendAIMsg(msgObj, isStreaming = false) {
   bubble.className = "bubble ai";
   if (isStreaming) bubble.id = "stream-bubble";
 
-  // ── Cas erreur texte structurée : code, détail précis, bouton modèle de secours ──
+  // ── Cas erreur texte structurée : animation, explication claire, modèle de secours ──
   if (msgObj.isError && msgObj.errorInfo) {
     const info = msgObj.errorInfo;
     const errDiv = document.createElement("div");
-    errDiv.style.cssText = "padding:12px 14px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:10px;font-size:0.85rem;line-height:1.5;";
+    errDiv.className = "wm-err-card";
+    errDiv.style.cssText = "padding:16px;background:var(--bg2,rgba(248,113,113,0.06));border:1px solid rgba(248,113,113,0.18);border-radius:12px;font-size:0.85rem;line-height:1.55;";
+
+    // Icône animée : cercle "pulse" + signal qui clignote, façon radar qui ne capte plus
+    const pulseIcon = `
+      <span class="wm-err-pulse-wrap" style="position:relative;width:34px;height:34px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;">
+        <span class="wm-err-pulse-ring"></span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.2" style="position:relative;z-index:1;">
+          <path d="M12 2a4 4 0 0 1 4 4v5a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/>
+          <path d="M19 11a7 7 0 0 1-14 0"/>
+          <line x1="12" y1="18" x2="12" y2="22"/>
+        </svg>
+      </span>`;
+
+    // Bloc visuel "modèle actuel -> modèle proposé" si une alternative existe
+    const switchVisual = info.altModelId ? `
+      <div class="wm-err-switch-visual" style="display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:10px;">
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px;">Actuel</div>
+          <div style="font-weight:600;color:var(--text2);text-decoration:line-through;text-decoration-color:rgba(248,113,113,0.5);">${escHtml(info.modelName || "")}</div>
+        </div>
+        <svg class="wm-err-switch-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.3" style="flex-shrink:0;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:0.68rem;color:#34d399;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px;">Proposé</div>
+          <div style="font-weight:600;color:var(--text);">${escHtml(info.altModelName)}</div>
+        </div>
+      </div>` : '';
+
     errDiv.innerHTML = `
-      <div style="display:flex;align-items:center;gap:7px;font-weight:600;color:#f87171;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        ${escHtml(info.modelName || "Ce modèle")} n'est pas disponible pour le moment
+      <div style="display:flex;align-items:flex-start;gap:11px;">
+        ${pulseIcon}
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;color:var(--text);">${escHtml(info.modelName || "Ce modèle")} ne répond pas</div>
+          <div style="margin-top:3px;color:var(--text2);">${escHtml(info.label)}${info.code ? ` · code ${escHtml(String(info.code))}` : ''} — ça arrive quand un modèle est temporairement surchargé ou indisponible chez son fournisseur.</div>
+        </div>
       </div>
-      <div style="margin-top:6px;color:var(--text2);">${escHtml(info.label)}${info.code ? ` — code ${escHtml(String(info.code))}` : ''}</div>
-      <div style="margin-top:6px;font-family:monospace;font-size:0.74rem;color:var(--text3);background:rgba(0,0,0,0.15);border-radius:6px;padding:6px 9px;word-break:break-word;">${escHtml(info.detail || '')}</div>
+      ${switchVisual}
+      <details style="margin-top:10px;">
+        <summary style="cursor:pointer;color:var(--text3);font-size:0.74rem;user-select:none;">Détail technique</summary>
+        <div style="margin-top:6px;font-family:monospace;font-size:0.74rem;color:var(--text3);background:rgba(0,0,0,0.15);border-radius:6px;padding:6px 9px;word-break:break-word;">${escHtml(info.detail || '')}</div>
+      </details>
     `;
+
     if (info.altModelId) {
       const switchBtn = document.createElement("button");
-      switchBtn.style.cssText = "margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;background:rgba(255,255,255,0.08);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:0.8rem;font-weight:600;cursor:pointer;transition:background 0.15s;";
-      switchBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Essayer avec ${escHtml(info.altModelName)}`;
-      switchBtn.addEventListener("mouseenter", () => switchBtn.style.background = "rgba(255,255,255,0.14)");
-      switchBtn.addEventListener("mouseleave", () => switchBtn.style.background = "rgba(255,255,255,0.08)");
+      switchBtn.style.cssText = "margin-top:12px;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#34d399;border:none;border-radius:8px;color:#06281c;font-size:0.82rem;font-weight:600;cursor:pointer;transition:filter 0.15s;";
+      switchBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Essayer avec ${escHtml(info.altModelName)}`;
+      switchBtn.addEventListener("mouseenter", () => switchBtn.style.filter = "brightness(1.08)");
+      switchBtn.addEventListener("mouseleave", () => switchBtn.style.filter = "none");
       switchBtn.addEventListener("click", () => retryWithModel(msgObj, g, info.altModelId));
       errDiv.appendChild(switchBtn);
     } else {
       const retryBtn = document.createElement("button");
-      retryBtn.style.cssText = "margin-top:10px;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;background:rgba(255,255,255,0.08);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:0.8rem;font-weight:600;cursor:pointer;";
+      retryBtn.style.cssText = "margin-top:12px;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(255,255,255,0.08);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:0.82rem;font-weight:600;cursor:pointer;";
       retryBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Réessayer`;
       retryBtn.addEventListener("click", () => retryWithModel(msgObj, g, null));
       errDiv.appendChild(retryBtn);
