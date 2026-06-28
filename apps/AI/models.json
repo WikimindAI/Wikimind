@@ -1,6 +1,6 @@
 {
   "version": "5.5",
-  "defaultModel": "wm-small-5.5",
+  "defaultModel": "wm-small-2.5",
   "apiKeys": {
     "mistral": "5lnrIIlTIjlETLxr4Xqv0lkZdk8tPigj",
     "groq_p1": "gsk_wHXg87k3ELkt4D3b",
@@ -208,8 +208,8 @@
       }
     },
     {
-      "id": "wm-flash-5.5",
-      "displayName": "Flash 5.5",
+      "id": "wm-flash-1.9",
+      "displayName": "Flash 1.9",
       "apiModel": "gemini-2.5-flash",
       "tier": "flash",
       "category": "main",
@@ -226,8 +226,8 @@
       ]
     },
     {
-      "id": "wm-medium-6.0",
-      "displayName": "Medium 6.0",
+      "id": "wm-medium-3.7",
+      "displayName": "Medium 3.7",
       "apiModel": "gemini-2.5-flash-8b",
       "tier": "medium",
       "category": "more",
@@ -244,8 +244,8 @@
       ]
     },
     {
-      "id": "wm-large-7.0",
-      "displayName": "Large 7.0",
+      "id": "wm-large-6.9",
+      "displayName": "Large 6.9",
       "apiModel": "gemini-2.5-pro",
       "tier": "large",
       "category": "more",
@@ -262,8 +262,8 @@
       ]
     },
     {
-      "id": "wm-flash-5.6",
-      "displayName": "Flash 5.6",
+      "id": "wm-flash-1.7",
+      "displayName": "Flash 1.7",
       "apiModel": "gemini-2.0-flash",
       "tier": "flash",
       "category": "more",
@@ -280,8 +280,8 @@
       ]
     },
     {
-      "id": "wm-small-6.0",
-      "displayName": "Small 6.0",
+      "id": "wm-small-2.1",
+      "displayName": "Small 2.1",
       "apiModel": "gemini-2.0-flash-lite",
       "tier": "small",
       "category": "more",
@@ -298,8 +298,8 @@
       ]
     },
     {
-      "id": "wm-flash-groq-llama-instant",
-      "displayName": "Flash 1.0",
+      "id": "wm-flash-1.1",
+      "displayName": "Flash 1.1",
       "apiModel": "llama-3.1-8b-instant",
       "tier": "flash",
       "category": "more",
@@ -313,8 +313,8 @@
       "logo": "groqlogo.png"
     },
     {
-      "id": "wm-flash-1.1",
-      "displayName": "Flash 1.1",
+      "id": "wm-flash-1.0",
+      "displayName": "Flash 1.0",
       "apiModel": "llama-3.2-3b-preview",
       "tier": "flash",
       "category": "more",
@@ -343,8 +343,8 @@
       "logo": "groqlogo.png"
     },
     {
-      "id": "wm-flash-1.3",
-      "displayName": "Flash 1.3",
+      "id": "wm-flash-1.5",
+      "displayName": "Flash 1.5",
       "apiModel": "zai-glm-4.7",
       "tier": "flash",
       "category": "more",
@@ -358,8 +358,8 @@
       "logo": "cerebraslogo.png"
     },
     {
-      "id": "wm-flash-1.4",
-      "displayName": "Flash 1.4",
+      "id": "wm-flash-1.3",
+      "displayName": "Flash 1.3",
       "apiModel": "ministral-3b-2512",
       "tier": "flash",
       "category": "more",
@@ -373,8 +373,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-flash-1.5",
-      "displayName": "Flash 1.5",
+      "id": "wm-flash-1.4",
+      "displayName": "Flash 1.4",
       "apiModel": "labs-leanstral-2603",
       "tier": "flash",
       "category": "more",
@@ -388,8 +388,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-small-4.7",
-      "displayName": "Small 4.7",
+      "id": "wm-small-2.0",
+      "displayName": "Small 2.0",
       "apiModel": "ministral-3b-latest",
       "tier": "small",
       "category": "more",
@@ -403,8 +403,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-small-5.5",
-      "displayName": "Small 5.5",
+      "id": "wm-small-2.5",
+      "displayName": "Small 2.5",
       "apiModel": "mistral-small-latest",
       "tier": "small",
       "category": "main",
@@ -418,8 +418,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-medium-5.5",
-      "displayName": "Medium 5.5",
+      "id": "wm-medium-3.9",
+      "displayName": "Medium 3.9",
       "apiModel": "mistral-medium-latest",
       "tier": "medium",
       "category": "main",
@@ -433,8 +433,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-medium-5.2",
-      "displayName": "Medium 5.2",
+      "id": "wm-medium-3.2",
+      "displayName": "Medium 3.2",
       "apiModel": "pixtral-12b-2409",
       "tier": "medium",
       "category": "more",
@@ -448,8 +448,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-medium-5.3",
-      "displayName": "Medium 5.3",
+      "id": "wm-medium-3.3",
+      "displayName": "Medium 3.3",
       "apiModel": "llama-3.3-70b-versatile",
       "tier": "medium",
       "category": "more",
@@ -463,8 +463,8 @@
       "logo": "groqlogo.png"
     },
     {
-      "id": "wm-medium-5.4",
-      "displayName": "Medium 5.4",
+      "id": "wm-medium-3.1",
+      "displayName": "Medium 3.1",
       "apiModel": "ministral-14b-2512",
       "tier": "medium",
       "category": "more",
@@ -478,8 +478,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-medium-5.5",
-      "displayName": "Medium 5.5",
+      "id": "wm-medium-3.4",
+      "displayName": "Medium 3.4",
       "apiModel": "mistral-medium-2505",
       "tier": "medium",
       "category": "more",
@@ -493,8 +493,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-medium-5.6",
-      "displayName": "Medium 5.6",
+      "id": "wm-medium-3.5",
+      "displayName": "Medium 3.5",
       "apiModel": "mistral-medium-2508",
       "tier": "medium",
       "category": "more",
@@ -508,8 +508,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-medium-5.7",
-      "displayName": "Medium 5.7",
+      "id": "wm-medium-3.6",
+      "displayName": "Medium 3.6",
       "apiModel": "magistral-medium-2509",
       "tier": "medium",
       "category": "more",
@@ -523,8 +523,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-medium-5.8",
-      "displayName": "Medium 5.8",
+      "id": "wm-medium-3.8",
+      "displayName": "Medium 3.8",
       "apiModel": "gemma-4-31B-it",
       "tier": "medium",
       "category": "more",
@@ -561,8 +561,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-large-5.1",
-      "displayName": "Large 5.1",
+      "id": "wm-large-6.0",
+      "displayName": "Large 6.0",
       "apiModel": "DeepSeek-R1-Distill-Llama-70B",
       "tier": "large",
       "category": "more",
@@ -584,23 +584,8 @@
       }
     },
     {
-      "id": "wm-large-5.2",
-      "displayName": "Large 5.2",
-      "apiModel": "codestral-latest",
-      "tier": "large",
-      "category": "more",
-      "description": "Spécialisé code, 80+ langages",
-      "provider": "mistral",
-      "apiEndpoint": "https://api.mistral.ai/v1/chat/completions",
-      "supportsVision": false,
-      "supportsStreaming": true,
-      "maxTokens": 32768,
-      "contextWindow": 262144,
-      "logo": "mistrallogo.png"
-    },
-    {
-      "id": "wm-large-5.3",
-      "displayName": "Large 5.3",
+      "id": "wm-large-5.1",
+      "displayName": "Large 5.1",
       "apiModel": "pixtral-large-latest",
       "tier": "large",
       "category": "more",
@@ -614,8 +599,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-large-5.4",
-      "displayName": "Large 5.4",
+      "id": "wm-large-5.2",
+      "displayName": "Large 5.2",
       "apiModel": "deepseek-r1-distill-llama-70b",
       "tier": "large",
       "category": "more",
@@ -629,8 +614,8 @@
       "logo": "groqlogo.png"
     },
     {
-      "id": "wm-large-5.5",
-      "displayName": "Large 5.5",
+      "id": "wm-large-5.3",
+      "displayName": "Large 5.3",
       "apiModel": "meta-llama/llama-4-maverick-17b-128e-instruct",
       "tier": "large",
       "category": "more",
@@ -644,8 +629,8 @@
       "logo": "groqlogo.png"
     },
     {
-      "id": "wm-large-5.6",
-      "displayName": "Large 5.6",
+      "id": "wm-large-5.4",
+      "displayName": "Large 5.4",
       "apiModel": "gpt-oss-120b",
       "tier": "large",
       "category": "more",
@@ -659,8 +644,8 @@
       "logo": "cerebraslogo.png"
     },
     {
-      "id": "wm-large-5.7",
-      "displayName": "Large 5.7",
+      "id": "wm-large-5.6",
+      "displayName": "Large 5.6",
       "apiModel": "mistral-large-2512",
       "tier": "large",
       "category": "more",
@@ -674,8 +659,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-large-5.8",
-      "displayName": "Large 5.8",
+      "id": "wm-large-5.7",
+      "displayName": "Large 5.7",
       "apiModel": "codestral-2508",
       "tier": "large",
       "category": "more",
@@ -690,8 +675,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-large-5.9",
-      "displayName": "Large 5.9",
+      "id": "wm-large-5.8",
+      "displayName": "Large 5.8",
       "apiModel": "devstral-2512",
       "tier": "large",
       "category": "more",
@@ -706,8 +691,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-large-6.0",
-      "displayName": "Large 6.0",
+      "id": "wm-large-6.3",
+      "displayName": "Large 6.3",
       "apiModel": "DeepSeek-V3.1-cb",
       "tier": "large",
       "category": "more",
@@ -729,8 +714,8 @@
       }
     },
     {
-      "id": "wm-large-6.1",
-      "displayName": "Large 6.1",
+      "id": "wm-large-6.4",
+      "displayName": "Large 6.4",
       "apiModel": "DeepSeek-V3.1",
       "tier": "large",
       "category": "more",
@@ -752,8 +737,8 @@
       }
     },
     {
-      "id": "wm-large-6.2",
-      "displayName": "Large 6.2",
+      "id": "wm-large-6.5",
+      "displayName": "Large 6.5",
       "apiModel": "DeepSeek-V3.2",
       "tier": "large",
       "category": "more",
@@ -775,8 +760,8 @@
       }
     },
     {
-      "id": "wm-large-6.3",
-      "displayName": "Large 6.3",
+      "id": "wm-large-6.6",
+      "displayName": "Large 6.6",
       "apiModel": "gpt-oss-120b",
       "tier": "large",
       "category": "more",
@@ -798,8 +783,8 @@
       }
     },
     {
-      "id": "wm-large-6.4",
-      "displayName": "Large 6.4",
+      "id": "wm-large-6.1",
+      "displayName": "Large 6.1",
       "apiModel": "Meta-Llama-3.3-70B-Instruct",
       "tier": "large",
       "category": "more",
@@ -821,8 +806,8 @@
       }
     },
     {
-      "id": "wm-large-6.5",
-      "displayName": "Large 6.5",
+      "id": "wm-large-6.2",
+      "displayName": "Large 6.2",
       "apiModel": "MiniMax-M2.7",
       "tier": "large",
       "category": "more",
@@ -859,8 +844,8 @@
       "logo": "groqlogo.png"
     },
     {
-      "id": "wm-code-5.5",
-      "displayName": "Code 5.5",
+      "id": "wm-large-5.5",
+      "displayName": "Large 5.5",
       "apiModel": "codestral-latest",
       "tier": "large",
       "category": "main",
@@ -875,8 +860,8 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-large-5.5",
-      "displayName": "Large 5.5",
+      "id": "wm-large-5.9",
+      "displayName": "Large 5.9",
       "apiModel": "mistral-large-latest",
       "tier": "large",
       "category": "main",
@@ -890,10 +875,10 @@
       "logo": "mistrallogo.png"
     },
     {
-      "id": "wm-volume-5.1",
-      "displayName": "Volume 5.1",
+      "id": "wm-large-4.1",
+      "displayName": "Large 4.1",
       "apiModel": "command-r-plus-08-2024",
-      "tier": "volume",
+      "tier": "large",
       "category": "more",
       "description": "Command R+ 104B · multilingue, RAG, tool use",
       "provider": "cohere",
@@ -905,10 +890,10 @@
       "logo": "coherelogo.png"
     },
     {
-      "id": "wm-volume-5.2",
-      "displayName": "Volume 5.2",
+      "id": "wm-large-4.2",
+      "displayName": "Large 4.2",
       "apiModel": "command-a-03-2025",
-      "tier": "volume",
+      "tier": "large",
       "category": "more",
       "description": "Command A 111B · agent, RAG, 256K contexte",
       "provider": "cohere",
@@ -920,10 +905,10 @@
       "logo": "coherelogo.png"
     },
     {
-      "id": "wm-volume-5.3",
-      "displayName": "Volume 5.3",
+      "id": "wm-large-4.3",
+      "displayName": "Large 4.3",
       "apiModel": "command-a-plus-05-2026",
-      "tier": "volume",
+      "tier": "large",
       "category": "more",
       "description": "Command A+ 218B MoE · vision, 48 langues, raisonnement",
       "provider": "cohere",
@@ -935,8 +920,8 @@
       "logo": "coherelogo.png"
     },
     {
-      "id": "wm-or-llama33-70b",
-      "displayName": "Llama 3.3 70B",
+      "id": "wm-large-4.4",
+      "displayName": "Large 4.4",
       "apiModel": "meta-llama/llama-3.3-70b-instruct:free",
       "tier": "large",
       "category": "more",
@@ -954,8 +939,8 @@
       ]
     },
     {
-      "id": "wm-or-deepseek-r1",
-      "displayName": "DeepSeek R1",
+      "id": "wm-large-4.9",
+      "displayName": "Large 4.9",
       "apiModel": "deepseek/deepseek-r1:free",
       "tier": "large",
       "category": "more",
@@ -973,8 +958,8 @@
       ]
     },
     {
-      "id": "wm-or-deepseek-v3",
-      "displayName": "DeepSeek V3",
+      "id": "wm-large-4.8",
+      "displayName": "Large 4.8",
       "apiModel": "deepseek/deepseek-chat:free",
       "tier": "large",
       "category": "more",
@@ -992,8 +977,8 @@
       ]
     },
     {
-      "id": "wm-or-qwen25-72b",
-      "displayName": "Qwen 2.5 72B",
+      "id": "wm-large-4.6",
+      "displayName": "Large 4.6",
       "apiModel": "qwen/qwen-2.5-72b-instruct:free",
       "tier": "large",
       "category": "more",
@@ -1011,8 +996,8 @@
       ]
     },
     {
-      "id": "wm-or-nemotron-70b",
-      "displayName": "Nemotron 70B",
+      "id": "wm-large-4.5",
+      "displayName": "Large 4.5",
       "apiModel": "nvidia/llama-3.1-nemotron-70b-instruct:free",
       "tier": "large",
       "category": "more",
@@ -1031,8 +1016,8 @@
       ]
     },
     {
-      "id": "wm-or-gemini-flash",
-      "displayName": "Gemini Flash",
+      "id": "wm-flash-1.6",
+      "displayName": "Flash 1.6",
       "apiModel": "google/gemini-2.5-flash:free",
       "tier": "flash",
       "category": "more",
@@ -1050,8 +1035,8 @@
       ]
     },
     {
-      "id": "wm-or-llama32-vision",
-      "displayName": "Llama 3.2 90B Vision",
+      "id": "wm-large-4.7",
+      "displayName": "Large 4.7",
       "apiModel": "meta-llama/llama-3.2-90b-vision-instruct:free",
       "tier": "large",
       "category": "more",
@@ -1069,8 +1054,8 @@
       ]
     },
     {
-      "id": "wm-or-phi3-medium",
-      "displayName": "Phi-3 Medium",
+      "id": "wm-medium-3.0",
+      "displayName": "Medium 3.0",
       "apiModel": "microsoft/phi-3-medium-128k-instruct:free",
       "tier": "medium",
       "category": "more",
@@ -1088,8 +1073,8 @@
       ]
     },
     {
-      "id": "wm-or-mistral-nemo",
-      "displayName": "Mistral Nemo",
+      "id": "wm-medium-2.9",
+      "displayName": "Medium 2.9",
       "apiModel": "mistralai/mistral-nemo:free",
       "tier": "medium",
       "category": "more",
@@ -1107,10 +1092,10 @@
       ]
     },
     {
-      "id": "wm-or-command-r",
-      "displayName": "Command R",
+      "id": "wm-large-4.0",
+      "displayName": "Large 4.0",
       "apiModel": "cohere/command-r:free",
-      "tier": "volume",
+      "tier": "large",
       "category": "more",
       "description": "Cohere Command R (Gratuit via OpenRouter)",
       "provider": "openrouter",
