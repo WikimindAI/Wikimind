@@ -161,20 +161,19 @@
     {
       "id": "wm-flash-5.8",
       "displayName": "Flash 5.8",
-      "apiModel": "google/gemini-2.5-flash:free",
+      "apiModel": "moonshotai/kimi-k2.6:free",
       "tier": "flash",
       "category": "text",
-      "description": "Google Gemini Flash (Gratuit via OpenRouter)",
+      "description": "Kimi K2.6 · codage et orchestration multi-agents",
       "provider": "openrouter",
       "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
-      "supportsVision": true,
+      "supportsVision": false,
       "supportsStreaming": true,
       "maxTokens": 8192,
-      "contextWindow": 1000000,
-      "logo": "googlelogo.png",
+      "contextWindow": 262144,
+      "logo": "openrouterlogo.png",
       "sourceProviders": [
-        "openrouter",
-        "google"
+        "openrouter"
       ],
       "isMainPick": false,
       "status": "unknown"
@@ -302,20 +301,20 @@
     {
       "id": "wm-small-5.4",
       "displayName": "Small 5.4",
-      "apiModel": "mistralai/mistral-nemo:free",
+      "apiModel": "nvidia/nemotron-nano-9b-v2:free",
       "tier": "small",
       "category": "text",
-      "description": "Mistral Nemo 12B (Gratuit via OpenRouter)",
+      "description": "NVIDIA Nemotron Nano 9B · raisonneur léger",
       "provider": "openrouter",
       "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
       "supportsVision": false,
       "supportsStreaming": true,
       "maxTokens": 8192,
       "contextWindow": 128000,
-      "logo": "mistrallogo.png",
+      "logo": "openrouterlogo.png",
       "sourceProviders": [
         "openrouter",
-        "mistral"
+        "nvidia"
       ],
       "isMainPick": false,
       "status": "unknown"
@@ -394,20 +393,20 @@
     {
       "id": "wm-medium-4.7",
       "displayName": "Medium 4.7",
-      "apiModel": "cohere/command-r:free",
+      "apiModel": "google/gemma-4-26b-a4b-it:free",
       "tier": "medium",
       "category": "text",
-      "description": "Cohere Command R (Gratuit via OpenRouter)",
+      "description": "Gemma 4 26B MoE · efficace et rapide",
       "provider": "openrouter",
       "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
       "supportsVision": false,
       "supportsStreaming": true,
       "maxTokens": 8192,
-      "contextWindow": 128000,
-      "logo": "coherelogo.png",
+      "contextWindow": 262144,
+      "logo": "openrouterlogo.png",
       "sourceProviders": [
         "openrouter",
-        "cohere"
+        "google"
       ],
       "isMainPick": false,
       "status": "unknown"
@@ -415,20 +414,19 @@
     {
       "id": "wm-medium-4.8",
       "displayName": "Medium 4.8",
-      "apiModel": "microsoft/phi-3-medium-128k-instruct:free",
+      "apiModel": "z-ai/glm-4.5-air:free",
       "tier": "medium",
       "category": "text",
-      "description": "Microsoft Phi-3 Medium (Gratuit via OpenRouter)",
+      "description": "GLM 4.5 Air · agent léger, mode réflexion",
       "provider": "openrouter",
       "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
       "supportsVision": false,
       "supportsStreaming": true,
       "maxTokens": 8192,
-      "contextWindow": 128000,
-      "logo": "microsoftlogo.png",
+      "contextWindow": 131072,
+      "logo": "openrouterlogo.png",
       "sourceProviders": [
-        "openrouter",
-        "microsoft"
+        "openrouter"
       ],
       "isMainPick": false,
       "status": "unknown"
@@ -477,20 +475,19 @@
     {
       "id": "wm-medium-5.1",
       "displayName": "Medium 5.1",
-      "apiModel": "meta-llama/llama-3.3-70b-instruct:free",
+      "apiModel": "openai/gpt-oss-20b:free",
       "tier": "medium",
       "category": "text",
-      "description": "Meta Llama 3.3 70B (Gratuit via OpenRouter)",
+      "description": "OpenAI GPT-OSS 20B · open-weight, function calling",
       "provider": "openrouter",
       "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
       "supportsVision": false,
       "supportsStreaming": true,
       "maxTokens": 8192,
       "contextWindow": 131072,
-      "logo": "metalogo.png",
+      "logo": "openrouterlogo.png",
       "sourceProviders": [
-        "openrouter",
-        "meta"
+        "openrouter"
       ],
       "isMainPick": false,
       "status": "unknown"
@@ -539,21 +536,20 @@
     {
       "id": "wm-medium-5.4",
       "displayName": "Medium 5.4",
-      "apiModel": "nvidia/llama-3.1-nemotron-70b-instruct:free",
+      "apiModel": "nvidia/nemotron-3-nano-30b-a3b:free",
       "tier": "medium",
       "category": "text",
-      "description": "Nvidia Nemotron Llama 3.1 (Gratuit via OpenRouter)",
+      "description": "NVIDIA Nemotron 3 Nano 30B · agentique efficace",
       "provider": "openrouter",
       "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
       "supportsVision": false,
       "supportsStreaming": true,
       "maxTokens": 8192,
-      "contextWindow": 131072,
-      "logo": "nvidialogo.png",
+      "contextWindow": 256000,
+      "logo": "openrouterlogo.png",
       "sourceProviders": [
         "openrouter",
-        "nvidia",
-        "meta"
+        "nvidia"
       ],
       "isMainPick": false,
       "status": "unknown"
@@ -578,20 +574,20 @@
     {
       "id": "wm-medium-5.6",
       "displayName": "Medium 5.6",
-      "apiModel": "qwen/qwen-2.5-72b-instruct:free",
+      "apiModel": "nvidia/nemotron-nano-12b-v2-vl:free",
       "tier": "medium",
       "category": "text",
-      "description": "Alibaba Qwen 2.5 72B (Gratuit via OpenRouter)",
+      "description": "NVIDIA Nemotron Nano 12B VL · documents & vision",
       "provider": "openrouter",
       "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
-      "supportsVision": false,
+      "supportsVision": true,
       "supportsStreaming": true,
       "maxTokens": 8192,
-      "contextWindow": 131072,
-      "logo": "qwenlogo.png",
+      "contextWindow": 128000,
+      "logo": "nvidialogo.png",
       "sourceProviders": [
         "openrouter",
-        "qwen"
+        "nvidia"
       ],
       "isMainPick": false,
       "status": "unknown"
@@ -771,20 +767,20 @@
     {
       "id": "wm-large-4.6",
       "displayName": "Large 4.6",
-      "apiModel": "meta-llama/llama-3.2-90b-vision-instruct:free",
+      "apiModel": "google/gemma-4-31b-it:free",
       "tier": "large",
       "category": "text",
-      "description": "Meta Llama Vision 90B (Gratuit via OpenRouter)",
+      "description": "Gemma 4 31B · multimodal texte/image",
       "provider": "openrouter",
       "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
       "supportsVision": true,
       "supportsStreaming": true,
       "maxTokens": 8192,
-      "contextWindow": 131072,
-      "logo": "metalogo.png",
+      "contextWindow": 262144,
+      "logo": "googlelogo.png",
       "sourceProviders": [
         "openrouter",
-        "meta"
+        "google"
       ],
       "isMainPick": false,
       "status": "unknown"
@@ -792,20 +788,19 @@
     {
       "id": "wm-large-4.7",
       "displayName": "Large 4.7",
-      "apiModel": "deepseek/deepseek-chat:free",
+      "apiModel": "openai/gpt-oss-120b:free",
       "tier": "large",
       "category": "text",
-      "description": "DeepSeek V3 Chat (Gratuit via OpenRouter)",
+      "description": "OpenAI GPT-OSS 120B · raisonneur MoE open-weight",
       "provider": "openrouter",
       "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
       "supportsVision": false,
       "supportsStreaming": true,
       "maxTokens": 8192,
-      "contextWindow": 65536,
-      "logo": "deepseeklogo.png",
+      "contextWindow": 131072,
+      "logo": "openrouterlogo.png",
       "sourceProviders": [
-        "openrouter",
-        "deepseek"
+        "openrouter"
       ],
       "isMainPick": false,
       "status": "unknown"
@@ -847,20 +842,20 @@
     {
       "id": "wm-large-5.0",
       "displayName": "Large 5.0",
-      "apiModel": "deepseek/deepseek-r1:free",
+      "apiModel": "nvidia/nemotron-3-super-120b-a12b:free",
       "tier": "large",
       "category": "text",
-      "description": "Modèle raisonneur DeepSeek (Gratuit via OpenRouter)",
+      "description": "NVIDIA Nemotron 3 Super · raisonnement avancé, 1M contexte",
       "provider": "openrouter",
       "apiEndpoint": "https://openrouter.ai/api/v1/chat/completions",
       "supportsVision": false,
       "supportsStreaming": true,
       "maxTokens": 8192,
-      "contextWindow": 131072,
-      "logo": "deepseeklogo.png",
+      "contextWindow": 1000000,
+      "logo": "nvidialogo.png",
       "sourceProviders": [
         "openrouter",
-        "deepseek"
+        "nvidia"
       ],
       "isMainPick": false,
       "status": "unknown"
