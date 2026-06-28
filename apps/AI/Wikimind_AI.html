@@ -3273,7 +3273,7 @@ $("sidebar-code-btn").addEventListener("click", () => {
     }
   } else {
     // Retour au modèle par défaut
-    const defModel = WIKIMIND_MODELS.find(m => m.id === 'wm-small-5.1') || WIKIMIND_MODELS[0];
+    const defModel = WIKIMIND_MODELS.find(m => m.id === 'wm-small-5.5') || WIKIMIND_MODELS[0];
     if (defModel) applyModelById(defModel.id);
     toast("Mode Code désactivé");
   }
@@ -4013,7 +4013,7 @@ function updateSendBtn() {
 // WIKIMIND MODELS — chargés depuis models.json
 // =============================================
 let WIKIMIND_MODELS = [];
-let WM_API_KEYS = { mistral: "", groq: "", pollinations: "", cerebras: "", sambanova: "" };
+let WM_API_KEYS = { mistral: "", groq: "", pollinations: "", cerebras: "", sambanova: "", cohere: "", google: "", openrouter: "" };
 // Rate limits par modèle image (images/heure)
 const IMAGE_RATE_LIMITS = {
   "flux":           222,  // ~0.4/0.0018 images Flux Schnell
@@ -4048,14 +4048,26 @@ async function loadModels() {
           ? data.apiKeys.groq_p1 + data.apiKeys.groq_p2 + data.apiKeys.groq_p3
           : ""
       );
+      const ork = data.apiKeys.openrouter || (
+        data.apiKeys.openrouter_p1 && data.apiKeys.openrouter_p2 && data.apiKeys.openrouter_p3 && data.apiKeys.openrouter_p4
+          ? data.apiKeys.openrouter_p1 + data.apiKeys.openrouter_p2 + data.apiKeys.openrouter_p3 + data.apiKeys.openrouter_p4
+          : ""
+      );
+      const gak = data.apiKeys.google || (
+        data.apiKeys.google_p1 && data.apiKeys.google_p2 && data.apiKeys.google_p3
+          ? data.apiKeys.google_p1 + data.apiKeys.google_p2 + data.apiKeys.google_p3
+          : ""
+      );
       WM_API_KEYS = { 
         mistral: data.apiKeys.mistral || "", 
         groq: gk,
         pollinations: data.apiKeys.pollinations || "pk_w6wnuGBObh7FeHwp",
         cerebras: data.apiKeys.cerebras || "",
-      sambanova: _snk || data.apiKeys.sambanova || "",
-      cohere: data.apiKeys.cohere || ""
-    };
+        sambanova: _snk || data.apiKeys.sambanova || "",
+        cohere: data.apiKeys.cohere || "",
+        google: gak,
+        openrouter: ork
+      };
     }
     // ── Si le modèle actuellement sélectionné a disparu (forfait insuffisant / expiré), fallback ──
     const currentStillAvailable = WIKIMIND_MODELS.find(m => m.apiModel === selectedModel);
@@ -4069,9 +4081,10 @@ async function loadModels() {
   } catch (err) {
     console.warn("models.json introuvable, fallback intégré.", err);
     WIKIMIND_MODELS = [
-      { id:"wm-small-5.1", displayName:"Small 5.1", apiModel:"mistral-small-latest", tier:"small", category:"main", description:"Rapide, idéal pour le quotidien", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
-      { id:"wm-medium-5.1", displayName:"Medium 5.1", apiModel:"mistral-medium-latest", tier:"medium", category:"main", description:"Équilibre performance / vitesse", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
-      { id:"wm-large-5.1", displayName:"Large 5.1", apiModel:"mistral-large-latest", tier:"large", category:"main", description:"Puissant, tâches complexes", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
+      { id:"wm-small-5.5", displayName:"Small 5.5", apiModel:"mistral-small-latest", tier:"small", category:"main", description:"Rapide, idéal pour le quotidien", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
+      { id:"wm-medium-5.5", displayName:"Medium 5.5", apiModel:"mistral-medium-latest", tier:"medium", category:"main", description:"Équilibre performance / vitesse", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
+      { id:"wm-large-5.5", displayName:"Large 5.5", apiModel:"mistral-large-latest", tier:"large", category:"main", description:"Puissant, tâches complexes", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
+      { id:"wm-flash-5.5", displayName:"Flash 5.5", apiModel:"gemini-2.5-flash", tier:"flash", category:"main", description:"Gemini 2.5 Flash · ultra-rapide", provider:"google", apiEndpoint:"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent", supportsVision:true, supportsStreaming:true, maxTokens:8192, contextWindow:1000000 },
       { id:"wm-compound-1.0", displayName:"Compound 1.0", apiModel:"compound", tier:"large", category:"more", description:"Groq Compound, recherche web intégrée", provider:"groq", apiEndpoint:"https://api.groq.com/openai/v1/chat/completions", supportsVision:false, supportsStreaming:true, maxTokens:8192, contextWindow:131072 },
       { id:"wm-compound-mini-1.0", displayName:"Compound Mini", apiModel:"compound-mini", tier:"medium", category:"more", description:"Groq Compound Mini, léger avec web search", provider:"groq", apiEndpoint:"https://api.groq.com/openai/v1/chat/completions", supportsVision:false, supportsStreaming:true, maxTokens:8192, contextWindow:131072 }
     ];
@@ -4119,6 +4132,8 @@ function tierBadge(tier) {
 const PROVIDER_LOGOS = {
   mistral:         'mistrallogo.png',
   groq:            'groqlogo.png',
+  google:          'googlelogo.png',
+  openrouter:      'openrouterlogo.png',
   pollinations:    'pollinationai.png',
   cerebras:        'cerebraslogo.png',
   sambanova:       'sambanovalogo.png',
@@ -4130,7 +4145,7 @@ const PROVIDER_LOGOS = {
 function providerBadge(provider) {
   const src = PROVIDER_LOGOS[provider];
   if (!src) return "";
-  const names = { mistral:"Mistral", groq:"Groq", pollinations:"Pollinations", cerebras:"Cerebras", sambanova:"SambaNova", blackforestlabs:"Black Forest Labs", cohere:"Cohere" };
+  const names = { mistral:"Mistral", groq:"Groq", pollinations:"Pollinations", cerebras:"Cerebras", sambanova:"SambaNova", blackforestlabs:"Black Forest Labs", cohere:"Cohere", google:"Google", openrouter:"OpenRouter" };
   const logoImg = `<img src="${src}" alt="${provider}" width="12" height="12" style="flex-shrink:0;border-radius:2px;object-fit:contain;" onerror="this.style.display='none'">`;
   return `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.58rem;font-weight:600;letter-spacing:0.03em;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);border-radius:5px;padding:1px 5px 1px 3px;margin-left:4px;">${logoImg}${names[provider]||provider}</span>`;
 }
@@ -6570,8 +6585,12 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
     const _mObj = window._wmSelectedModelObj || { provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions" };
     // SambaNova bloque les requêtes CORS directes depuis le navigateur ("Failed to fetch") :
     // on passe par un proxy CORS public qui relaie la requête vers api.sambanova.ai
+    const _isGoogle = _mObj.provider === "google";
     const _apiEndpoint = _mObj.provider === "sambanova"
       ? "https://corsproxy.io/?url=" + encodeURIComponent(_mObj.apiEndpoint || "https://api.sambanova.ai/v1/chat/completions")
+      : _isGoogle
+      // Google : l'endpoint encode déjà le modèle dans l'URL, on ajoute ?alt=sse pour le streaming
+      ? (_mObj.apiEndpoint || `https://generativelanguage.googleapis.com/v1beta/models/${_mObj.apiModel}:streamGenerateContent`) + "?alt=sse"
       : (_mObj.apiEndpoint || "https://api.mistral.ai/v1/chat/completions");
     const _apiKey = _mObj.provider === "groq"
       ? (_gk || WM_API_KEYS.groq || KEY)
@@ -6581,6 +6600,10 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
       ? (_snk || WM_API_KEYS.sambanova)
       : _mObj.provider === "cohere"
       ? (WM_API_KEYS.cohere)
+      : _isGoogle
+      ? (WM_API_KEYS.google)
+      : _mObj.provider === "openrouter"
+      ? (WM_API_KEYS.openrouter)
       : (WM_API_KEYS.mistral || KEY);
 
     // Détecter si la dernière requête concerne une modification de fichier volumineux
@@ -6603,21 +6626,8 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
       ? "\n\nMODE CODE ACTIVÉ : Tu es en mode développeur. Privilégie les réponses avec du code propre, commenté, et production-ready. Propose des solutions techniques complètes."
       : "";
 
-    const res = await fetch(_apiEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + _apiKey
-      },
-      signal: abortCtrl.signal,
-      body: JSON.stringify({
-        model: selectedModel,
-        stream: true,
-        ...(_mObj.provider === "sambanova" ? { stream_options: { include_usage: true } } : {}),
-        messages: [
-          {
-            role: "system",
-            content: "Tu es Wikimind AI, l'assistant intelligent de la plateforme Wikimind. " +
+
+    const _systemPromptText = "Tu es Wikimind AI, l'assistant intelligent de la plateforme Wikimind. " +
                     "Tu es concis, précis et utile. " +
                     "Pour les formules mathématiques, utilise la syntaxe LaTeX : $formule$ pour l'inline et $$formule$$ pour les blocs. " +
                     "Pour les graphiques interactifs, utilise EXACTEMENT cette syntaxe :\n" +
@@ -6630,36 +6640,71 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
                     (buildSystemPromptFromPersonalization() ? "INSTRUCTIONS PERSONNALISÉES: " + buildSystemPromptFromPersonalization() + "\n" : "") +
                     codeModeInstruction +
                     smartEditInstruction +
-                    systemExtra
-          },
-          ...messages
+                    systemExtra;
+
+    const _filteredMessages = messages
             .filter(m => {
-              // Exclure le message en cours de génération
               if (m.role === "ai" && m.msgId === aiMsgId) return false;
-              // Exclure les messages image (isImage) qui n'ont pas de contenu textuel
               if (m.isImage) return false;
-              // Exclure tout message avec content vide (Mistral refuse content:"")
               if (!m.content || m.content.trim() === '') return false;
               return true;
             })
             .map(m => {
               const role = m.role === "ai" ? "assistant" : m.role;
               const isLastUser = m.msgId === messages.filter(x => x.role === 'user').slice(-1)[0]?.msgId;
-              // Format vision selon le provider
               if (m.visionContent && isLastUser) {
-                const provider = _mObj?.provider || 'mistral';
-                if (provider === 'mistral') {
-                  // Format Mistral vision : array [{type:"text",...},{type:"image_url", image_url:{url:"data:..."}}]
-                  return { role, content: m.visionContent };
-                } else {
-                  // Format OpenAI compatible (Groq, Cerebras)
-                  return { role, content: m.visionContent };
-                }
+                return { role, content: m.visionContent };
               }
               return { role, content: m.content };
-            })
+            });
+
+    // ── Build request headers ──
+    const _reqHeaders = { "Content-Type": "application/json" };
+    if (_isGoogle) {
+      _reqHeaders["X-goog-api-key"] = _apiKey;
+    } else if (_mObj.provider === "openrouter") {
+      _reqHeaders["Authorization"] = "Bearer " + _apiKey;
+      _reqHeaders["HTTP-Referer"] = "https://wikimind.fr";
+      _reqHeaders["X-Title"] = "Wikimind AI";
+    } else {
+      _reqHeaders["Authorization"] = "Bearer " + _apiKey;
+    }
+
+    // ── Build request body ──
+    let _reqBody;
+    if (_isGoogle) {
+      // Google Gemini API format
+      const _googleContents = [];
+      // Prepend system instruction as first user turn (Gemini supports systemInstruction field)
+      const _googleMsgs = _filteredMessages.map(m => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: Array.isArray(m.content)
+          ? m.content.map(p => p.type === "text" ? { text: p.text } : p.type === "image_url" ? { inlineData: { mimeType: "image/jpeg", data: p.image_url?.url?.split(",")[1] || "" } } : { text: "" })
+          : [{ text: m.content || "" }]
+      }));
+      _reqBody = JSON.stringify({
+        systemInstruction: { parts: [{ text: _systemPromptText }] },
+        contents: _googleMsgs,
+        generationConfig: { maxOutputTokens: _mObj.maxTokens || 8192 }
+      });
+    } else {
+      // Standard OpenAI-compatible format (Mistral, Groq, Cerebras, SambaNova, Cohere, OpenRouter)
+      _reqBody = JSON.stringify({
+        model: selectedModel,
+        stream: true,
+        ...(_mObj.provider === "sambanova" ? { stream_options: { include_usage: true } } : {}),
+        messages: [
+          { role: "system", content: _systemPromptText },
+          ..._filteredMessages
         ]
-      })
+      });
+    }
+
+    const res = await fetch(_apiEndpoint, {
+      method: "POST",
+      headers: _reqHeaders,
+      signal: abortCtrl.signal,
+      body: _reqBody
     });
 
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -6693,13 +6738,17 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
           const json = JSON.parse(dataStr);
           let content = "";
 
-          // 1. Format OpenAI / Mistral / Groq / SambaNova
+          // 1. Format OpenAI / Mistral / Groq / SambaNova / OpenRouter
           if (json.choices?.[0]?.delta?.content !== undefined) {
             content = json.choices[0].delta.content;
           } 
           // 2. Format Cohere V2
           else if (json.type === "content-delta" && json.delta?.message?.content?.text !== undefined) {
             content = json.delta.message.content.text;
+          }
+          // 3. Format Google Gemini
+          else if (json.candidates?.[0]?.content?.parts?.[0]?.text !== undefined) {
+            content = json.candidates[0].content.parts[0].text;
           }
 
           if (content) {
