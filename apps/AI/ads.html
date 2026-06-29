@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wikimind AI — Publicité Cinématographique</title>
+<title>Wikimind AI — Cinematic Ad</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════════════
-   WIKIMIND AI — CINEMATIC AD
-   Timeline: 30 secondes, 60 FPS, minimaliste premium
+   WIKIMIND AI — CINEMATIC ENGINE
+   Timeline: ~40 secondes, 60 FPS, Keynote Quality
 ═══════════════════════════════════════════════════════════════ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -18,1367 +18,840 @@
   --bg2: #0a0a0a;
   --bg3: #141414;
   --bg4: #1e1e1e;
-  --border: rgba(255,255,255,0.08);
-  --border2: rgba(255,255,255,0.15);
+  --border: rgba(255, 255, 255, 0.1);
+  --border2: rgba(255, 255, 255, 0.2);
   --text: #ffffff;
   --text2: #a0a0a0;
-  --text3: #505050;
+  --text3: #606060;
   --accent: #4d8fff;
-  --accent-dim: rgba(77,143,255,0.12);
 }
 
 html, body {
   width: 100%; height: 100%;
   overflow: hidden;
-  background: #000;
+  background: var(--bg);
   font-family: 'Geist', sans-serif;
+  color: var(--text);
+  font-size: 16px;
 }
 
-/* ── STAGE (conteneur principal) ────────────────────────────── */
-#stage {
-  width: 100vw; height: 100vh;
-  position: relative;
+/* ── CAMERA & SCENE ────────────────────────────── */
+#scene {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
+  perspective: 1000px;
   background: #000;
 }
 
-/* ── GRAIN CINÉMATOGRAPHIQUE ─────────────────────────────────── */
+#camera {
+  position: absolute;
+  inset: 0;
+  transform-origin: center center;
+  will-change: transform;
+  transform: scale(1) translate(0, 0) rotate(0deg);
+}
+
+#parallax-wrap {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+/* ── CINEMATIC GRAIN & VIGNETTE ────────────────────────────── */
 #grain {
   position: fixed;
   inset: -50%;
   width: 200%; height: 200%;
   pointer-events: none;
-  z-index: 1000;
-  opacity: 0.028;
+  z-index: 9000;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   animation: grain-shift 0.08s steps(1) infinite;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
 }
 @keyframes grain-shift {
-  0%  { transform: translate(0,0); }
-  10% { transform: translate(-2%,-3%); }
-  20% { transform: translate(3%,1%); }
-  30% { transform: translate(-1%,4%); }
-  40% { transform: translate(4%,-2%); }
-  50% { transform: translate(-3%,2%); }
-  60% { transform: translate(2%,-4%); }
-  70% { transform: translate(-4%,3%); }
-  80% { transform: translate(1%,-1%); }
-  90% { transform: translate(-2%,4%); }
-  100%{ transform: translate(3%,-3%); }
+  0% { transform: translate(0,0); }
+  20% { transform: translate(-2%,-3%); }
+  40% { transform: translate(3%,1%); }
+  60% { transform: translate(-1%,4%); }
+  80% { transform: translate(2%,-2%); }
+  100% { transform: translate(-3%,2%); }
 }
 
-/* ── HALO D'AMBIANCE ─────────────────────────────────────────── */
-#halo {
-  position: absolute;
-  width: 600px; height: 600px;
-  top: 50%; left: 50%;
-  transform: translate(-50%,-50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(77,143,255,0.06) 0%, transparent 70%);
-  opacity: 0;
+#vignette {
+  position: fixed;
+  inset: 0;
   pointer-events: none;
-  z-index: 1;
-  transition: opacity 1.5s ease;
+  z-index: 8000;
+  background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.85) 120%);
 }
 
-/* ══════════════════════════════════════════════════════════════
-   PHASE 1 : LOGO INTRO (0–5s)
-══════════════════════════════════════════════════════════════ */
-#intro-screen {
-  position: absolute;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  opacity: 1;
-}
-
-#intro-logo-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 1.8s cubic-bezier(0.22,1,0.36,1), transform 2s cubic-bezier(0.22,1,0.36,1);
-}
-#intro-logo-wrap.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.intro-logo-mark {
-  width: 52px; height: 52px;
-  position: relative;
-}
-.intro-logo-mark svg {
-  width: 100%; height: 100%;
-  filter: drop-shadow(0 0 18px rgba(77,143,255,0.25));
-  animation: logo-breathe 3.5s ease-in-out infinite;
-}
-@keyframes logo-breathe {
-  0%, 100% { filter: drop-shadow(0 0 14px rgba(77,143,255,0.2)); transform: scale(1); }
-  50%       { filter: drop-shadow(0 0 26px rgba(77,143,255,0.38)); transform: scale(1.018); }
-}
-
-.intro-logo-text {
-  font-size: 1.7rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-}
-.intro-logo-text::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%; width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-  animation: logo-sheen 4s ease-in-out 0.8s infinite;
-}
-@keyframes logo-sheen {
-  0%   { left: -100%; }
-  40%, 100% { left: 160%; }
-}
-
-.intro-tagline {
-  font-size: 0.88rem;
-  font-weight: 300;
-  letter-spacing: 0.06em;
-  color: var(--text2);
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 1.2s cubic-bezier(0.22,1,0.36,1) 0.6s, transform 1.2s cubic-bezier(0.22,1,0.36,1) 0.6s;
-}
-.intro-tagline.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ══════════════════════════════════════════════════════════════
-   PHASE 2 : INTERFACE (5–24s)
-══════════════════════════════════════════════════════════════ */
-#ui-screen {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  opacity: 0;
-  transform: translateY(12px) scale(0.997);
-  transition: opacity 1.2s cubic-bezier(0.22,1,0.36,1), transform 1.4s cubic-bezier(0.22,1,0.36,1);
-  display: flex;
-  flex-direction: column;
-  background: #000;
-}
-#ui-screen.visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-/* Topbar */
-#ui-topbar {
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  background: #000;
-}
-.ui-topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.ui-burger {
-  width: 30px; height: 30px;
-  border-radius: 7px;
-  border: none;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-.ui-burger svg { color: var(--text2); }
-.ui-brand {
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text);
-}
-.ui-topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.ui-model-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  background: var(--bg3);
-  font-size: 0.73rem;
-  font-weight: 500;
-  color: var(--text2);
-  cursor: pointer;
-}
-.ui-model-pill .model-dot {
-  width: 6px; height: 6px;
+#ambient-light {
+  position: fixed;
+  width: 800px; height: 800px;
   border-radius: 50%;
-  background: var(--accent);
-  flex-shrink: 0;
-}
-.ui-icon-btn {
-  width: 30px; height: 30px;
-  border-radius: 7px;
-  border: none;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text3);
-}
-
-/* Chat area */
-#ui-chat-area {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  position: relative;
-}
-
-#ui-messages {
-  padding: 32px 0 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-  max-width: 720px;
-  width: 90%;
-  margin: 0 auto;
-  overflow: hidden;
-}
-
-/* Welcome empty state */
-#ui-welcome {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -60%);
-  text-align: center;
+  background: radial-gradient(circle, rgba(77,143,255,0.06) 0%, transparent 60%);
   pointer-events: none;
-  opacity: 1;
-  transition: opacity 0.6s ease;
-}
-#ui-welcome.hidden { opacity: 0; }
-.ui-welcome-title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.07);
+  z-index: 7000;
+  top: -400px; left: -400px;
+  will-change: transform;
+  mix-blend-mode: screen;
 }
 
-/* Messages */
-.ui-msg {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.5s cubic-bezier(0.22,1,0.36,1);
-}
-.ui-msg.visible { opacity: 1; transform: translateY(0); }
-.ui-msg.user { align-items: flex-end; }
-.ui-msg.ai { align-items: flex-start; }
-
-.ui-msg-bubble {
-  max-width: 82%;
-  padding: 12px 16px;
-  border-radius: 16px;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  font-weight: 400;
-}
-.ui-msg.user .ui-msg-bubble {
-  background: #1a1a1a;
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #fff;
-  border-bottom-right-radius: 5px;
-}
-.ui-msg.ai .ui-msg-bubble {
-  background: transparent;
-  color: var(--text);
-  padding: 0;
-  max-width: 100%;
-}
-
-/* AI avatar */
-.ui-ai-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-.ui-ai-avatar {
-  width: 22px; height: 22px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #1a1a2e 100%);
-  border: 1px solid rgba(77,143,255,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.ui-ai-name {
-  font-size: 0.73rem;
-  font-weight: 600;
-  color: var(--text2);
-  letter-spacing: 0.04em;
-}
-
-/* Thinking dots */
-.ui-thinking {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.ui-thinking-status {
-  font-size: 0.78rem;
-  color: var(--text3);
-  font-weight: 400;
-  opacity: 0;
-  transform: translateY(3px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-.ui-thinking-status.visible { opacity: 1; transform: translateY(0); }
-.ui-dots {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-}
-.ui-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--text3);
-}
-.ui-dot:nth-child(1) { animation: dot-breathe 1.4s ease-in-out 0s infinite; }
-.ui-dot:nth-child(2) { animation: dot-breathe 1.4s ease-in-out 0.2s infinite; }
-.ui-dot:nth-child(3) { animation: dot-breathe 1.4s ease-in-out 0.4s infinite; }
-@keyframes dot-breathe {
-  0%, 100% { opacity: 0.25; transform: scale(0.85); }
-  50%       { opacity: 0.9;  transform: scale(1.15); }
-}
-
-/* Progress bar */
-.ui-progress-bar {
-  width: 180px; height: 1px;
-  background: var(--bg4);
-  border-radius: 1px;
-  overflow: hidden;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-.ui-progress-bar.visible { opacity: 1; }
-.ui-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--text3), var(--accent));
-  border-radius: 1px;
-  width: 0%;
-  transition: width 3.5s cubic-bezier(0.4,0,0.2,1);
-}
-.ui-progress-fill.active { width: 88%; }
-
-/* AI response text */
-.ui-response-text {
-  font-size: 0.875rem;
-  line-height: 1.75;
-  color: var(--text);
-}
-.ui-response-text h2 {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 10px;
-  margin-top: 16px;
-}
-.ui-response-text h2:first-child { margin-top: 0; }
-.ui-response-text p { color: var(--text2); margin-bottom: 8px; }
-.ui-response-text strong { color: #fff; font-weight: 600; }
-
-/* Code block */
-.ui-code-block {
-  margin: 12px 0;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  background: #0d0d0d;
-}
-.ui-code-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 7px 14px;
-  border-bottom: 1px solid var(--border);
-  background: #111;
-}
-.ui-code-lang {
-  font-family: 'Geist Mono', monospace;
-  font-size: 0.7rem;
-  color: var(--text3);
-  font-weight: 500;
-}
-.ui-code-copy {
-  font-size: 0.68rem;
-  color: var(--text3);
-  cursor: pointer;
-  font-family: 'Geist', sans-serif;
-}
-.ui-code-body {
-  padding: 14px 16px;
-  font-family: 'Geist Mono', monospace;
-  font-size: 0.75rem;
-  line-height: 1.7;
-  overflow-x: auto;
-  white-space: pre;
-}
-/* Syntax colors */
-.c-kw  { color: #569cd6; }
-.c-fn  { color: #dcdcaa; }
-.c-str { color: #ce9178; }
-.c-cm  { color: #608b4e; font-style: italic; }
-.c-tag { color: #4ec9b0; }
-.c-num { color: #b5cea8; }
-.c-var { color: #9cdcfe; }
-.c-at  { color: #d7ba7d; }
-
-/* Code line animation */
-.code-line {
-  display: block;
-  opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.22,1,0.36,1);
-  min-height: 1.2em;
-}
-.code-line.revealed {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-/* Input zone */
-#ui-input-zone {
-  padding: 12px 16px 16px;
-  flex-shrink: 0;
-}
-#ui-input-container {
-  max-width: 720px;
-  margin: 0 auto;
-}
-#ui-input-wrap {
-  background: #0f0f0f;
-  border: 1px solid var(--border2);
-  border-radius: 14px;
-  padding: 12px 12px 8px;
-  position: relative;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  overflow: hidden;
-}
-#ui-input-wrap::after {
-  content: '';
+/* ── CURSOR ────────────────────────────── */
+#cursor-wrapper {
   position: absolute;
-  inset: 0;
-  border-radius: 14px;
-  border: 1px solid transparent;
-  background: linear-gradient(135deg, rgba(77,143,255,0) 0%, rgba(77,143,255,0.08) 100%) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: destination-out;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  z-index: 9999;
   pointer-events: none;
-}
-#ui-input-wrap.focused {
-  border-color: rgba(77,143,255,0.35);
-  box-shadow: 0 0 0 3px rgba(77,143,255,0.05), 0 0 24px rgba(77,143,255,0.06);
-}
-#ui-input-wrap.focused::after { opacity: 1; }
-
-#ui-textarea {
-  width: 100%;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text);
-  font-family: 'Geist', sans-serif;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  resize: none;
-  min-height: 22px;
-  max-height: 180px;
-  overflow: hidden;
-  caret-color: var(--accent);
-}
-#ui-textarea::placeholder { color: var(--text3); }
-
-.ui-input-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 8px;
-}
-.ui-input-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.ui-model-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 9px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text2);
-  font-size: 0.72rem;
-  font-weight: 500;
-  font-family: 'Geist', sans-serif;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.ui-model-btn .model-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-
-#ui-send-btn {
-  width: 30px; height: 30px;
-  border-radius: 8px;
-  border: none;
-  background: var(--text);
-  color: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.12s ease, background 0.15s ease, box-shadow 0.15s ease;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-}
-#ui-send-btn.active {
-  background: #fff;
-  transform: scale(0.96);
-  box-shadow: 0 0 16px rgba(255,255,255,0.12);
-}
-#ui-send-btn.active::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 8px;
-  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.3), transparent 70%);
-  animation: btn-ripple 0.4s ease forwards;
-}
-@keyframes btn-ripple {
-  from { opacity: 1; transform: scale(0.5); }
-  to   { opacity: 0; transform: scale(2); }
-}
-
-.ui-disclaimer {
-  text-align: center;
-  font-size: 0.67rem;
-  color: var(--text3);
-  margin-top: 8px;
-  letter-spacing: 0.01em;
-}
-
-/* Caret cursor */
-#ui-caret {
-  display: inline-block;
-  width: 1.5px;
-  height: 1em;
-  background: var(--accent);
-  vertical-align: text-bottom;
-  margin-left: 1px;
-  animation: caret-blink 1s step-start infinite;
   opacity: 0;
+  will-change: transform;
+  transform-origin: 0 0;
 }
-#ui-caret.active { opacity: 1; }
-@keyframes caret-blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+#cursor-svg {
+  width: 24px; height: 24px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+  will-change: transform;
+  transition: transform 0.1s cubic-bezier(0.22,1,0.36,1);
 }
-
-/* Click ripple */
 .click-ripple {
   position: absolute;
   border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.1);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 1;
   pointer-events: none;
-  background: rgba(255,255,255,0.06);
-  transform: scale(0);
-  animation: ripple-expand 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
-  z-index: 999;
-}
-@keyframes ripple-expand {
-  to { transform: scale(4); opacity: 0; }
+  z-index: 9998;
 }
 
-/* ══════════════════════════════════════════════════════════════
-   CURSEUR SOURIS VIRTUEL
-══════════════════════════════════════════════════════════════ */
-#virtual-cursor {
-  position: absolute;
-  z-index: 900;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  will-change: transform;
-}
-#virtual-cursor.visible { opacity: 1; }
-#virtual-cursor svg {
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.6));
-}
-#cursor-glow {
-  position: absolute;
-  top: -16px; left: -16px;
-  width: 48px; height: 48px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   PHASE 3 : OUTRO (24–30s)
-══════════════════════════════════════════════════════════════ */
-#outro-screen {
+/* ── LAYERS: INTRO, APP, OUTRO ────────────────────────────── */
+.layer {
   position: absolute;
   inset: 0;
-  z-index: 200;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  background: #000;
   opacity: 0;
-  pointer-events: none;
-  transition: opacity 1.2s ease;
+  will-change: opacity, transform;
 }
-#outro-screen.visible { opacity: 1; pointer-events: all; }
 
-.outro-logo-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
+/* INTRO */
+#intro-logo {
+  width: 80px; height: 80px;
+  object-fit: contain;
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 1s cubic-bezier(0.22,1,0.36,1), transform 1s cubic-bezier(0.22,1,0.36,1);
+  transform: scale(0.95);
+  filter: drop-shadow(0 0 20px rgba(255,255,255,0.1));
 }
-.outro-logo-wrap.visible { opacity: 1; transform: translateY(0); }
-
-.outro-logo-mark {
-  width: 42px; height: 42px;
-  animation: logo-breathe 3.5s ease-in-out infinite;
-}
-.outro-logo-mark svg {
-  width: 100%; height: 100%;
-  filter: drop-shadow(0 0 16px rgba(77,143,255,0.22));
-}
-
-.outro-brand {
-  font-size: 1.3rem;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #fff;
-  opacity: 0;
-  transition: opacity 0.8s ease 0.3s;
-}
-.outro-brand.visible { opacity: 1; }
-
-.outro-lines {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-}
-.outro-line {
-  font-size: 0.85rem;
+#intro-slogan {
+  margin-top: 24px;
+  font-size: 1.1rem;
   font-weight: 300;
+  letter-spacing: 0.1em;
   color: var(--text2);
-  letter-spacing: 0.06em;
   opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22,1,0.36,1);
-  text-align: center;
-}
-.outro-line.visible { opacity: 1; transform: translateY(0); }
-.outro-line.cta {
-  margin-top: 12px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #fff;
-  padding: 10px 28px;
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 999px;
+  transform: translateY(10px);
 }
 
-/* ── Soft light follow (ambiance) ────────────────────────────── */
-#ambient-light {
-  position: absolute;
-  width: 500px; height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(77,143,255,0.04) 0%, transparent 65%);
-  pointer-events: none;
-  z-index: 0;
-  top: 0; left: 0;
+/* REAL WIKIMIND APP INTERFACE */
+#app-layer {
+  background: var(--bg);
+  display: flex;
+  overflow: hidden;
+}
+
+/* Sidebar */
+#sidebar {
+  width: 268px;
+  background: #0d0d0d;
+  border-right: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
   will-change: transform;
-  transition: transform 1.2s cubic-bezier(0.22,1,0.36,1);
+  z-index: 100;
+}
+#sidebar-head {
+  padding: 14px 12px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sidebar-logo-text { font-size: 0.88rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.sidebar-actions { padding: 12px 8px; display: flex; flex-direction: column; gap: 4px; }
+.sidebar-action-btn { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; color: var(--text2); background: transparent; border:none; text-align: left; }
+.sidebar-action-btn svg { width: 16px; height: 16px; opacity: 0.7; }
+.sidebar-action-btn.active { background: rgba(77,143,255,0.12); color: #4d8fff; border: 1px solid rgba(77,143,255,0.25); }
+.sidebar-action-btn.active svg { opacity: 1; }
+.s-section { padding: 10px 14px 4px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; color: var(--text3); text-transform: uppercase; }
+.conv-item { margin: 2px 8px; padding: 7px 8px; border-radius: 8px; font-size: 0.84rem; color: var(--text2); background: var(--bg3); color: var(--text); }
+
+/* Main Chat Area */
+#main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  will-change: transform, width;
+}
+#topbar {
+  height: 52px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between;
+}
+.tb-btn { width: 34px; height: 34px; border-radius: 8px; background: transparent; color: var(--text2); display: flex; align-items: center; justify-content: center; border: none; }
+
+#chat-area { flex: 1; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 20px;}
+#messages { display: flex; flex-direction: column; gap: 24px; padding: 0 20px; }
+
+/* WIKIMIND Huge Welcome */
+#welcome-screen {
+  position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 6rem; font-weight: 900; letter-spacing: -0.05em; color: var(--text);
+  will-change: opacity, transform;
 }
 
-/* ── Fade overlay ────────────────────────────────────────────── */
-#fade-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 500;
-  background: #000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 1.5s ease;
-}
-#fade-overlay.fade-in { opacity: 1; }
+/* Messages */
+.msg-group { display: flex; padding: 4px 20%; opacity: 0; transform: translateY(20px); will-change: opacity, transform; }
+.msg-group.user { justify-content: flex-end; }
+.msg-group.ai { justify-content: flex-start; }
+.msg-inner { max-width: 80%; }
+.bubble { padding: 14px 18px; border-radius: 18px; font-size: 1rem; line-height: 1.6; }
+.bubble.user { background: var(--bg3); border: 1px solid var(--border2); border-bottom-right-radius: 6px; }
+.bubble.ai { background: transparent; padding-left: 0; padding-right: 0; }
+.msg-meta { font-size: 0.7rem; color: var(--text3); margin-top: 6px; display: flex; gap: 6px; }
+.msg-group.user .msg-meta { justify-content: flex-end; }
+.model-tag-sm { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.05em; background: var(--bg3); padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); color: var(--text2); }
 
-/* ── Scrollbar hiding ─────────────────────────────────────────── */
-* { scrollbar-width: none; }
-*::-webkit-scrollbar { display: none; }
+/* Input Zone */
+#input-zone {
+  flex-shrink: 0; padding: 0; width: 680px; margin: 0 auto 40px;
+  will-change: transform, opacity;
+  transform: translateY(40px);
+}
+#input-wrap {
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.5); display: flex; flex-direction: column;
+  transition: box-shadow 0.3s cubic-bezier(0.22,1,0.36,1), border-color 0.3s;
+}
+#input-wrap.focused {
+  border-color: rgba(255,255,255,0.4);
+  box-shadow: 0 8px 48px rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.1);
+}
+#chat-input-mock {
+  width: 100%; padding: 16px 16px 8px; font-family: 'Geist', sans-serif; font-size: 0.95rem;
+  color: var(--text); min-height: 52px; line-height: 1.6; position: relative;
+}
+.caret {
+  display: inline-block; width: 2px; height: 1.1em; background: #fff;
+  vertical-align: middle; margin-left: 2px; opacity: 0;
+}
+.caret.blink { animation: blink 1s step-start infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+#input-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px 10px; }
+#bubble-model-btn {
+  display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px;
+  border: 1px solid var(--border2); background: var(--bg3); color: var(--text2);
+  font-family: 'Geist', sans-serif; font-size: 0.75rem; font-weight: 600;
+}
+.i-btn, .send-btn { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+.i-btn { border: 1px solid var(--border2); color: var(--text2); }
+.send-btn { background: var(--text); color: var(--bg); transform: scale(1); will-change: transform; transition: transform 0.1s;}
+.send-btn.clicked { transform: scale(0.9); background: #ccc; }
+
+/* AI Thinking */
+.wm-img-anim-wrap {
+  width: 60px; height: 60px; border-radius: 12px; overflow: hidden; position: relative; background: #060606;
+  opacity: 0; transform: scale(0.8); will-change: transform, opacity;
+}
+.wm-anim-layer { position: absolute; inset: -50%; width: 200%; height: 200%; }
+.wm-anim-l1 { background: conic-gradient(from 0deg at 50% 50%, #000, #4d8fff, #fff, #ec4899, #000); filter: blur(15px); animation: spin 3s linear infinite; }
+.wm-anim-vignette { position: absolute; inset: 0; background: radial-gradient(circle, transparent 20%, #000 100%); }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* Spectacular Image Reveal */
+#gen-image-container {
+  width: 100%; max-width: 500px;
+  border-radius: 16px; overflow: hidden;
+  position: relative; opacity: 0;
+  transform: scale(1.05); filter: blur(20px);
+  will-change: transform, opacity, filter;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+}
+#gen-image { width: 100%; display: block; }
+
+/* Model Dropdown */
+#model-dropdown {
+  position: absolute; bottom: 70px; left: 16px;
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: 14px;
+  width: 280px; box-shadow: 0 10px 50px rgba(0,0,0,0.8);
+  opacity: 0; transform: translateY(10px) scale(0.98);
+  will-change: transform, opacity; pointer-events: none;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.model-opt {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border);
+}
+.model-logo { width: 18px; height: 18px; object-fit: contain; border-radius: 4px; }
+.model-info { flex: 1; }
+.model-name { font-size: 0.85rem; font-weight: 600; color: var(--text); display:flex; align-items:center; gap:6px;}
+.model-desc { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
+.badge-vision { font-size: 0.55rem; background: rgba(74,222,128,0.1); color: #4ade80; padding: 2px 5px; border-radius: 4px; font-weight: 700; text-transform: uppercase;}
+.badge-img { font-size: 0.55rem; background: rgba(236,72,153,0.1); color: #f472b6; padding: 2px 5px; border-radius: 4px; font-weight: 700; text-transform: uppercase;}
+
+/* Code Panel Split View */
+#code-panel {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: 45%; background: var(--bg2); border-left: 1px solid var(--border2);
+  transform: translateX(100%); will-change: transform;
+  display: flex; flex-direction: column; z-index: 50;
+}
+.cp-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg3);}
+.cp-tab { font-size: 0.75rem; font-family: 'Geist Mono', monospace; background: var(--bg4); border: 1px solid var(--border2); padding: 4px 10px; border-radius: 6px; color: #fff;}
+.cp-body { padding: 20px; font-family: 'Geist Mono', monospace; font-size: 0.85rem; line-height: 1.6; color: #d4d4d4; overflow: hidden; }
+.cp-line { opacity: 0; transform: translateX(-10px); will-change: opacity, transform; }
+.token.keyword { color: #569cd6; }
+.token.function { color: #dcdcaa; }
+.token.string { color: #ce9178; }
+.token.comment { color: #6a9955; font-style: italic; }
+
+/* OUTRO */
+#outro-logo {
+  width: 70px; height: 70px; margin-bottom: 24px;
+  filter: drop-shadow(0 0 30px rgba(255,255,255,0.15));
+  opacity: 0; transform: translateY(10px) scale(0.95);
+}
+.outro-title { font-size: 2rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px; opacity: 0; transform: translateY(10px); }
+.outro-line { font-size: 1.1rem; font-weight: 300; color: var(--text2); margin-bottom: 8px; opacity: 0; transform: translateY(10px); }
+.outro-cta {
+  margin-top: 32px; padding: 12px 28px; border-radius: 30px;
+  background: #fff; color: #000; font-weight: 700; font-size: 1rem;
+  opacity: 0; transform: translateY(10px) scale(0.95);
+}
+
 </style>
 </head>
 <body>
-<!-- ── Grain cinématographique ── -->
+
 <div id="grain"></div>
-
-<!-- ── Lumière ambiante souris ── -->
 <div id="ambient-light"></div>
+<div id="vignette"></div>
 
-<!-- ── Fade overlay (transitions) ── -->
-<div id="fade-overlay"></div>
-
-<!-- ══════════════════════════════
-     STAGE
-══════════════════════════════ -->
-<div id="stage">
-
-  <!-- Halo de fond -->
-  <div id="halo"></div>
-
-  <!-- ══ PHASE 1 : INTRO LOGO ══════════════════════════════════ -->
-  <div id="intro-screen">
-    <div id="intro-logo-wrap">
-      <!-- Logo SVG Wikimind (W stylisé) -->
-      <div class="intro-logo-mark">
-        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="wm-grad-intro" x1="4" y1="10" x2="48" y2="42" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#6eb3ff"/>
-              <stop offset="50%" stop-color="#4d8fff"/>
-              <stop offset="100%" stop-color="#2d6fff"/>
-            </linearGradient>
-          </defs>
-          <!-- W géométrique premium -->
-          <path d="M6 14 L14 38 L26 20 L38 38 L46 14" stroke="url(#wm-grad-intro)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <!-- Accent dot -->
-          <circle cx="26" cy="20" r="2.5" fill="url(#wm-grad-intro)" opacity="0.7"/>
-        </svg>
-      </div>
-      <div class="intro-logo-text">WIKIMIND AI</div>
-      <div class="intro-tagline" id="intro-tagline">L'IA qui transforme vos idées en réalité</div>
-    </div>
-  </div>
-
-  <!-- ══ PHASE 2 : INTERFACE ═══════════════════════════════════ -->
-  <div id="ui-screen">
-
-    <!-- Topbar -->
-    <div id="ui-topbar">
-      <div class="ui-topbar-left">
-        <button class="ui-burger">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
-        <span class="ui-brand">Wikimind AI</span>
-      </div>
-      <div class="ui-topbar-right">
-        <!-- Model selector -->
-        <div class="ui-model-pill">
-          <span class="model-dot"></span>
-          <span>Small 5.5</span>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <button class="ui-icon-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </button>
-        <button class="ui-icon-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Chat area -->
-    <div id="ui-chat-area">
-
-      <!-- Welcome placeholder -->
-      <div id="ui-welcome">
-        <div class="ui-welcome-title">WIKIMIND</div>
+<div id="scene">
+  <div id="parallax-wrap">
+    <div id="camera">
+      
+      <!-- INTRO -->
+      <div id="intro-layer" class="layer">
+        <img id="intro-logo" src="https://raw.githubusercontent.com/WikimindAI/Wikimind/main/wikimind.png" alt="Wikimind Logo">
+        <div id="intro-slogan">L'IA qui transforme vos idées en réalité</div>
       </div>
 
-      <!-- Messages -->
-      <div id="ui-messages">
-
-        <!-- Message USER -->
-        <div class="ui-msg user" id="msg-user">
-          <div class="ui-msg-bubble" id="msg-user-text">
-            <span id="user-typed-text"></span><span id="ui-caret"></span>
+      <!-- REAL WIKIMIND APP -->
+      <div id="app-layer" class="layer">
+        <!-- Sidebar -->
+        <div id="sidebar">
+          <div id="sidebar-head">
+            <span class="sidebar-logo-text">Wikimind AI</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </div>
+          <div class="sidebar-actions">
+            <div class="sidebar-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nouvelle conversation</div>
+            <div class="sidebar-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="9" height="9" rx="2"/><rect x="13" y="2" width="9" height="9" rx="2"/><rect x="2" y="13" width="9" height="9" rx="2"/><rect x="13" y="13" width="9" height="9" rx="2"/></svg>Connecteurs</div>
+            <div class="sidebar-action-btn" id="btn-code-sidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Code</div>
+          </div>
+          <div class="s-section">Historique</div>
+          <div class="conv-item">Création d'un site vitrine</div>
+          <div class="conv-item" style="background:transparent;color:var(--text2)">Génération d'images</div>
         </div>
 
-        <!-- Message AI -->
-        <div class="ui-msg ai" id="msg-ai">
-          <div class="ui-ai-header">
-            <div class="ui-ai-avatar">
-              <svg width="11" height="11" viewBox="0 0 52 52" fill="none">
-                <path d="M6 14 L14 38 L26 20 L38 38 L46 14" stroke="rgba(77,143,255,0.9)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+        <!-- Main Chat -->
+        <div id="main-area">
+          <div id="topbar">
+            <div class="tb-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+            <div style="display:flex;gap:6px;">
+              <div class="tb-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+              <div class="tb-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
             </div>
-            <span class="ui-ai-name">Wikimind</span>
           </div>
-          <div class="ui-msg-bubble">
 
-            <!-- Thinking state -->
-            <div class="ui-thinking" id="ai-thinking">
-              <div class="ui-dots">
-                <div class="ui-dot"></div>
-                <div class="ui-dot"></div>
-                <div class="ui-dot"></div>
+          <div id="welcome-screen">WIKIMIND</div>
+
+          <div id="chat-area">
+            <div id="messages">
+              <!-- User Msg -->
+              <div class="msg-group user" id="msg-user">
+                <div class="msg-inner">
+                  <div class="bubble user" id="user-text"></div>
+                </div>
               </div>
-              <div class="ui-thinking-status" id="thinking-status-1">Analyse de votre demande…</div>
-              <div class="ui-thinking-status" id="thinking-status-2">Génération en cours…</div>
-              <div class="ui-progress-bar" id="ai-progress-bar">
-                <div class="ui-progress-fill" id="ai-progress-fill"></div>
+              <!-- AI Msg (Thinking + Image) -->
+              <div class="msg-group ai" id="msg-ai">
+                <div class="msg-inner">
+                  <div class="wm-img-anim-wrap" id="ai-thinking">
+                    <div class="wm-anim-layer wm-anim-l1"></div>
+                    <div class="wm-anim-vignette"></div>
+                  </div>
+                  <div id="gen-image-container">
+                    <img id="gen-image" src="https://raw.githubusercontent.com/WikimindAI/Wikimind/main/exemples/4.png" alt="Aquarelle">
+                  </div>
+                  <div class="msg-meta" id="ai-meta" style="opacity:0">
+                    <span class="model-tag-sm">Flux Schnell</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Input Zone -->
+          <div id="input-zone">
+            <div id="input-wrap">
+              <div id="chat-input-mock"><span id="typed-text"></span><span class="caret blink" id="caret"></span></div>
+              <div id="input-row">
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <div id="bubble-model-btn">
+                    <span id="model-label">Small 5.5</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                  <div class="i-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+                </div>
+                <div class="send-btn" id="btn-send">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                </div>
               </div>
             </div>
 
-            <!-- Response -->
-            <div class="ui-response-text" id="ai-response" style="display:none">
-              <!-- Filled dynamically -->
+            <!-- Model Dropdown -->
+            <div id="model-dropdown">
+              <div style="padding:10px 16px 4px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);">Modèles IA</div>
+              <div class="model-opt" style="background:var(--bg3)">
+                <img src="https://raw.githubusercontent.com/WikimindAI/Wikimind/main/pollinationai.png" class="model-logo" alt="Pollinations">
+                <div class="model-info">
+                  <div class="model-name">Flux Schnell <span class="badge-img">Image</span></div>
+                  <div class="model-desc">Génération d'images ultra-rapide</div>
+                </div>
+              </div>
+              <div class="model-opt">
+                <img src="https://raw.githubusercontent.com/WikimindAI/Wikimind/main/mistrallogo.png" class="model-logo" alt="Mistral">
+                <div class="model-info">
+                  <div class="model-name">Large 6.3 <span class="badge-vision" style="background:rgba(167,139,250,0.1);color:#a78bfa;">Code</span></div>
+                  <div class="model-desc">Spécialisé code, 262k contexte</div>
+                </div>
+              </div>
+              <div class="model-opt">
+                <img src="https://raw.githubusercontent.com/WikimindAI/Wikimind/main/googlelogo.png" class="model-logo" alt="Google">
+                <div class="model-info">
+                  <div class="model-name">Flash 5.5 <span class="badge-vision">Vision</span></div>
+                  <div class="model-desc">Gemini 2.5 Flash · 1M contexte</div>
+                </div>
+              </div>
+              <div class="model-opt">
+                <img src="https://raw.githubusercontent.com/WikimindAI/Wikimind/main/openailogo.png" class="model-logo" alt="OpenAI">
+                <div class="model-info">
+                  <div class="model-name">Large 4.7</div>
+                  <div class="model-desc">GPT-OSS 120B raisonneur</div>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
 
+        <!-- Splitted Code Panel -->
+        <div id="code-panel">
+          <div class="cp-header">
+            <div class="cp-tab">app.js</div>
+            <div style="display:flex;gap:8px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            </div>
+          </div>
+          <div class="cp-body" id="code-lines">
+            <!-- Populated via JS -->
           </div>
         </div>
 
       </div>
-    </div>
 
-    <!-- Input zone -->
-    <div id="ui-input-zone">
-      <div id="ui-input-container">
-        <div id="ui-input-wrap">
-          <textarea id="ui-textarea" rows="1" placeholder="Posez une question ou demandez une création…"></textarea>
-          <div class="ui-input-row">
-            <div class="ui-input-left">
-              <button class="ui-model-btn">
-                <span class="model-dot"></span>
-                Small 5.5
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-            </div>
-            <div style="display:flex;gap:6px;align-items:center">
-              <button class="ui-icon-btn" style="border:1px solid var(--border);border-radius:8px;width:30px;height:30px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              </button>
-              <button id="ui-send-btn">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="ui-disclaimer">Wikimind est une IA et peut faire des erreurs. Vérifiez les informations importantes.</div>
+      <!-- OUTRO -->
+      <div id="outro-layer" class="layer">
+        <img id="outro-logo" src="https://raw.githubusercontent.com/WikimindAI/Wikimind/main/wikimind.png" alt="Wikimind">
+        <div class="outro-title" id="out-t1">Wikimind AI</div>
+        <div class="outro-line" id="out-l1">Discutez. Créez. Codez. Imaginez.</div>
+        <div class="outro-line" id="out-l2">Une seule plateforme. Des dizaines de possibilités.</div>
+        <div class="outro-cta" id="out-cta">Essayez Wikimind dès aujourd'hui</div>
       </div>
+
     </div>
-
-  </div><!-- /ui-screen -->
-
-  <!-- ══ PHASE 3 : OUTRO ═══════════════════════════════════════ -->
-  <div id="outro-screen">
-
-    <div class="outro-logo-wrap" id="outro-logo">
-      <div class="outro-logo-mark">
-        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="wm-grad-outro" x1="4" y1="10" x2="48" y2="42" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#6eb3ff"/>
-              <stop offset="100%" stop-color="#2d6fff"/>
-            </linearGradient>
-          </defs>
-          <path d="M6 14 L14 38 L26 20 L38 38 L46 14" stroke="url(#wm-grad-outro)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <circle cx="26" cy="20" r="2.5" fill="url(#wm-grad-outro)" opacity="0.7"/>
-        </svg>
-      </div>
-      <div class="outro-brand" id="outro-brand">WIKIMIND AI</div>
-    </div>
-
-    <div class="outro-lines">
-      <div class="outro-line" id="outro-l1">Discutez. Créez. Codez. Imaginez.</div>
-      <div class="outro-line" id="outro-l2">Une seule plateforme. Des dizaines de possibilités.</div>
-      <div class="outro-line cta" id="outro-l3">Essayez Wikimind AI dès aujourd'hui →</div>
-    </div>
-
   </div>
+</div>
 
-  <!-- ══ CURSEUR VIRTUEL ════════════════════════════════════════ -->
-  <div id="virtual-cursor">
-    <div id="cursor-glow"></div>
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 2L4 18L8.5 13.5L12 20L14 19L10.5 12.5L18 12.5L4 2Z" fill="white" stroke="black" stroke-width="0.8"/>
-    </svg>
-  </div>
-
-</div><!-- /stage -->
+<!-- CURSOR -->
+<div id="cursor-wrapper">
+  <svg id="cursor-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4 2L4 18L8.5 13.5L12 20L14 19L10.5 12.5L18 12.5L4 2Z" fill="white" stroke="black" stroke-width="1.2" stroke-linejoin="round"/>
+  </svg>
+</div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   WIKIMIND AD ENGINE
-   Timeline orchestrée, animations 60 FPS
+   CINEMATIC MOTION ENGINE
+   60 FPS constraints: Only mutate transform, opacity, filter.
 ═══════════════════════════════════════════════════════════════ */
 
-// ── Helpers ─────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
-const wait = ms => new Promise(r => setTimeout(r, ms));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-// Easing
-function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
-function easeInOutQuart(t) { return t < 0.5 ? 8*t*t*t*t : 1 - Math.pow(-2*t+2,4)/2; }
+// Easing Functions
+const easeOutExpo = t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const easeOutQuart = t => 1 - Math.pow(1 - t, 4);
 
-// Animate number from a to b
-function lerp(a, b, t) { return a + (b - a) * t; }
-
-// ── Cursor engine ────────────────────────────────────────────
-const cursor = $('virtual-cursor');
-const ambientLight = $('ambient-light');
-let cursorX = window.innerWidth / 2;
-let cursorY = window.innerHeight / 2;
-let targetX = cursorX;
-let targetY = cursorY;
-
-// Eased cursor following
-function animateCursor() {
-  cursorX = lerp(cursorX, targetX, 0.12);
-  cursorY = lerp(cursorY, targetY, 0.12);
-  cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
-  ambientLight.style.transform = `translate(${cursorX - 250}px, ${cursorY - 250}px)`;
-  requestAnimationFrame(animateCursor);
+// CSS Transitions Helper
+function setTransition(el, props, duration, easing = 'cubic-bezier(0.22, 1, 0.36, 1)') {
+  el.style.transition = props.map(p => `${p} ${duration}s ${easing}`).join(', ');
 }
-animateCursor();
 
-// Move cursor with eased path
-function moveCursorTo(x, y, duration, easeFn = easeOutExpo) {
+// ── CURSOR CONTROLLER ──
+const cursor = $('cursor-wrapper');
+let curX = window.innerWidth / 2;
+let curY = window.innerHeight;
+
+function setCursorPos(x, y) {
+  curX = x; curY = y;
+  cursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  $('ambient-light').style.transform = `translate3d(${x}px, ${y}px, 0)`;
+}
+
+// Bézier curve movement for realistic human mouse feel
+async function moveCursor(targetX, targetY, duration, curveHeight = 50) {
   return new Promise(resolve => {
-    const startX = targetX;
-    const startY = targetY;
-    const start = performance.now();
-    function frame(now) {
-      const t = Math.min((now - start) / duration, 1);
-      const e = easeFn(t);
-      // Add slight wobble for human feel
-      const wobble = Math.sin(t * Math.PI * 3) * (1 - t) * 4;
-      targetX = lerp(startX, x, e) + wobble * 0.3;
-      targetY = lerp(startY, y, e) + wobble * 0.5;
-      if (t < 1) requestAnimationFrame(frame);
-      else { targetX = x; targetY = y; resolve(); }
+    const startX = curX; const startY = curY;
+    const cp1X = startX + (targetX - startX) * 0.3;
+    const cp1Y = startY + (targetY - startY) * 0.1 - curveHeight;
+    const cp2X = startX + (targetX - startX) * 0.7;
+    const cp2Y = startY + (targetY - startY) * 0.9 + curveHeight;
+
+    const startTime = performance.now();
+    function animate(time) {
+      let t = (time - startTime) / (duration * 1000);
+      if (t > 1) t = 1;
+      const easeT = easeInOutCubic(t);
+      
+      const u = 1 - easeT;
+      const x = u*u*u*startX + 3*u*u*easeT*cp1X + 3*u*easeT*easeT*cp2X + easeT*easeT*easeT*targetX;
+      const y = u*u*u*startY + 3*u*u*easeT*cp1Y + 3*u*easeT*easeT*cp2Y + easeT*easeT*easeT*targetY;
+      
+      setCursorPos(x, y);
+      
+      // Parallax effect on scene
+      const px = (x / window.innerWidth - 0.5) * -10;
+      const py = (y / window.innerHeight - 0.5) * -10;
+      $('parallax-wrap').style.transform = `translate3d(${px}px, ${py}px, 0) rotateX(${py * 0.1}deg) rotateY(${-px * 0.1}deg)`;
+
+      if (t < 1) requestAnimationFrame(animate);
+      else resolve();
     }
-    requestAnimationFrame(frame);
+    requestAnimationFrame(animate);
   });
 }
 
-// Click effect
-function simulateClick(x, y) {
-  // Scale cursor
-  cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) scale(0.88)`;
-  setTimeout(() => {
-    cursor.style.transform = `translate(${cursorX}px, ${cursorY}px) scale(1)`;
-  }, 120);
-
-  // Ripple on element
+async function clickCursor() {
+  const svg = $('cursor-svg');
+  setTransition(svg, ['transform'], 0.1, 'ease-out');
+  svg.style.transform = 'scale(0.85)';
+  
+  // Ripple
   const ripple = document.createElement('div');
   ripple.className = 'click-ripple';
-  ripple.style.cssText = `
-    position: fixed;
-    left: ${x - 20}px; top: ${y - 20}px;
-    width: 40px; height: 40px;
-    pointer-events: none;
-    z-index: 800;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-    animation: ripple-expand 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
-  `;
+  ripple.style.left = curX + 'px';
+  ripple.style.top = curY + 'px';
   document.body.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 700);
+  
+  // Animate ripple via Web Animations API for guaranteed 60fps independent of CSS class reflows
+  ripple.animate([
+    { transform: 'translate(-50%, -50%) scale(0.2)', opacity: 1 },
+    { transform: 'translate(-50%, -50%) scale(2.5)', opacity: 0 }
+  ], { duration: 500, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }).onfinish = () => ripple.remove();
+
+  await sleep(100);
+  svg.style.transform = 'scale(1)';
+  await sleep(150);
 }
 
-// ── Typewriter ───────────────────────────────────────────────
-async function typeText(el, text, opts = {}) {
-  const {
-    baseSpeed = 60,
-    variance = 40,
-    humanFeel = true,
-  } = opts;
+// ── CAMERA CONTROLLER ──
+const camera = $('camera');
+function animateCamera(scale, x, y, duration) {
+  setTransition(camera, ['transform'], duration, 'cubic-bezier(0.33, 1, 0.68, 1)');
+  camera.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+}
 
+// ── TYPING ENGINE ──
+async function typeText(el, text) {
+  const caret = $('caret');
+  caret.classList.remove('blink');
+  
   for (let i = 0; i < text.length; i++) {
     el.textContent += text[i];
-    let delay = baseSpeed + (Math.random() * variance);
-    // Slower after punctuation for human feel
-    if (humanFeel) {
-      const ch = text[i];
-      if (ch === ',' || ch === ';') delay += 80;
-      if (ch === '.' || ch === '!' || ch === '?') delay += 150;
-      if (ch === ' ' && Math.random() < 0.05) delay += 100; // occasional pause
+    // Human delays
+    let delay = 35 + Math.random() * 40;
+    if (text[i] === ',' || text[i] === '.') delay += 150;
+    if (i === 40) await sleep(200); // simulation hesitation
+    
+    // Simuler correction (typo at 'printemps')
+    if (i === 80) {
+      el.textContent += 'x';
+      await sleep(150);
+      el.textContent = el.textContent.slice(0, -1);
+      await sleep(100);
     }
-    await wait(delay);
+    
+    await sleep(delay);
   }
+  caret.classList.add('blink');
 }
 
-// ── Response content ─────────────────────────────────────────
-const AI_RESPONSE_HTML = `
-<h2>Site vitrine premium — Structure complète</h2>
-<p>Voici une architecture <strong>moderne et performante</strong> pour votre site vitrine, optimisée pour la conversion et le référencement.</p>
+// ── MAIN TIMELINE ORCHESTRATOR ──
+async function runCinematicAd() {
+  const introLayer = $('intro-layer');
+  const appLayer = $('app-layer');
+  const outroLayer = $('outro-layer');
 
-<div class="ui-code-block">
-  <div class="ui-code-header">
-    <span class="ui-code-lang">HTML</span>
-    <span class="ui-code-copy">Copier</span>
-  </div>
-  <div class="ui-code-body" id="code-body-1">
-<span class="code-line"><span class="c-cm">&lt;!-- Hero Section --&gt;</span></span>
-<span class="code-line"><span class="c-tag">&lt;section</span> <span class="c-at">class</span>=<span class="c-str">"hero"</span><span class="c-tag">&gt;</span></span>
-<span class="code-line">  <span class="c-tag">&lt;div</span> <span class="c-at">class</span>=<span class="c-str">"hero__content"</span><span class="c-tag">&gt;</span></span>
-<span class="code-line">    <span class="c-tag">&lt;h1</span> <span class="c-at">class</span>=<span class="c-str">"hero__title"</span><span class="c-tag">&gt;</span><span class="c-var">Votre Vision, Notre Expertise</span><span class="c-tag">&lt;/h1&gt;</span></span>
-<span class="code-line">    <span class="c-tag">&lt;p</span> <span class="c-at">class</span>=<span class="c-str">"hero__sub"</span><span class="c-tag">&gt;</span><span class="c-var">Solutions digitales premium</span><span class="c-tag">&lt;/p&gt;</span></span>
-<span class="code-line">    <span class="c-tag">&lt;a</span> <span class="c-at">href</span>=<span class="c-str">"#contact"</span> <span class="c-at">class</span>=<span class="c-str">"btn btn--primary"</span><span class="c-tag">&gt;</span><span class="c-var">Démarrer</span><span class="c-tag">&lt;/a&gt;</span></span>
-<span class="code-line">  <span class="c-tag">&lt;/div&gt;</span></span>
-<span class="code-line"><span class="c-tag">&lt;/section&gt;</span></span>
-  </div>
-</div>
+  // Initialization
+  setCursorPos(window.innerWidth * 0.8, window.innerHeight + 100);
+  introLayer.style.opacity = '1';
+  animateCamera(1.05, 0, 0, 0);
 
-<div class="ui-code-block" style="margin-top:10px">
-  <div class="ui-code-header">
-    <span class="ui-code-lang">CSS</span>
-    <span class="ui-code-copy">Copier</span>
-  </div>
-  <div class="ui-code-body" id="code-body-2">
-<span class="code-line"><span class="c-at">.hero</span> {</span>
-<span class="code-line">  <span class="c-var">min-height</span>: <span class="c-num">100vh</span>;</span>
-<span class="code-line">  <span class="c-var">display</span>: <span class="c-kw">flex</span>;</span>
-<span class="code-line">  <span class="c-var">align-items</span>: <span class="c-kw">center</span>;</span>
-<span class="code-line">  <span class="c-var">background</span>: <span class="c-fn">linear-gradient</span>(<span class="c-num">135deg</span>, <span class="c-str">#0a0a0a</span>, <span class="c-str">#141414</span>);</span>
-<span class="code-line">}</span>
-  </div>
-</div>
-`;
+  // 1. INTRO (0 - 3s)
+  await sleep(500);
+  setTransition($('intro-logo'), ['opacity', 'transform', 'filter'], 2.5);
+  $('intro-logo').style.opacity = '1';
+  $('intro-logo').style.transform = 'scale(1)';
+  $('intro-logo').style.filter = 'drop-shadow(0 0 40px rgba(77,143,255,0.4))';
+  
+  await sleep(1200);
+  setTransition($('intro-slogan'), ['opacity', 'transform'], 1.5);
+  $('intro-slogan').style.opacity = '1';
+  $('intro-slogan').style.transform = 'translateY(0)';
 
-// ── Screen refs ───────────────────────────────────────────────
-const introScreen = $('intro-screen');
-const uiScreen    = $('ui-screen');
-const outroScreen = $('outro-screen');
-const fadeOverlay = $('fade-overlay');
-const halo        = $('halo');
+  await sleep(1800);
+  setTransition(introLayer, ['opacity'], 1.2);
+  introLayer.style.opacity = '0';
+  
+  // 2. REVEAL INTERFACE (4s - 6s)
+  await sleep(1000);
+  setTransition(appLayer, ['opacity'], 1.5);
+  appLayer.style.opacity = '1';
+  animateCamera(1, 0, 0, 4); // Slow zoom out
 
-// ── Fade helpers ─────────────────────────────────────────────
-async function fadeOut(duration = 800) {
-  fadeOverlay.style.transition = `opacity ${duration}ms ease`;
-  fadeOverlay.classList.add('fade-in');
-  await wait(duration);
-}
-async function fadeIn(duration = 800) {
-  fadeOverlay.style.transition = `opacity ${duration}ms ease`;
-  fadeOverlay.classList.remove('fade-in');
-  await wait(duration);
-}
+  // Cursor enters
+  cursor.style.opacity = '1';
+  const inputWrap = $('input-wrap');
+  const inputRect = inputWrap.getBoundingClientRect();
+  
+  await moveCursor(inputRect.left + 150, inputRect.top + 25, 1.8, 80);
+  await clickCursor();
 
-// ── Measure element center ────────────────────────────────────
-function getCenter(el) {
-  const r = el.getBoundingClientRect();
-  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-}
-
-// ══════════════════════════════════════════════════════════════
-//  MAIN TIMELINE
-// ══════════════════════════════════════════════════════════════
-async function runAd() {
-
-  // ── Phase 0 : init (frame 0) ─────────────────────────────
-  await wait(200);
-
-  // ── Phase 1a : Halo + Logo apparition (0.2 → 1.5s) ──────
-  halo.style.opacity = '1';
-
-  await wait(400);
-  const logoWrap = $('intro-logo-wrap');
-  logoWrap.classList.add('visible');
-
-  await wait(800);
-  $('intro-tagline').classList.add('visible');
-
-  // ── Phase 1b : Tagline visible (2s) puis disparaît ───────
-  await wait(2000);
-  $('intro-tagline').style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-  $('intro-tagline').style.opacity = '0';
-  $('intro-tagline').style.transform = 'translateY(-3px)';
-
-  await wait(700);
-
-  // ── Phase 1c : Fade vers UI (4.5s) ───────────────────────
-  await fadeOut(1000);
-  introScreen.style.display = 'none';
-  uiScreen.classList.add('visible');
-  halo.style.opacity = '0';
-
-  await fadeIn(1000);
-  await wait(300);
-
-  // ── Phase 2a : Curseur entre (5s) ────────────────────────
-  cursor.classList.add('visible');
-  // Positionner le curseur hors écran à gauche
-  targetX = -60; targetY = window.innerHeight * 0.4;
-  cursorX = targetX; cursorY = targetY;
-  await wait(100);
-
-  // Se déplacer vers le textarea de manière naturelle
-  const inputWrap = $('ui-input-wrap');
-  const inputCenter = getCenter(inputWrap);
-  const textarea = $('ui-textarea');
-
-  // Mouvement humain : arc légèrement courbé
-  await moveCursorTo(window.innerWidth * 0.55, window.innerHeight * 0.78, 900);
-  await wait(80);
-  await moveCursorTo(inputCenter.x - 80, inputCenter.y + 5, 600, easeInOutQuart);
-  await wait(120);
-  await moveCursorTo(inputCenter.x + 20, inputCenter.y - 2, 380);
-  await wait(80);
-  await moveCursorTo(inputCenter.x, inputCenter.y, 250);
-
-  await wait(150);
-
-  // ── Phase 2b : Clic dans le textarea (5.5s) ──────────────
-  simulateClick(inputCenter.x, inputCenter.y);
-
-  // Focus visuel
+  // Focus Input
   inputWrap.classList.add('focused');
-  $('ui-welcome').classList.add('hidden');
-  $('msg-user').classList.add('visible');
+  $('caret').style.opacity = '1';
+  setTransition($('welcome-screen'), ['opacity', 'transform'], 0.8);
+  $('welcome-screen').style.opacity = '0';
+  $('welcome-screen').style.transform = 'translate(-50%, -60%) scale(0.95)';
+  
+  // Move cursor away slightly to read text
+  moveCursor(inputRect.left + 400, inputRect.bottom + 40, 1.5, -20);
 
-  // Caret actif
-  $('ui-caret').classList.add('active');
-  await wait(400);
+  // 3. TYPING PROMPT (6s - 12s)
+  await sleep(500);
+  const prompt = "Une aquarelle délicate et éthérée sur papier texturé, dépeignant un jardin japonais paisible au printemps avec des cerisiers en fleurs (sakura) rose vif encadrant la scène, un pont en bois arqué traversant un étang réfléchissant, une tonnelle traditionnelle et deux lanternes en pierre.";
+  await typeText($('typed-text'), prompt);
+  
+  // 4. SENDING (12s - 14s)
+  await sleep(400);
+  const btnSend = $('btn-send');
+  const btnRect = btnSend.getBoundingClientRect();
+  await moveCursor(btnRect.left + 16, btnRect.top + 16, 0.8, -40);
+  
+  btnSend.classList.add('clicked');
+  await clickCursor();
+  btnSend.classList.remove('clicked');
+  
+  // Move cursor out of the way
+  moveCursor(window.innerWidth * 0.8, window.innerHeight * 0.5, 2, 100);
 
-  // ── Phase 2c : Frappe du message (5.8 → 10s) ─────────────
-  const userTypedEl = $('user-typed-text');
-  const fullText = 'Crée un site vitrine moderne pour mon entreprise avec un design premium.';
-
-  // Simulation faute + correction (lettre t de "vitrine" → corr)
-  await typeText(userTypedEl, 'Crée un site', { baseSpeed: 65, variance: 45 });
-  await wait(120);
-  // Simulation hésitation
-  await typeText(userTypedEl, ' vitr', { baseSpeed: 70, variance: 30 });
-  // Correction : backspace (supprimer r)
-  await wait(180);
-  userTypedEl.textContent = userTypedEl.textContent.slice(0, -1);
-  await wait(90);
-  userTypedEl.textContent = userTypedEl.textContent.slice(0, -1);
-  await wait(120);
-  await typeText(userTypedEl, 'rine moderne pour mon entreprise avec un design premium.', { baseSpeed: 58, variance: 42 });
-
-  await wait(600);
-  $('ui-caret').classList.remove('active');
-
-  // ── Phase 2d : Clic sur Envoyer (10 → 11s) ───────────────
-  const sendBtn = $('ui-send-btn');
-  const sendCenter = getCenter(sendBtn);
-
-  await moveCursorTo(sendCenter.x + 60, sendCenter.y + 20, 700);
-  await wait(100);
-  await moveCursorTo(sendCenter.x, sendCenter.y, 450, easeInOutQuart);
-  await wait(200);
-
-  // Clic
-  simulateClick(sendCenter.x, sendCenter.y);
-  sendBtn.classList.add('active');
-  setTimeout(() => sendBtn.classList.remove('active'), 400);
-
-  await wait(300);
-
-  // Reset input
-  textarea.value = '';
+  // Clear input & Show User Message
   inputWrap.classList.remove('focused');
+  $('typed-text').textContent = '';
+  $('caret').style.opacity = '0';
+  
+  setTransition($('input-zone'), ['transform', 'opacity'], 0.8);
+  $('input-zone').style.transform = 'translateY(100px)';
+  $('input-zone').style.opacity = '0';
 
-  // Cacher message user, afficher AI message
-  $('msg-user').style.opacity = '0.5';
+  const msgUser = $('msg-user');
+  $('user-text').textContent = prompt;
+  setTransition(msgUser, ['opacity', 'transform'], 0.6);
+  msgUser.style.opacity = '1';
+  msgUser.style.transform = 'translateY(0)';
 
-  // ── Phase 2e : L'IA réfléchit (11 → 15s) ────────────────
-  $('msg-ai').classList.add('visible');
-  $('ai-thinking').style.display = 'flex';
-  await wait(600);
+  // 5. AI THINKING (14s - 17s)
+  await sleep(600);
+  const msgAi = $('msg-ai');
+  const aiThinking = $('ai-thinking');
+  setTransition(msgAi, ['opacity', 'transform'], 0.6);
+  msgAi.style.opacity = '1';
+  msgAi.style.transform = 'translateY(0)';
+  
+  await sleep(200);
+  setTransition(aiThinking, ['opacity', 'transform'], 0.5);
+  aiThinking.style.opacity = '1';
+  aiThinking.style.transform = 'scale(1)';
 
-  const status1 = $('thinking-status-1');
-  status1.classList.add('visible');
+  // Cinematic slow push-in during thinking
+  animateCamera(1.02, 0, 50, 4);
 
-  await wait(1800);
-  const progressBar = $('ai-progress-bar');
-  progressBar.classList.add('visible');
-  await wait(100);
-  $('ai-progress-fill').classList.add('active');
+  // 6. IMAGE REVEAL SPECTACULAR (17s - 22s)
+  await sleep(2500);
+  
+  // Hide thinking
+  setTransition(aiThinking, ['opacity', 'transform'], 0.4);
+  aiThinking.style.opacity = '0';
+  aiThinking.style.transform = 'scale(0.8)';
+  
+  await sleep(300);
+  aiThinking.style.display = 'none';
 
-  await wait(1200);
-  status1.classList.remove('visible');
-  status1.style.display = 'none';
-  const status2 = $('thinking-status-2');
-  status2.classList.add('visible');
+  // Reveal Image
+  const imgContainer = $('gen-image-container');
+  setTransition(imgContainer, ['opacity', 'transform', 'filter'], 1.2, 'cubic-bezier(0.16, 1, 0.3, 1)');
+  imgContainer.style.opacity = '1';
+  imgContainer.style.transform = 'scale(1)';
+  imgContainer.style.filter = 'blur(0px)';
+  
+  setTransition($('ai-meta'), ['opacity'], 1, 'ease');
+  $('ai-meta').style.opacity = '1';
 
-  // Déplacer curseur pendant que l'IA réfléchit
-  await moveCursorTo(window.innerWidth * 0.48, window.innerHeight * 0.42, 1200);
+  // Camera zooms deeply into the beautiful image
+  animateCamera(1.15, 0, 150, 5);
 
-  await wait(1000);
+  // 7. SHOWCASE MODELS & CODE (22s - 32s)
+  await sleep(4000);
+  
+  // Pull back
+  animateCamera(1.0, 0, 0, 3);
+  
+  // Bring input back to show model selector
+  setTransition($('input-zone'), ['transform', 'opacity'], 0.8);
+  $('input-zone').style.transform = 'translateY(0)';
+  $('input-zone').style.opacity = '1';
 
-  // ── Phase 2f : Réponse IA (15 → 23s) ─────────────────────
-  $('ai-thinking').style.display = 'none';
-  const aiResponse = $('ai-response');
-  aiResponse.style.display = 'block';
-  aiResponse.innerHTML = AI_RESPONSE_HTML;
+  await sleep(1000);
+  const modelBtnRect = $('bubble-model-btn').getBoundingClientRect();
+  await moveCursor(modelBtnRect.left + 50, modelBtnRect.top + 15, 1.2, -30);
+  await clickCursor();
 
-  // Révéler le texte progressivement
-  // D'abord le h2
-  const h2 = aiResponse.querySelector('h2');
-  h2.style.opacity = '0';
-  h2.style.transform = 'translateY(5px)';
-  h2.style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1)';
-  await wait(80);
-  h2.style.opacity = '1';
-  h2.style.transform = 'translateY(0)';
+  // Open Model Dropdown
+  const dropdown = $('model-dropdown');
+  setTransition(dropdown, ['opacity', 'transform'], 0.4);
+  dropdown.style.opacity = '1';
+  dropdown.style.transform = 'translateY(0) scale(1)';
+  
+  await sleep(1500);
+  
+  // Move to Sidebar Code
+  await moveCursor(40, window.innerHeight * 0.4, 1.5, 100); // move to burger or slide
+  // Auto open sidebar
+  setTransition($('sidebar'), ['transform'], 0.6);
+  $('sidebar').style.transform = 'translateX(0)';
+  
+  await sleep(600);
+  const codeBtn = $('btn-code-sidebar');
+  const cBtnRect = codeBtn.getBoundingClientRect();
+  await moveCursor(cBtnRect.left + 50, cBtnRect.top + 20, 0.8, -20);
+  codeBtn.classList.add('active');
+  await clickCursor();
 
-  await wait(400);
+  // Slide in Code Panel
+  setTransition($('model-dropdown'), ['opacity'], 0.2);
+  $('model-dropdown').style.opacity = '0';
+  
+  const codePanel = $('code-panel');
+  setTransition(codePanel, ['transform'], 0.8, 'cubic-bezier(0.22, 1, 0.36, 1)');
+  codePanel.style.transform = 'translateX(0)';
+  
+  // Shift chat area to left
+  setTransition($('main-area'), ['transform'], 0.8, 'cubic-bezier(0.22, 1, 0.36, 1)');
+  $('main-area').style.transform = 'translateX(-10%)';
 
-  // Paragraphe
-  const p1 = aiResponse.querySelector('p');
-  p1.style.opacity = '0';
-  p1.style.transform = 'translateY(5px)';
-  p1.style.transition = 'opacity 0.5s ease 0.1s, transform 0.5s cubic-bezier(0.22,1,0.36,1) 0.1s';
-  await wait(50);
-  p1.style.opacity = '1';
-  p1.style.transform = 'translateY(0)';
+  // Type code lines
+  await sleep(800);
+  const codeContent = [
+    `<span class="token keyword">import</span> React <span class="token keyword">from</span> <span class="token string">'react'</span>;`,
+    `<span class="token keyword">import</span> { motion } <span class="token keyword">from</span> <span class="token string">'framer-motion'</span>;`,
+    ``,
+    `<span class="token keyword">export default function</span> <span class="token function">HeroSection</span>() {`,
+    `  <span class="token keyword">return</span> (`,
+    `    &lt;<span class="token keyword">motion.div</span>`,
+    `      initial={{ opacity: 0, y: 20 }}`,
+    `      animate={{ opacity: 1, y: 0 }}`,
+    `      transition={{ duration: 0.8 }}`,
+    `      className=<span class="token string">"premium-glass-panel"</span>`,
+    `    &gt;`,
+    `      &lt;<span class="token keyword">h1</span>&gt;L'IA qui transforme vos idées&lt;/<span class="token keyword">h1</span>&gt;`,
+    `    &lt;/<span class="token keyword">motion.div</span>&gt;`,
+    `  );`,
+    `}`
+  ];
 
-  await wait(600);
-
-  // Code block 1
-  const codeBlock1 = aiResponse.querySelectorAll('.ui-code-block')[0];
-  codeBlock1.style.opacity = '0';
-  codeBlock1.style.transform = 'translateY(6px)';
-  codeBlock1.style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1)';
-  await wait(50);
-  codeBlock1.style.opacity = '1';
-  codeBlock1.style.transform = 'translateY(0)';
-
-  // Révéler les lignes de code une par une
-  const codeLines1 = codeBlock1.querySelectorAll('.code-line');
-  for (let i = 0; i < codeLines1.length; i++) {
-    await wait(90 + i * 15);
-    codeLines1[i].classList.add('revealed');
+  const codeContainer = $('code-lines');
+  for (let i = 0; i < codeContent.length; i++) {
+    const line = document.createElement('div');
+    line.className = 'cp-line';
+    line.innerHTML = codeContent[i] || '<br>';
+    setTransition(line, ['opacity', 'transform'], 0.4);
+    codeContainer.appendChild(line);
+    
+    // Trigger reflow
+    void line.offsetWidth;
+    line.style.opacity = '1';
+    line.style.transform = 'translateX(0)';
+    await sleep(90);
   }
 
-  await wait(500);
+  // 8. OUTRO (32s - 40s)
+  await sleep(1500);
+  
+  // Slowly zoom out the whole scene into darkness
+  animateCamera(0.9, 0, 0, 2.5);
+  setTransition(appLayer, ['opacity'], 2);
+  appLayer.style.opacity = '0';
+  cursor.style.opacity = '0';
 
-  // Code block 2
-  const codeBlock2 = aiResponse.querySelectorAll('.ui-code-block')[1];
-  codeBlock2.style.opacity = '0';
-  codeBlock2.style.transform = 'translateY(6px)';
-  codeBlock2.style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1)';
-  await wait(50);
-  codeBlock2.style.opacity = '1';
-  codeBlock2.style.transform = 'translateY(0)';
+  await sleep(2000);
+  
+  outroLayer.style.opacity = '1';
+  
+  const oLogo = $('outro-logo');
+  const oT1 = $('out-t1');
+  const oL1 = $('out-l1');
+  const oL2 = $('out-l2');
+  const oCta = $('out-cta');
 
-  const codeLines2 = codeBlock2.querySelectorAll('.code-line');
-  for (let i = 0; i < codeLines2.length; i++) {
-    await wait(80 + i * 20);
-    codeLines2[i].classList.add('revealed');
+  const els = [oLogo, oT1, oL1, oL2, oCta];
+  for (let i = 0; i < els.length; i++) {
+    setTransition(els[i], ['opacity', 'transform'], 1.2, 'ease-out');
+    els[i].style.opacity = '1';
+    els[i].style.transform = 'translateY(0) scale(1)';
+    await sleep(700);
   }
 
-  // Curseur survole doucement la réponse
-  await moveCursorTo(window.innerWidth * 0.52, window.innerHeight * 0.35, 1800);
-  await wait(500);
-  await moveCursorTo(window.innerWidth * 0.45, window.innerHeight * 0.55, 1200);
-
-  await wait(800);
-
-  // ── Phase 3 : Outro (24 → 30s) ───────────────────────────
-  await fadeOut(1200);
-
-  uiScreen.style.display = 'none';
-  cursor.style.display = 'none';
-
-  outroScreen.classList.add('visible');
-  await fadeIn(1000);
-
-  await wait(400);
-
-  // Logo outro
-  const outroLogo = $('outro-logo');
-  outroLogo.classList.add('visible');
-  await wait(200);
-  $('outro-brand').classList.add('visible');
-
-  await wait(700);
-
-  const outroLines = ['outro-l1', 'outro-l2', 'outro-l3'];
-  for (const id of outroLines) {
-    $(id).classList.add('visible');
-    await wait(650);
-  }
-
-  // Stay for a moment
-  await wait(2800);
-
-  // Final fade
-  await fadeOut(1800);
+  // Final slight zoom on outro
+  animateCamera(1.05, 0, 0, 5);
 }
 
-// ── Keyframe injection pour animations inline ─────────────────
-const styleEl = document.createElement('style');
-styleEl.textContent = `
-@keyframes ripple-expand {
-  from { transform: scale(1); opacity: 1; }
-  to   { transform: scale(4); opacity: 0; }
-}
-`;
-document.head.appendChild(styleEl);
-
-// ── Start ─────────────────────────────────────────────────────
+// Start timeline when loaded
 window.addEventListener('load', () => {
-  runAd().catch(console.error);
-});
-
-// ── Loop support (click to restart) ──────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'r' || e.key === 'R') {
-    location.reload();
-  }
+  // Slight delay for assets
+  setTimeout(runCinematicAd, 500);
 });
 </script>
 </body>
