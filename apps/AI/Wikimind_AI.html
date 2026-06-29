@@ -4219,7 +4219,7 @@ async function loadModels() {
       { id:"wm-flash-5.5", displayName:"Flash 5.5", apiModel:"gemini-2.5-flash", tier:"flash", isMainPick:true, description:"Gemini 2.5 Flash · ultra-rapide", provider:"google", apiEndpoint:"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent", supportsVision:true, supportsStreaming:true, maxTokens:8192, contextWindow:1000000 },
       { id:"wm-small-5.5", displayName:"Small 5.5", apiModel:"mistral-small-latest", tier:"small", isMainPick:true, description:"Rapide, idéal pour le quotidien", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
       { id:"wm-medium-5.5", displayName:"Medium 5.5", apiModel:"mistral-medium-latest", tier:"medium", isMainPick:true, description:"Équilibre performance / vitesse", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
-      { id:"wm-large-6.3", displayName:"Large 6.3", apiModel:"codestral-latest", tier:"large", description:"Spécialisé code, 80+ langages", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true, isCodeModel:true },
+      { id:"wm-large-6.3", displayName:"Large 6.3", apiModel:"codestral-latest", tier:"large", description:"Spécialisé code, 262k contexte", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true, maxTokens:32768, contextWindow:262144, isCodeModel:true, isMainPick:false },
       { id:"wm-large-5.5", displayName:"Large 5.5", apiModel:"mistral-large-latest", tier:"large", isMainPick:true, description:"Puissant, tâches complexes", provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions", supportsVision:false, supportsStreaming:true },
       { id:"wm-medium-5.0", displayName:"Medium 5.0", apiModel:"compound", tier:"medium", description:"Groq Compound, recherche web intégrée", provider:"groq", apiEndpoint:"https://api.groq.com/openai/v1/chat/completions", supportsVision:false, supportsStreaming:true, maxTokens:8192, contextWindow:131072 },
       { id:"wm-small-5.1", displayName:"Small 5.1", apiModel:"compound-mini", tier:"small", description:"Groq Compound Mini, léger avec web search", provider:"groq", apiEndpoint:"https://api.groq.com/openai/v1/chat/completions", supportsVision:false, supportsStreaming:true, maxTokens:8192, contextWindow:131072 }
@@ -5687,6 +5687,15 @@ async function retryWithModel(msgObj, groupEl, modelId) {
 // =============================================
 // SEND MESSAGE
 // =============================================
+// Injecte un prompt dans l'input et l'envoie (utilisé par le bouton "Corriger par IA" de la console)
+window._wmInjectAndSend = function(promptText) {
+  const input = document.getElementById("chat-input");
+  if (!input || streaming) return;
+  input.value = promptText;
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  sendMessage();
+};
+
 async function sendMessage() {
   const text = chatInput.value.trim();
   if ((!text && attachedFiles.length === 0) || streaming) return;
@@ -5711,8 +5720,14 @@ async function sendMessage() {
         hasImageAttachment = true;
         imageParts.push({ type: "image_url", image_url: { url: f.content.base64 } });
       } else {
-        const maxLen = 8000;
-        const content = typeof f.content === 'string' ? (f.content.length > maxLen ? f.content.slice(0, maxLen) + '\n\n[...tronqué]' : f.content) : '';
+        // Pour Codestral (262k ctx) on envoie le fichier complet ; pour les autres modèles on tronque à 40k chars
+        const _curMObj = window._wmSelectedModelObj || null;
+        const _isCodeModel = _curMObj && (_curMObj.isCodeModel || (_curMObj.contextWindow || 0) >= 131072);
+        const maxLen = _isCodeModel ? Infinity : 40000;
+        const rawContent = typeof f.content === 'string' ? f.content : '';
+        const content = isFinite(maxLen) && rawContent.length > maxLen
+          ? rawContent.slice(0, maxLen) + '\n\n[...tronqué – fichier trop long pour ce modèle, utilisez Large 6.3 Codestral pour les gros fichiers]'
+          : rawContent;
         textParts.push(`### Fichier : ${f.name}\n\`\`\`\n${content}\n\`\`\``);
       }
     });
@@ -5775,6 +5790,11 @@ async function sendMessage() {
 
   if (userId && messages.length === 1) await saveConversationTitle(text || filesForDisplay[0]?.name || "Nouveau");
   if (userId && currentConvId) await saveConversation();
+
+  // ── Auto-switch Codestral si message contient du code ou fichier ouvert ──
+  if (window.WMCodePanel) {
+    window.WMCodePanel.checkAndSwitchForCode(text);
+  }
 
   // ── Détection mode flashcards (intention stricte) ──
   // On déclenche uniquement si l'utilisateur DEMANDE explicitement des flashcards/cartes
@@ -5895,6 +5915,20 @@ async function sendMessage() {
         console.warn("[Sources] Enrichissement échoué :", _enrichErr);
       }
     }
+
+    // ── Contexte panneau code (fichier actif + erreurs console) ──
+    if (window.WMCodePanel) {
+      const _activeFileCtx = window.WMCodePanel.getActiveFileContext();
+      const _consoleCtx    = window.WMCodePanel.getConsoleContext();
+      const _wantsConsoleFix = /corrig|fix\b|console|erreur/i.test(text);
+      if (_activeFileCtx) {
+        _enrichedContent = _activeFileCtx + "\n\n" + _enrichedContent;
+      }
+      if (_consoleCtx && (_wantsConsoleFix || _activeFileCtx)) {
+        _enrichedContent = "### Erreurs console :\n```\n" + _consoleCtx + "\n```\n\n" + _enrichedContent;
+      }
+    }
+
     await doStream(_enrichedContent, false, visionContent, _extraSources);
   } catch (error) {
     console.error("Error in sendMessage:", error);
@@ -6905,9 +6939,9 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
       return false;
     })();
 
-    const smartEditInstruction = isLargeFileEdit
-      ? "\n\nFICHIER VOLUMINEUX DÉTECTÉ : N'ÉCRIS PAS le fichier entier. Montre uniquement les BLOCS MODIFIÉS avec leur contexte (quelques lignes avant/après). Utilise ce format :\n```\n// ... ligne X-Y inchangées ...\n[CODE MODIFIÉ ICI]\n// ... suite inchangée ...\n```\nExplique brièvement chaque modification."
-      : "";
+    // smartEditInstruction : le format patch (<<<SEARCH/REPLACE/LINE) est injecté
+    // dynamiquement par WMCodePanel_getPatchHint() dans le systemPrompt ci-dessous.
+    const smartEditInstruction = "";
 
     const codeModeInstruction = window._wmCodeMode
       ? "\n\nMODE CODE ACTIVÉ : Tu es en mode développeur. Privilégie les réponses avec du code propre, commenté, et production-ready. Propose des solutions techniques complètes."
@@ -6927,6 +6961,7 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
                     (buildSystemPromptFromPersonalization() ? "INSTRUCTIONS PERSONNALISÉES: " + buildSystemPromptFromPersonalization() + "\n" : "") +
                     codeModeInstruction +
                     smartEditInstruction +
+                    (window.WMCodePanel && window.WMCodePanel.getAllFiles().length > 0 && window.WMCodePanel_getPatchHint ? "\n\n" + window.WMCodePanel_getPatchHint() : "") +
                     systemExtra;
 
     const _filteredMessages = messages
