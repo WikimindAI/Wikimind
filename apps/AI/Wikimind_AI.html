@@ -16,8 +16,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="connect.css">
 <script src="connect.js" defer></script>
-<link rel="stylesheet" href="code.css">
-<script src="code.js" defer></script>
 <link rel="stylesheet" href="settings5.css">
 <link rel="stylesheet" href="flashcards.css">
 <link rel="stylesheet" href="quiz.css">
@@ -25,6 +23,7 @@
 <link rel="stylesheet" href="sources.css">
 <link rel="stylesheet" href="statpopup.css">
 <link rel="stylesheet" href="videogen.css">
+<link rel="stylesheet" href="code.css">
 <style>
 
   
@@ -3018,11 +3017,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
-  window._wmDb         = db;
-window._wmFireRef    = ref;
-window._wmFireGet    = get;
-window._wmFireSet    = set;
-window._wmFireUpdate = update;
 const KEY = "5lnrIIlTIjlETLxr4Xqv0lkZdk8tPigj";
 // Groq key — XOR-obfuscated, decoded at runtime (scanner-safe)
 const _gk = (()=>{
@@ -3896,6 +3890,7 @@ $("file-input").addEventListener("change", async (e) => {
   if (!files.length) return;
   
   let hasImage = false;
+  const CODE_PANEL_EXTS = new Set(['html','htm','css','js','mjs','ts','tsx','jsx','json','py','md','sh','yml','yaml','xml','sql','c','cpp','java','php','go','rs','rb','txt']);
   for (const file of files) {
     try {
       const content = await readFile(file);
@@ -3908,6 +3903,12 @@ $("file-input").addEventListener("change", async (e) => {
         isImage: isImg
       });
       if (isImg) hasImage = true;
+
+      // ── Fichier texte/code : on l'envoie aussi directement dans le panneau de code ──
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+      if (!isImg && typeof content === 'string' && CODE_PANEL_EXTS.has(ext) && window.WMCodePanel) {
+        window.WMCodePanel.registerUploadedFile(file.name, content);
+      }
     } catch (err) {
       toast(`Erreur lecture : ${file.name}`);
     }
@@ -4827,6 +4828,51 @@ chatInput.addEventListener("input", () => {
 // =============================================
 // RENDER CONTENT (MARKDOWN + KATEX + GRAPHIQUES)
 // =============================================
+// =============================================
+// THROTTLING DU RENDU STREAMING
+// Évite de reconstruire tout le DOM/markdown à chaque chunk réseau
+// (qui peut arriver des centaines de fois par seconde) : on rend au plus
+// une fois par intervalle minimum, avec toujours le texte le plus récent.
+// Le contenu reste affiché "en temps réel" à l'œil, mais le navigateur
+// ne refait le travail de parsing/DOM qu'à un rythme soutenable.
+// =============================================
+const WM_STREAM_RENDER_INTERVAL_MS = 60; // ~16 rendus/seconde — fluide à l'œil, largement soutenable
+let _wmStreamRenderScheduled = false;
+let _wmStreamLastRenderAt = 0;
+
+function _wmRenderStreamNow(aiMsgObj) {
+  const bubble = document.getElementById("stream-bubble");
+  if (!bubble) return;
+  bubble.innerHTML = renderContent(aiMsgObj.content);
+  addCodeButtons(bubble, aiMsgObj.msgId);
+  _wmStreamLastRenderAt = performance.now();
+}
+
+function _wmScheduleStreamRender(aiMsgObj, immediate = false) {
+  if (immediate) {
+    _wmRenderStreamNow(aiMsgObj);
+    return;
+  }
+  if (_wmStreamRenderScheduled) return; // déjà une mise à jour en attente, le texte le plus récent sera pris au prochain passage
+  _wmStreamRenderScheduled = true;
+  requestAnimationFrame(function tick() {
+    const elapsed = performance.now() - _wmStreamLastRenderAt;
+    if (elapsed < WM_STREAM_RENDER_INTERVAL_MS) {
+      // Pas encore le moment de rendre : re-vérifier à la prochaine frame d'affichage
+      requestAnimationFrame(tick);
+      return;
+    }
+    _wmStreamRenderScheduled = false;
+    _wmRenderStreamNow(aiMsgObj);
+  });
+}
+
+// Réinitialise le throttle au début de chaque nouveau message (évite un état périmé entre deux réponses)
+function _wmResetStreamRenderThrottle() {
+  _wmStreamRenderScheduled = false;
+  _wmStreamLastRenderAt = 0;
+}
+
 function renderContent(text) {
   // Graphiques → placeholder div (rendu différé par WMCharts)
   text = text.replace(/```graphique\s*([\s\S]+?)```/gi, (_, block) => {
@@ -4866,7 +4912,7 @@ function renderContent(text) {
   return html;
 }
 
-function addCodeButtons(bubble) {
+function addCodeButtons(bubble, msgId) {
   bubble.querySelectorAll("pre").forEach(pre => {
     if (pre.querySelector(".code-header")) return;
     const code = pre.querySelector("code");
@@ -4884,6 +4930,11 @@ function addCodeButtons(bubble) {
   // Rendre les graphiques Wikimind
   if (window.WMCharts) {
     window.WMCharts.renderAll(bubble);
+  }
+
+  // ── Panneau de code latéral : détecte les blocs de code et les envoie au panneau ──
+  if (window.WMCodePanel && msgId) {
+    window.WMCodePanel.scanMessageForCode(bubble, msgId);
   }
 }
 
@@ -5305,7 +5356,7 @@ function appendAIMsg(msgObj, isStreaming = false) {
   // ── Cas texte normal ──
   } else if (msgObj.content) {
     bubble.innerHTML = renderContent(msgObj.content);
-    addCodeButtons(bubble);
+    addCodeButtons(bubble, msgObj.msgId);
     if (window.injectPersonalityLinks) window.injectPersonalityLinks(bubble);
   }
 
@@ -6781,6 +6832,7 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
   stopBtn.classList.add("on");
   sendBtn.disabled = true;
   abortCtrl = new AbortController();
+  _wmResetStreamRenderThrottle();
 
   const aiMsgId = genId();
   const _mObjStream = window._wmSelectedModelObj || WIKIMIND_MODELS.find(m => m.apiModel === selectedModel);
@@ -7010,9 +7062,9 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
               removeThinking();
               appendAIMsg(aiMsgObj, true);
               bubble = document.getElementById("stream-bubble");
+              _wmScheduleStreamRender(aiMsgObj, true); // premier rendu immédiat, pas d'attente
             } else {
-              bubble.innerHTML = renderContent(aiMsgObj.content);
-              addCodeButtons(bubble);
+              _wmScheduleStreamRender(aiMsgObj);
             }
           }
           
@@ -7031,6 +7083,7 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
 
     aiMsgObj.responseTime = Date.now() - _streamStart;
     removeThinking();
+    _wmStreamRenderScheduled = false; // annule un éventuel rendu throttlé encore en attente : le rendu final ci-dessous est déjà à jour et synchrone
 
     // ── Le modèle a répondu avec succès : on lève le flag "indisponible" s'il était posé ──
     markModelUp(window._wmSelectedModelObj || WIKIMIND_MODELS.find(m => m.apiModel === selectedModel));
@@ -7042,7 +7095,7 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
     if (streamBubble) {
       streamBubble.id = "";
       streamBubble.innerHTML = renderContent(aiMsgObj.content);
-      addCodeButtons(streamBubble);
+      addCodeButtons(streamBubble, aiMsgObj.msgId);
       // Injecter les liens personnalités sur le contenu final
       if (window.injectPersonalityLinks) window.injectPersonalityLinks(streamBubble);
       // Reconstruire le bouton Sources avec les extras (Jina, Tavily, Wikipedia…)
@@ -7499,6 +7552,7 @@ async function loadConversation(convId) {
   if (streaming) return;
   currentConvId = convId;
   messages = [];
+  if (window.WMCodePanel) window.WMCodePanel.reset();
 
   try {
     const snapshot = await get(ref(db, `wikimind5/users/${userId}/conversations/${convId}/messages`));
@@ -7557,6 +7611,7 @@ async function newConversation() {
   messagesEl.innerHTML = "";
   attachedFiles = [];
   renderAttachedFilesPreview();
+  if (window.WMCodePanel) window.WMCodePanel.reset();
   setStarted(false);
   closeSidebarFn();
   chatInput.focus();
@@ -7586,7 +7641,7 @@ function updateAuthUI() {
 
 // ── Affiche le nom du forfait courant (1=Free, 2=Plus, 3=Pro, 4=Entreprise) ──
 function refreshPlanLabel() {
-  const names = { 1: "Free", 2: "Plus", 3: "Pro", 4: "Premium", 5: "Premium+" };
+  const names = { 1: "Free", 2: "Plus", 3: "Pro", 4: "Entreprise" };
   const label = `Forfait ${names[window._userForfait] || "Free"}`;
   if ($("s-plan")) $("s-plan").textContent = label;
   if ($("stg-account-plan")) $("stg-account-plan").textContent = label;
@@ -8923,6 +8978,7 @@ window.addEventListener('DOMContentLoaded', () => {
 <script src="flashcards.js" defer></script>
 <script src="quiz.js" defer></script>
 <script src="sources.js" defer></script>
+<script src="code.js" defer></script>
 <script src="statpopup.js" defer></script>
 <link rel="stylesheet" href="forfait.css">
 <script src="forfait.js" defer></script>
