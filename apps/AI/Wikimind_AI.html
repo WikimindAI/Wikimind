@@ -4058,7 +4058,7 @@ function updateSendBtn() {
 // WIKIMIND MODELS — chargés depuis models.json
 // =============================================
 let WIKIMIND_MODELS = [];
-let WM_API_KEYS = { mistral: "", groq: "", pollinations: "", cerebras: "", sambanova: "", cohere: "", google: "", openrouter: "" };
+let WM_API_KEYS = { mistral: "", groq: "", pollinations: "", cerebras: "", sambanova: "", cohere: "", google: "", openrouter: "", chutes: "" };
 // Rate limits par modèle image (images/heure)
 const IMAGE_RATE_LIMITS = {
   "flux":           222,  // ~0.4/0.0018 images Flux Schnell
@@ -4201,7 +4201,8 @@ async function loadModels() {
         sambanova: _snk || data.apiKeys.sambanova || "",
         cohere: data.apiKeys.cohere || "",
         google: gak,
-        openrouter: ork
+        openrouter: ork,
+        chutes: data.apiKeys.chutes || ""
       };
     }
     // ── Si le modèle actuellement sélectionné a disparu (forfait insuffisant / expiré), fallback ──
@@ -4279,12 +4280,13 @@ const PROVIDER_LOGOS = {
   openai:          'openailogo.png',
   blackforestlabs: 'blackforestlabs.png',
   cohere:          'coherelogo.png',
+  chutes:          'chuteslogo.png',
 };
 
 function providerBadge(provider) {
   const src = PROVIDER_LOGOS[provider];
   if (!src) return "";
-  const names = { mistral:"Mistral", groq:"Groq", pollinations:"Pollinations", cerebras:"Cerebras", sambanova:"SambaNova", blackforestlabs:"Black Forest Labs", cohere:"Cohere", google:"Google", openrouter:"OpenRouter" };
+  const names = { mistral:"Mistral", groq:"Groq", pollinations:"Pollinations", cerebras:"Cerebras", sambanova:"SambaNova", blackforestlabs:"Black Forest Labs", cohere:"Cohere", google:"Google", openrouter:"OpenRouter", chutes:"Chutes AI" };
   const logoImg = `<img src="${src}" alt="${provider}" width="12" height="12" style="flex-shrink:0;border-radius:2px;object-fit:contain;" onerror="this.style.display='none'">`;
   return `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.58rem;font-weight:600;letter-spacing:0.03em;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);border-radius:5px;padding:1px 5px 1px 3px;margin-left:4px;">${logoImg}${names[provider]||provider}</span>`;
 }
@@ -6925,6 +6927,8 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
       ? (WM_API_KEYS.google)
       : _mObj.provider === "openrouter"
       ? (WM_API_KEYS.openrouter)
+      : _mObj.provider === "chutes"
+      ? (WM_API_KEYS.chutes)
       : (WM_API_KEYS.mistral || KEY);
 
     // Détecter si la dernière requête concerne une modification de fichier volumineux
@@ -7271,6 +7275,7 @@ async function runRagExtraction(userText, aiText) {
 
   const extractKey = extractModel.provider === 'groq' ? (_gk || WM_API_KEYS.groq)
     : extractModel.provider === 'cerebras' ? WM_API_KEYS.cerebras
+    : extractModel.provider === 'chutes' ? WM_API_KEYS.chutes
     : (WM_API_KEYS.mistral || KEY);
 
   // Contexte actuel pour éviter les doublons
