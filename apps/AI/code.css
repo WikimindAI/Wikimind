@@ -1,26 +1,68 @@
 /* =====================================================================
-   WIKIMIND — PANNEAU DE CODE LATÉRAL
+   WIKIMIND — PANNEAU DE CODE LATÉRAL v2
    Split-view façon Claude.ai : chat à gauche, panneau de code à droite.
    ===================================================================== */
 
+/* ── Layout principal ────────────────────────────────────────────────── */
 #wm-split-wrap {
   flex: 1;
   display: flex;
   overflow: hidden;
   min-height: 0;
+  position: relative;
 }
 
 #wm-split-wrap #chat-wrap {
   flex: 1;
   min-width: 0;
-  transition: flex-basis 0.25s ease;
+  transition: flex 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Quand le panneau est ouvert : le chat se réduit, le panneau prend sa place */
+/* Fix critique : quand le panneau est ouvert, les messages ne collent plus aux bords */
 body.wm-code-panel-open #wm-split-wrap #chat-wrap {
-  flex: 0 0 50%;
+  flex: 0 0 var(--wm-split-pos, 50%);
 }
 
+/* Annule le padding centré infini quand le chat est compressé */
+body.wm-code-panel-open .msg-group {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+body.wm-code-panel-open .msg-group.ai .msg-inner {
+  max-width: 100% !important;
+}
+body.wm-code-panel-open .msg-group.user .msg-inner {
+  max-width: 88% !important;
+}
+
+/* ── Resize handle entre chat et panneau ────────────────────────────── */
+#wm-resize-handle {
+  width: 5px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  z-index: 10;
+  transition: background 0.15s;
+  display: none;
+}
+body.wm-code-panel-open #wm-resize-handle {
+  display: block;
+}
+#wm-resize-handle::after {
+  content: '';
+  position: absolute;
+  inset: 0 -3px;
+  border-left: 1px solid var(--border);
+  transition: border-color 0.15s, background 0.15s;
+}
+#wm-resize-handle:hover::after,
+body.wm-resizing #wm-resize-handle::after {
+  border-left-color: var(--border2);
+  background: rgba(255,255,255,0.04);
+}
+
+/* ── Panneau de code ─────────────────────────────────────────────────── */
 #wm-code-panel {
   flex: 0 0 0;
   width: 0;
@@ -28,15 +70,15 @@ body.wm-code-panel-open #wm-split-wrap #chat-wrap {
   display: flex;
   flex-direction: column;
   background: var(--bg2);
-  border-left: 1px solid var(--border);
-  transition: flex-basis 0.25s ease, width 0.25s ease;
+  transition: flex 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body.wm-code-panel-open #wm-code-panel {
-  flex: 0 0 50%;
-  width: 50%;
+  flex: 1 1 0;
+  min-width: 280px;
 }
 
+/* ── Header du panneau ───────────────────────────────────────────────── */
 #wm-code-panel-header {
   display: flex;
   align-items: center;
@@ -46,33 +88,45 @@ body.wm-code-panel-open #wm-code-panel {
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   background: var(--bg3);
+  min-height: 44px;
 }
 
+/* ── Onglets ─────────────────────────────────────────────────────────── */
 #wm-code-tabs {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   overflow-x: auto;
   flex: 1;
   min-width: 0;
+  padding-bottom: 1px;
 }
-#wm-code-tabs::-webkit-scrollbar { height: 3px; }
-#wm-code-tabs::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
+#wm-code-tabs::-webkit-scrollbar {
+  height: 3px;
+}
+#wm-code-tabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+#wm-code-tabs::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 3px;
+}
 
 .wm-code-tab {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
+  padding: 5px 10px;
   border-radius: 7px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--text2);
-  font-size: 0.78rem;
+  font-size: 0.77rem;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
   transition: all 0.12s;
+  font-family: 'Geist Mono', 'SF Mono', monospace;
 }
 .wm-code-tab:hover {
   background: var(--bg4);
@@ -83,20 +137,18 @@ body.wm-code-panel-open #wm-code-panel {
   border-color: var(--border2);
   color: var(--text);
 }
-.wm-code-tab i {
-  font-size: 14px;
-  flex-shrink: 0;
-}
+.wm-code-tab svg { flex-shrink: 0; }
 .wm-code-tab-name {
-  max-width: 140px;
+  max-width: 130px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* ── Boutons d'action ────────────────────────────────────────────────── */
 #wm-code-panel-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   flex-shrink: 0;
 }
 
@@ -104,70 +156,325 @@ body.wm-code-panel-open #wm-code-panel {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   justify-content: center;
   border-radius: 7px;
   border: none;
   background: transparent;
   color: var(--text2);
   cursor: pointer;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   transition: all 0.12s;
+  flex-shrink: 0;
 }
 .wm-code-action-btn:hover {
   background: var(--bg4);
   color: var(--text);
 }
-#wm-code-preview-toggle {
-  width: auto;
-  padding: 0 12px;
+.wm-code-action-btn.active {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
 }
-#wm-code-preview-toggle i {
-  font-size: 14px;
+#wm-code-preview-toggle,
+#wm-console-toggle {
+  width: auto;
+  padding: 0 10px;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-family: 'Geist', sans-serif;
 }
 
+/* ── Corps du panneau (éditeur + console) ────────────────────────────── */
 #wm-code-panel-body {
   flex: 1;
   min-height: 0;
   overflow: hidden;
   position: relative;
   background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Zone code/preview */
+#wm-code-content-area {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 #wm-code-view {
   height: 100%;
   overflow: auto;
 }
+/* Scrollbar dans la zone de code */
+#wm-code-view::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+#wm-code-view::-webkit-scrollbar-track {
+  background: var(--bg2);
+  border-radius: 4px;
+}
+#wm-code-view::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 4px;
+  border: 2px solid var(--bg2);
+}
+#wm-code-view::-webkit-scrollbar-thumb:hover {
+  background: var(--text3);
+}
+#wm-code-view::-webkit-scrollbar-corner {
+  background: var(--bg2);
+}
 
+/* Numéros de ligne */
 .wm-code-pre {
   margin: 0;
-  padding: 16px 18px;
-  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
-  font-size: 0.82rem;
-  line-height: 1.6;
+  padding: 16px 0;
+  font-family: 'Geist Mono', 'SF Mono', 'Fira Code', Consolas, monospace;
+  font-size: 0.8rem;
+  line-height: 1.65;
   color: var(--text);
   white-space: pre;
   tab-size: 2;
+  display: flex;
+}
+.wm-code-gutter {
+  user-select: none;
+  text-align: right;
+  color: var(--text3);
+  padding: 0 14px 0 16px;
+  min-width: 44px;
+  border-right: 1px solid var(--border);
+  margin-right: 16px;
+  font-size: 0.75rem;
+  line-height: 1.65;
+  flex-shrink: 0;
+}
+.wm-code-gutter span { display: block; }
+.wm-code-code {
+  flex: 1;
+  min-width: 0;
+  padding-right: 20px;
+  overflow: visible;
+}
+.wm-code-code code {
+  display: block;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  color: var(--text) !important;
 }
 
 .wm-code-empty {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
   color: var(--text3);
   font-size: 0.85rem;
+  gap: 8px;
 }
+.wm-code-empty svg { opacity: 0.3; }
 
 #wm-code-preview-frame {
   width: 100%;
   height: 100%;
   border: none;
   background: #fff;
+  display: none;
+  position: absolute;
+  inset: 0;
 }
 
-/* Bouton flottant pour rouvrir le panneau quand l'utilisateur l'a fermé */
+/* ── Console d'erreurs ───────────────────────────────────────────────── */
+#wm-console-panel {
+  flex-shrink: 0;
+  display: none;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+  background: #0d0d0d;
+  max-height: 40%;
+  min-height: 120px;
+}
+#wm-console-panel.open {
+  display: flex;
+}
+
+/* Resize handle console */
+#wm-console-resize {
+  height: 5px;
+  cursor: row-resize;
+  background: transparent;
+  flex-shrink: 0;
+  position: relative;
+}
+#wm-console-resize::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border2);
+  transition: background 0.15s;
+}
+#wm-console-resize:hover::before {
+  background: var(--text3);
+}
+
+#wm-console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid #1e1e1e;
+  flex-shrink: 0;
+}
+#wm-console-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wm-console-title {
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: #aaa;
+  font-family: 'Geist Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+#wm-console-error-badge {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-family: 'Geist', sans-serif;
+  min-width: 18px;
+}
+#wm-console-error-badge.has-errors {
+  display: inline-flex;
+}
+
+#wm-console-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.wm-console-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 5px;
+  border: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  color: #aaa;
+  font-size: 0.72rem;
+  cursor: pointer;
+  font-family: 'Geist', sans-serif;
+  transition: all 0.12s;
+}
+.wm-console-btn:hover {
+  background: #222;
+  color: #fff;
+  border-color: #3a3a3a;
+}
+.wm-console-btn.fix-btn {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: #a78bfa;
+}
+.wm-console-btn.fix-btn:hover {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+}
+
+#wm-console-output {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+  font-family: 'Geist Mono', 'SF Mono', Consolas, monospace;
+  font-size: 0.77rem;
+  line-height: 1.6;
+}
+#wm-console-output::-webkit-scrollbar {
+  width: 6px;
+}
+#wm-console-output::-webkit-scrollbar-track {
+  background: transparent;
+}
+#wm-console-output::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 3px;
+}
+
+.wm-console-entry {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 2px 0;
+  border-radius: 4px;
+}
+.wm-console-entry + .wm-console-entry {
+  border-top: 1px solid #111;
+  margin-top: 2px;
+  padding-top: 4px;
+}
+.wm-console-entry-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.wm-console-entry-text {
+  flex: 1;
+  word-break: break-all;
+  color: #ccc;
+}
+.wm-console-entry-src {
+  color: #555;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+.wm-console-entry.error .wm-console-entry-text { color: #f87171; }
+.wm-console-entry.warning .wm-console-entry-text { color: #fbbf24; }
+.wm-console-entry.info .wm-console-entry-text { color: #60a5fa; }
+.wm-console-entry.log .wm-console-entry-text { color: #d1d5db; }
+.wm-console-empty {
+  color: #555;
+  text-align: center;
+  padding: 16px 0;
+  font-size: 0.78rem;
+}
+
+/* Indicateur d'erreurs sur le bouton console dans le header */
+#wm-console-toggle .wm-err-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+  display: none;
+  flex-shrink: 0;
+}
+#wm-console-toggle.has-errors .wm-err-dot {
+  display: block;
+}
+
+/* ── Bouton flottant rouvrir ─────────────────────────────────────────── */
 #wm-code-reopen-btn {
   position: fixed;
   bottom: 88px;
@@ -176,35 +483,97 @@ body.wm-code-panel-open #wm-code-panel {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 10px 16px;
+  padding: 9px 16px;
   border-radius: 999px;
   border: 1px solid var(--border2);
   background: var(--bg3);
   color: var(--text);
-  font-size: 0.82rem;
+  font-size: 0.81rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-  transition: background 0.15s, transform 0.1s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
 }
 #wm-code-reopen-btn:hover {
   background: var(--bg4);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
 }
 #wm-code-reopen-btn:active {
-  transform: scale(0.97);
-}
-#wm-code-reopen-btn i {
-  font-size: 15px;
+  transform: scale(0.96);
 }
 
-/* ── Responsive : sur mobile/écran étroit, le panneau passe en plein écran superposé ── */
+/* ── Badge "Codestral activé" ────────────────────────────────────────── */
+#wm-code-model-badge {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.69rem;
+  font-weight: 500;
+  color: #a78bfa;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  padding: 2px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  font-family: 'Geist', sans-serif;
+}
+#wm-code-model-badge.visible {
+  display: inline-flex;
+}
+#wm-code-model-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #a78bfa;
+  flex-shrink: 0;
+}
+
+/* ── Coloration syntaxique (Prism token classes) ─────────────────────── */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata             { color: #6a9955; font-style: italic; }
+.token.punctuation       { color: #808080; }
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted           { color: #b5cea8; }
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted          { color: #ce9178; }
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string     { color: #d4d4d4; }
+.token.atrule,
+.token.attr-value,
+.token.keyword           { color: #569cd6; }
+.token.function,
+.token.class-name        { color: #dcdcaa; }
+.token.regex,
+.token.important,
+.token.variable          { color: #9cdcfe; }
+.token.important,
+.token.bold              { font-weight: bold; }
+
+/* ── Responsive mobile ───────────────────────────────────────────────── */
 @media (max-width: 860px) {
-  body.wm-code-panel-open #wm-split-wrap {
-    position: relative;
-  }
   body.wm-code-panel-open #wm-split-wrap #chat-wrap {
-    display: none;
+    display: none !important;
   }
+  body.wm-code-panel-open .msg-group {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  #wm-resize-handle { display: none !important; }
   #wm-code-panel {
     position: fixed;
     inset: 0;
@@ -219,9 +588,3 @@ body.wm-code-panel-open #wm-code-panel {
     bottom: 96px;
   }
 }
-
-/* Coloration syntaxique minimale (fallback si hljs n'est pas chargé globalement) */
-.wm-code-pre .token-comment { color: #6a9955; }
-.wm-code-pre .token-string  { color: #ce9178; }
-.wm-code-pre .token-keyword { color: #569cd6; }
-.wm-code-pre .token-number  { color: #b5cea8; }
