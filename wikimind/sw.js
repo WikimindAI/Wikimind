@@ -1,99 +1,131 @@
-// ══ WikiMind PWA Service Worker ══
-const BASE = 'https://wikimindai.github.io/Wikimind';
-const CACHE_NAME   = 'wikimind-v1';
-const ASSETS_CACHE = 'wikimind-assets-v1';
-const IMG_CACHE    = 'wikimind-images-v1';
+// ══════════════════════════════════════════════════════════════════
+// WikiMind — Service Worker PWA
+// Met en cache l'app shell (pages HTML, logo, manifest) pour que le
+// site fonctionne réellement hors-ligne une fois visité une première fois.
+//
+// IMPORTANT : ce fichier NE touche PAS au cache des modèles IA de
+// WikiMind Offline. WebLLM gère ses propres caches ("webllm/model",
+// "webllm/config", "webllm/wasm") indépendamment — on les laisse
+// passer sans interférer, sinon les téléchargements de modèles
+// deviennent lents ou incohérents.
+// ══════════════════════════════════════════════════════════════════
 
-const SHELL = [
-  `${BASE}/`,
-  `${BASE}/index.html`,
-  `${BASE}/wikimind.png`,
+const SCOPE = "/Wikimind/";
+const CACHE_VERSION = "wm-shell-v1";
+const SHELL_CACHE = `${CACHE_VERSION}-shell`;
+
+// Pages / fichiers essentiels à précacher pour que le site s'ouvre hors-ligne.
+// Ajoute ici toute nouvelle page que tu veux disponible hors-ligne dès l'installation.
+const APP_SHELL = [
+  `${SCOPE}`,
+  `${SCOPE}index.html`,
+  `${SCOPE}wikimind.png`,
+  `${SCOPE}wikimind/manifest.json`,
+  `${SCOPE}apps/Wikimind_offline.html`,
 ];
 
-const PROVIDER_ASSETS = [
-  `${BASE}/providers/groqlogo.png`,
-  `${BASE}/providers/mistrallogo.png`,
-  `${BASE}/providers/cerebraslogo.png`,
-  `${BASE}/providers/sambanovalogo.png`,
-  `${BASE}/providers/coherelogo.png`,
-  `${BASE}/providers/pollinationai.png`,
-  `${BASE}/providers/openailogo.png`,
-  `${BASE}/providers/firebaselogo.png`,
-  `${BASE}/exemples/frenchlogo.png`,
+// Hôtes gérés par WebLLM lui-même (poids de modèles) : on ne les met JAMAIS
+// en cache ici, on laisse passer tel quel vers le réseau / cache WebLLM.
+const MODEL_HOSTS = [
+  "huggingface.co",
+  "raw.githubusercontent.com",
 ];
 
-const EXAMPLE_IMGS = Array.from({ length: 30 }, (_, i) =>
-  `${BASE}/exemples/${i + 1}.png`
-);
-
-self.addEventListener('install', e => {
-  e.waitUntil((async () => {
-    const shell  = await caches.open(CACHE_NAME);
-    const assets = await caches.open(ASSETS_CACHE);
-    await shell.addAll(SHELL).catch(() => {});
-    await assets.addAll(PROVIDER_ASSETS).catch(() => {});
-    caches.open(IMG_CACHE).then(c =>
-      Promise.allSettled(EXAMPLE_IMGS.map(url =>
-        fetch(url).then(r => r.ok ? c.put(url, r) : null).catch(() => {})
-      ))
-    );
-    self.skipWaiting();
-  })());
-});
-
-self.addEventListener('activate', e => {
-  const VALID = [CACHE_NAME, ASSETS_CACHE, IMG_CACHE];
-  e.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(k => !VALID.includes(k)).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    (async () => {
+      const cache = await caches.open(SHELL_CACHE);
+      // allSettled : une seule ressource manquante ne doit pas faire échouer toute l'install
+      await Promise.allSettled(APP_SHELL.map((url) => cache.add(url)));
+      self.skipWaiting();
+    })()
   );
 });
 
-self.addEventListener('fetch', e => {
-  const { request } = e;
-  if (request.method !== 'GET') return;
-  const url = new URL(request.url);
-  if (!url.href.startsWith(BASE)) return;
-  const path = url.pathname;
-
-  if (path.endsWith('.html') || path.endsWith('/')) {
-    e.respondWith(networkFirst(request, CACHE_NAME));
-  } else if (path.includes('/exemples/')) {
-    e.respondWith(cacheFirstLazy(request, IMG_CACHE));
-  } else if (path.includes('/providers/') || path.includes('wikimind.png')) {
-    e.respondWith(cacheFirst(request, ASSETS_CACHE));
-  } else {
-    e.respondWith(fetch(request).catch(() => caches.match(request)));
-  }
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys
+          .filter((k) => k.startsWith("wm-shell-") && k !== SHELL_CACHE)
+          .map((k) => caches.delete(k))
+      );
+      await self.clients.claim();
+    })()
+  );
 });
 
-async function networkFirst(req, name) {
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  if (req.method !== "GET") return;
+
+  const url = new URL(req.url);
+
+  // Laisse passer les téléchargements de poids de modèles sans interférer.
+  if (MODEL_HOSTS.some((h) => url.hostname.endsWith(h))) return;
+
+  // Navigation (ouverture d'une page HTML) : réseau d'abord, cache en secours.
+  if (req.mode === "navigate") {
+    event.respondWith(networkFirst(req));
+    return;
+  }
+
+  // Ressources same-origin (images, css, js du site) : cache d'abord, réseau en secours.
+  if (url.origin === self.location.origin) {
+    event.respondWith(cacheFirst(req));
+    return;
+  }
+
+  // Ressources tierces (polices, icônes, CDN) : cache d'abord + revalidation en arrière-plan.
+  event.respondWith(staleWhileRevalidate(req));
+});
+
+async function networkFirst(req) {
+  const cache = await caches.open(SHELL_CACHE);
   try {
-    const res = await fetch(req);
-    if (res.ok) (await caches.open(name)).put(req, res.clone());
-    return res;
+    const fresh = await fetch(req);
+    if (fresh && fresh.ok) cache.put(req, fresh.clone());
+    return fresh;
   } catch {
-    return (await caches.match(req)) || new Response('Hors ligne', { headers: { 'Content-Type': 'text/plain' } });
+    const cached = await cache.match(req);
+    if (cached) return cached;
+    // Dernier recours hors-ligne : la page d'accueil, si dispo en cache.
+    const fallback = await cache.match(`${SCOPE}index.html`);
+    if (fallback) return fallback;
+    return new Response("Hors-ligne et page non disponible en cache.", {
+      status: 503,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
   }
 }
 
-async function cacheFirst(req, name) {
-  const cached = await caches.match(req);
+async function cacheFirst(req) {
+  const cache = await caches.open(SHELL_CACHE);
+  const cached = await cache.match(req);
   if (cached) return cached;
   try {
-    const res = await fetch(req);
-    if (res.ok) (await caches.open(name)).put(req, res.clone());
-    return res;
-  } catch { return new Response('', { status: 408 }); }
+    const fresh = await fetch(req);
+    if (fresh && fresh.ok) cache.put(req, fresh.clone());
+    return fresh;
+  } catch {
+    return new Response("", { status: 504 });
+  }
 }
 
-async function cacheFirstLazy(req, name) {
-  const cached = await caches.match(req);
-  if (cached) return cached;
-  try {
-    const res = await fetch(req);
-    if (res.ok) { (await caches.open(name)).put(req, res.clone()); return res.clone(); }
-    return res;
-  } catch { return new Response('', { status: 408 }); }
+async function staleWhileRevalidate(req) {
+  const cache = await caches.open(SHELL_CACHE);
+  const cached = await cache.match(req);
+  const networkPromise = fetch(req)
+    .then((fresh) => {
+      if (fresh && fresh.ok) cache.put(req, fresh.clone());
+      return fresh;
+    })
+    .catch(() => null);
+  return cached || (await networkPromise) || new Response("", { status: 504 });
 }
+
+// Permet à une page de forcer l'activation immédiate d'une nouvelle version du SW.
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") self.skipWaiting();
+});
