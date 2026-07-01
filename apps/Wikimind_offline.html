@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WikiMind Offline — IA hors-ligne, gratuite et privée</title>
-<link rel="icon" type="image/png" href="wikimind.png">
-<link rel="manifest" href="wikimind/manifest.json">
+<link rel="icon" type="image/png" href="../wikimind.png">
+<link rel="manifest" href="../wikimind/manifest.json">
 <meta name="theme-color" content="#050505">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="WikiMind Offline">
-<link rel="apple-touch-icon" href="wikimind.png">
+<link rel="apple-touch-icon" href="../wikimind.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -74,8 +74,16 @@ nav {
 .hero-fact i { color: var(--accent3); font-size: 13px; }
 .hero-fact b { color: #fff; font-weight: 600; }
 
+.hero-cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
+.hero-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 12px; font-size: 13.5px; font-weight: 600; text-decoration: none; cursor: pointer; border: none; font-family: var(--sans); transition: opacity .15s, transform .15s; }
+.hero-btn.primary { background: #fff; color: #000; }
+.hero-btn.primary:hover { opacity: .85; transform: translateY(-1px); }
+.hero-btn.ghost { background: var(--surface); color: #fff; border: 1px solid var(--border); }
+.hero-btn.ghost:hover { background: var(--surface-h); }
+.hero-btn[hidden] { display: none; }
+
 /* ══ WEBGPU CHECK ══ */
-.gpu-check { max-width: 640px; margin: 32px auto 0; padding: 16px 20px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--t2); }
+.gpu-check { max-width: 640px; margin: 32px auto 0; padding: 16px 20px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--t2); text-align: left; }
 .gpu-check.ok { border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.06); }
 .gpu-check.bad { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.06); }
 .gpu-check i { font-size: 18px; flex-shrink: 0; }
@@ -88,7 +96,15 @@ nav {
 .section-head { text-align: center; margin-bottom: 40px; }
 .section-tag { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent3); margin-bottom: 10px; }
 .section-head h2 { font-family: var(--display); font-size: clamp(24px, 4vw, 32px); font-weight: 700; letter-spacing: -.02em; margin-bottom: 10px; }
-.section-head p { font-size: 14px; color: var(--t2); max-width: 520px; margin: 0 auto; line-height: 1.6; }
+.section-head p { font-size: 14px; color: var(--t2); max-width: 560px; margin: 0 auto; line-height: 1.6; }
+
+/* ══ TIER BLOCKS ══ */
+.tier-block { margin-bottom: 36px; }
+.tier-block:last-child { margin-bottom: 0; }
+.tier-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.tier-badge { display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 700; color: #fff; background: color-mix(in srgb, var(--tc) 22%, transparent); border: 1px solid color-mix(in srgb, var(--tc) 45%, transparent); }
+.tier-badge i { color: var(--tc); }
+.tier-desc { font-size: 12.5px; color: var(--t3); }
 
 /* ══ MODEL CARDS ══ */
 .model-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
@@ -99,12 +115,9 @@ nav {
   position: relative;
 }
 .model-card:hover { border-color: var(--border-h); transform: translateY(-2px); background: rgba(255,255,255,0.06); }
-.model-card.downloaded { border-color: rgba(52,211,153,0.35); }
+.model-card.downloaded { border-color: color-mix(in srgb, var(--tc) 45%, transparent); }
 .mc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.mc-icon { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-.mc-icon.flash { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
-.mc-icon.coder { background: linear-gradient(135deg, #34d399, #10b981); }
-.mc-icon.pro { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+.mc-icon { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: linear-gradient(135deg, var(--tc), color-mix(in srgb, var(--tc) 60%, #fff 10%)); color: #050505; }
 .mc-size-tag { font-size: 11px; font-weight: 700; color: var(--t2); background: rgba(255,255,255,0.06); border: 1px solid var(--border); padding: 4px 10px; border-radius: 100px; white-space: nowrap; }
 .mc-name { font-family: var(--display); font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
 .mc-desc { font-size: 12.5px; color: var(--t2); line-height: 1.55; }
@@ -112,7 +125,7 @@ nav {
 .mc-pill { font-size: 10.5px; font-weight: 600; color: var(--t3); background: rgba(255,255,255,0.04); border: 1px solid var(--border); padding: 3px 9px; border-radius: 100px; }
 .mc-progress-wrap { display: none; height: 5px; border-radius: 100px; background: rgba(255,255,255,0.06); overflow: hidden; }
 .mc-progress-wrap.active { display: block; }
-.mc-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent1), var(--accent3)); border-radius: 100px; transition: width .25s ease; }
+.mc-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--tc), #fff); border-radius: 100px; transition: width .25s ease; }
 .mc-status { font-size: 11px; color: var(--t3); display: none; }
 .mc-status.active { display: block; }
 .mc-btn {
@@ -122,17 +135,19 @@ nav {
 }
 .mc-btn.download { background: #fff; color: #000; }
 .mc-btn.download:hover { opacity: .85; transform: translateY(-1px); }
-.mc-btn.use { background: linear-gradient(135deg, var(--accent1), var(--accent2)); color: #fff; }
+.mc-btn.use { background: linear-gradient(135deg, var(--tc), var(--accent2)); color: #fff; }
 .mc-btn.use:hover { opacity: .9; }
+.mc-btn.active-now { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.35); cursor: default; }
 .mc-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-.mc-btn.remove { background: rgba(255,255,255,0.06); color: var(--t2); border: 1px solid var(--border); }
+.mc-btn.remove { background: rgba(255,255,255,0.06); color: var(--t2); border: 1px solid var(--border); flex: 0 0 auto; width: 44px; }
 .mc-btn.remove:hover { color: #f87171; border-color: rgba(248,113,113,0.3); }
 
-.budget-bar-wrap { max-width: 500px; margin: 8px auto 0; }
+.budget-bar-wrap { max-width: 520px; margin: 8px auto 0; }
 .budget-bar { height: 8px; border-radius: 100px; background: rgba(255,255,255,0.06); overflow: hidden; margin-top: 8px; }
 .budget-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--accent3)); border-radius: 100px; transition: width .3s ease; }
 .budget-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--t2); }
 .budget-label b { color: #fff; }
+.budget-note { text-align: center; font-size: 11.5px; color: var(--t3); margin-top: 10px; }
 
 /* ══ STEPS ══ */
 .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
@@ -144,11 +159,11 @@ nav {
 /* ══ CHAT ══ */
 .chat-shell { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); overflow: hidden; display: flex; flex-direction: column; height: 520px; }
 .chat-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.chat-head-left { display: flex; align-items: center; gap: 10px; }
-.chat-model-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--t3); }
+.chat-head-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.chat-model-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--t3); flex-shrink: 0; }
 .chat-model-dot.ready { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.chat-model-name { font-size: 13px; font-weight: 600; }
-.chat-model-select { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--t1); font-size: 12px; padding: 6px 10px; border-radius: 8px; font-family: var(--sans); }
+.chat-model-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-model-select { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--t1); font-size: 12px; padding: 6px 10px; border-radius: 8px; font-family: var(--sans); flex-shrink: 0; }
 .chat-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
 .chat-msg { max-width: 82%; padding: 11px 14px; border-radius: 14px; font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; }
 .chat-msg.user { align-self: flex-end; background: linear-gradient(135deg, var(--accent1), var(--accent2)); color: #fff; border-bottom-right-radius: 4px; }
@@ -164,21 +179,22 @@ nav {
 
 /* ══ FAQ ══ */
 .faq-item { border-bottom: 1px solid var(--border); padding: 18px 0; }
-.faq-q { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 14px; font-weight: 600; }
-.faq-q i { color: var(--t3); transition: transform .2s; font-size: 12px; }
+.faq-q { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 14px; font-weight: 600; gap: 12px; }
+.faq-q i { color: var(--t3); transition: transform .2s; font-size: 12px; flex-shrink: 0; }
 .faq-item.open .faq-q i { transform: rotate(45deg); }
-.faq-a { max-height: 0; overflow: hidden; transition: max-height .25s ease; font-size: 13px; color: var(--t2); line-height: 1.6; }
-.faq-item.open .faq-a { max-height: 300px; padding-top: 12px; }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height .3s ease; font-size: 13px; color: var(--t2); line-height: 1.6; }
+.faq-item.open .faq-a { max-height: 320px; padding-top: 12px; }
 
 /* ══ FOOTER LICENSE ══ */
 .license-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px; font-size: 11.5px; color: var(--t3); line-height: 1.7; }
 .license-box b { color: var(--t2); }
 
-.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
-.toast { background: rgba(14,14,18,0.96); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 13px; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(20px); animation: toastIn .25s ease; }
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; max-width: 340px; }
+.toast { background: rgba(14,14,18,0.96); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 13px; display: flex; align-items: flex-start; gap: 10px; backdrop-filter: blur(20px); animation: toastIn .25s ease; }
 @keyframes toastIn { from { opacity:0; transform: translateY(10px);} to {opacity:1; transform:none;} }
 .toast.error i { color: #f87171; }
 .toast.success i { color: var(--green); }
+.toast.info i { color: var(--accent3); }
 
 @media (max-width: 640px) {
   nav { padding: 0 16px; }
@@ -192,11 +208,11 @@ nav {
 <body>
 
 <nav>
-  <a href="index.html" class="nav-logo">
-    <img src="wikimind.png" alt="WikiMind">
+  <a href="../index.html" class="nav-logo">
+    <img src="../wikimind.png" alt="WikiMind">
     <span class="nav-logo-text">WikiMind <span>Offline</span></span>
   </a>
-  <a href="index.html" class="nav-back"><i class="fa-solid fa-arrow-left"></i> Retour au site</a>
+  <a href="../index.html" class="nav-back"><i class="fa-solid fa-arrow-left"></i> Retour au site</a>
 </nav>
 
 <!-- ══ HERO ══ -->
@@ -208,7 +224,12 @@ nav {
   <div class="hero-facts">
     <div class="hero-fact"><i class="fa-solid fa-lock"></i> 100% <b>privé</b> — rien ne quitte ton appareil</div>
     <div class="hero-fact"><i class="fa-solid fa-wifi-slash"></i> Fonctionne <b>hors-ligne</b> après téléchargement</div>
-    <div class="hero-fact"><i class="fa-solid fa-download"></i> Moins de <b>12 Go</b> au total, à toi de choisir</div>
+    <div class="hero-fact"><i class="fa-solid fa-download"></i> Catalogue complet sous <b>12 Go</b></div>
+  </div>
+
+  <div class="hero-cta">
+    <button class="hero-btn primary" id="btn-install-hero" hidden onclick="window.wmInstallPWA()"><i class="fa-solid fa-arrow-down-to-line"></i> Installer l'application</button>
+    <a href="#models" class="hero-btn ghost"><i class="fa-solid fa-cubes"></i> Choisir un modèle</a>
   </div>
 
   <div class="gpu-check" id="gpu-check">
@@ -222,16 +243,17 @@ nav {
   <div class="section-head">
     <div class="section-tag">Étape 1</div>
     <h2>Choisis tes modèles</h2>
-    <p>Chaque modèle a un usage différent. Tu peux en télécharger un seul ou plusieurs — reste sous 12 Go pour garder ton appareil fluide.</p>
+    <p>Le catalogue reprend le système de classement WikiMind : Flash (ultra léger), Small (léger), Medium (équilibré) et Large (le plus capable). Télécharge un ou plusieurs modèles, chacun reste stocké sur ton appareil.</p>
   </div>
 
   <div class="budget-bar-wrap">
-    <div class="budget-label"><span>Espace utilisé</span><b id="budget-text">0 Go / 12 Go</b></div>
+    <div class="budget-label"><span>Espace téléchargé</span><b id="budget-text">0 Go / 12 Go</b></div>
     <div class="budget-bar"><div class="budget-bar-fill" id="budget-fill" style="width:0%"></div></div>
+    <div class="budget-note" id="budget-note"></div>
   </div>
-  <div style="height:28px"></div>
+  <div style="height:32px"></div>
 
-  <div class="model-grid" id="model-grid"></div>
+  <div id="models-wrap"></div>
 </section>
 
 <!-- ══ CHAT ══ -->
@@ -270,7 +292,7 @@ nav {
   <div class="section-head">
     <div class="section-tag">Vraie application</div>
     <h2>Installer WikiMind comme une app</h2>
-    <p>Pas besoin d'App Store — installe cette page comme une vraie application sur ton PC, ton téléphone ou ta tablette.</p>
+    <p>Pas besoin d'App Store — cette page est une vraie PWA (Progressive Web App). Une fois installée, WikiMind Offline se comporte comme un logiciel normal : sa propre icône, sa propre fenêtre, et l'interface fonctionne entièrement hors-ligne, même sans onglet de navigateur ouvert.</p>
   </div>
   <div class="steps">
     <div class="step-card">
@@ -303,12 +325,20 @@ nav {
       <div class="faq-a">Non. En mode Offline, tout le calcul se fait dans ton navigateur, sur ton appareil. Aucune conversation n'est envoyée à un serveur — on ne peut même pas les voir.</div>
     </div>
     <div class="faq-item">
+      <div class="faq-q">Où sont stockés les modèles téléchargés ?<i class="fa-solid fa-plus"></i></div>
+      <div class="faq-a">Directement dans le stockage local de ton navigateur, sur le disque de ton appareil. Ils restent disponibles après redémarrage, avion, ou coupure internet — tant que tu ne vides pas les données du site.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Pourquoi le téléchargement prend du temps ?<i class="fa-solid fa-plus"></i></div>
+      <div class="faq-a">Ce sont de vrais modèles d'IA de plusieurs centaines de Mo à quelques Go, téléchargés une seule fois. Privilégie le wifi pour le premier téléchargement — ensuite, plus jamais besoin de retélécharger, même hors-ligne.</div>
+    </div>
+    <div class="faq-item">
       <div class="faq-q">Pourquoi ça ne marche pas sur mon appareil ?<i class="fa-solid fa-plus"></i></div>
       <div class="faq-a">Le mode Offline a besoin de WebGPU, une technologie récente disponible sur Chrome et Edge à jour. Safari et les vieux navigateurs ne sont pas encore bien supportés. Un appareil avec au moins 4 Go de RAM libre est recommandé.</div>
     </div>
     <div class="faq-item">
       <div class="faq-q">Est-ce que je peux supprimer un modèle téléchargé ?<i class="fa-solid fa-plus"></i></div>
-      <div class="faq-a">Oui, chaque carte modèle a un bouton pour le supprimer et libérer l'espace pris dans le cache de ton navigateur.</div>
+      <div class="faq-a">Oui, chaque carte modèle a un bouton pour le supprimer et libérer immédiatement l'espace pris sur ton appareil.</div>
     </div>
     <div class="faq-item">
       <div class="faq-q">Ces modèles sont-ils aussi forts que la version en ligne de Wikimind ?<i class="fa-solid fa-plus"></i></div>
@@ -320,89 +350,187 @@ nav {
 <!-- ══ LICENSE ══ -->
 <section class="section" id="license" style="padding-top:0;">
   <div class="license-box">
-    <b>À propos des modèles :</b> les modèles proposés ici sont des versions renommées de modèles open source (licences MIT et Apache 2.0), exécutés localement via la technologie WebLLM (MLC-AI / Apache 2.0). Aucune modification des poids n'est effectuée — seul le nom d'affichage est personnalisé pour l'expérience Wikimind. Le texte complet des licences reste disponible sur demande.
+    <b>À propos des modèles :</b> les modèles proposés ici sont des versions renommées de modèles open-weights publiés par leurs éditeurs respectifs (Meta pour Llama, Alibaba pour Qwen, Microsoft pour Phi), exécutés localement via la technologie WebLLM (MLC-AI, Apache 2.0). Aucune modification des poids n'est effectuée — seul le nom d'affichage est personnalisé pour l'expérience WikiMind, chaque modèle reste soumis à la licence d'origine de son éditeur.
   </div>
 </section>
 
 <div class="toast-container" id="toast-container"></div>
 
 <script type="module">
-import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+import * as webllm from "https://esm.run/@mlc-ai/web-llm@0.2.84";
 
-// ══ Config modèles — noms Wikimind mappés aux modèles MLC réels ══
+// ══ Système de tiers WikiMind (identique au modèle de nommage de la plateforme) ══
+const TIER_ORDER = ["flash", "small", "medium", "large"];
+const TIERS = {
+  flash:  { label: "Flash",  color: "#fbbf24", icon: "fa-bolt",            desc: "Ultra léger, réponses quasi instantanées" },
+  small:  { label: "Small",  color: "#34d399", icon: "fa-feather-pointed", desc: "Léger et polyvalent, bon compromis" },
+  medium: { label: "Medium", color: "#6366f1", icon: "fa-brain",          desc: "Équilibre puissance / poids" },
+  large:  { label: "Large",  color: "#a78bfa", icon: "fa-crown",           desc: "Le plus capable du catalogue offline" }
+};
+
+// ══ Config modèles — noms Wikimind mappés aux vrais modèles WebLLM (MLC) ══
+// IDs vérifiés dans prebuiltAppConfig.model_list de @mlc-ai/web-llm 0.2.84
 const MODELS = [
   {
-    id: "wikimind-flash",
+    id: "wm-off-flash-51",
+    mlcId: "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
+    name: "WikiMind Flash 5.1",
+    tier: "flash",
+    desc: "Le plus compact du catalogue. Idéal pour les questions courtes et les appareils modestes.",
+    sizeGB: 0.6,
+    tags: ["Généraliste", "0.5B", "Ultra rapide"]
+  },
+  {
+    id: "wm-off-flash-52",
+    mlcId: "Llama-3.2-1B-Instruct-q4f16_1-MLC",
+    name: "WikiMind Flash 5.2",
+    tier: "flash",
+    desc: "Généraliste rapide avec un meilleur équilibre vitesse / qualité de réponse.",
+    sizeGB: 0.5,
+    tags: ["Généraliste", "1B", "Rapide"]
+  },
+  {
+    id: "wm-off-small-51",
     mlcId: "Qwen2.5-1.5B-Instruct-q4f16_1-MLC",
-    name: "WikiMind Flash",
-    icon: "flash",
-    iconChar: '<i class="fa-solid fa-bolt"></i>',
-    desc: "Ultra léger et rapide. Idéal pour les questions courtes, résumés simples, et les appareils moins puissants.",
+    name: "WikiMind Small 5.1",
+    tier: "small",
+    desc: "Généraliste équilibré, pratique pour réviser, résumer et discuter au quotidien.",
     sizeGB: 1.0,
-    tags: ["Généraliste", "Rapide", "1.5B"]
+    tags: ["Généraliste", "1.5B", "Révisions"]
   },
   {
-    id: "wikimind-coder",
+    id: "wm-off-small-coder",
     mlcId: "Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC",
-    name: "WikiMind Coder",
-    icon: "coder",
-    iconChar: '<i class="fa-solid fa-code"></i>',
-    desc: "Spécialisé code : Python, JavaScript, debug, structuration. Pour les étudiants en info.",
-    sizeGB: 1.1,
-    tags: ["Code", "Étudiant", "1.5B"]
+    name: "WikiMind Small Coder",
+    tier: "small",
+    desc: "Spécialisé code : Python, JavaScript, debug, structuration — en version compacte.",
+    sizeGB: 1.0,
+    tags: ["Code", "1.5B", "Étudiant"]
   },
   {
-    id: "wikimind-pro",
+    id: "wm-off-medium-51",
+    mlcId: "Llama-3.2-3B-Instruct-q4f16_1-MLC",
+    name: "WikiMind Medium 5.1",
+    tier: "medium",
+    desc: "Bon pour la rédaction et l'aide aux devoirs, avec un raisonnement plus poussé.",
+    sizeGB: 1.4,
+    tags: ["Rédaction", "3B", "Devoirs"]
+  },
+  {
+    id: "wm-off-medium-52",
+    mlcId: "Qwen2.5-3B-Instruct-q4f16_1-MLC",
+    name: "WikiMind Medium 5.2",
+    tier: "medium",
+    desc: "Raisonnement plus fin, adapté aux questions à plusieurs étapes.",
+    sizeGB: 1.5,
+    tags: ["Raisonnement", "3B", "Complet"]
+  },
+  {
+    id: "wm-off-large-51",
     mlcId: "Phi-3.5-mini-instruct-q4f16_1-MLC",
-    name: "WikiMind Pro",
-    icon: "pro",
-    iconChar: '<i class="fa-solid fa-graduation-cap"></i>',
-    desc: "Le plus complet des trois : raisonnement, rédaction, aide aux devoirs plus poussée.",
-    sizeGB: 2.3,
-    tags: ["Complet", "Devoirs", "3.8B"]
+    name: "WikiMind Large 5.1",
+    tier: "large",
+    desc: "Le plus complet en taille moyenne : raisonnement, rédaction et aide aux devoirs avancée.",
+    sizeGB: 2.2,
+    tags: ["Complet", "3.8B", "Devoirs avancés"]
+  },
+  {
+    id: "wm-off-large-52",
+    mlcId: "Qwen2.5-7B-Instruct-q4f16_1-MLC",
+    name: "WikiMind Large 5.2",
+    tier: "large",
+    desc: "Le plus puissant du catalogue offline. Demande un appareil récent avec plus de RAM.",
+    sizeGB: 3.2,
+    tags: ["Le plus puissant", "7B", "Tâches complexes"]
   }
 ];
 
 const MAX_BUDGET_GB = 12;
+const CATALOG_TOTAL_GB = MODELS.reduce((s, m) => s + m.sizeGB, 0);
+
+// Un seul moteur réutilisé pour tout — c'est ce qui rend le téléchargement ET
+// le changement de modèle fiables et rapides (pas de moteur jetable recréé à chaque clic).
+const appConfig = {
+  ...webllm.prebuiltAppConfig,
+  model_list: webllm.prebuiltAppConfig.model_list.filter(r =>
+    MODELS.some(m => m.mlcId === r.model_id)
+  )
+};
+
 let engine = null;
-let currentModelId = null;
+let activeModelId = null;
+let isBusy = false;
+let gpuOK = false;
 let downloaded = JSON.parse(localStorage.getItem('wm_offline_downloaded') || '[]');
 
-// ══ WebGPU check ══
+// ══ WebGPU check (avec détection du support shader-f16 requis par nos modèles) ══
 async function checkWebGPU() {
   const el = document.getElementById('gpu-check');
   if (!navigator.gpu) {
     el.className = 'gpu-check bad';
     el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><div><div class="gc-title">Navigateur non compatible</div>Utilise Chrome ou Edge (version récente) pour activer le mode Offline.</div>`;
-    return false;
+    gpuOK = false;
+    return;
   }
   try {
     const adapter = await navigator.gpu.requestAdapter();
-    if (!adapter) throw new Error();
+    if (!adapter) throw new Error('no-adapter');
+    const hasF16 = adapter.features?.has?.('shader-f16');
+    if (!hasF16) {
+      el.className = 'gpu-check bad';
+      el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><div><div class="gc-title">GPU détecté, mais support limité</div>Ton GPU ne supporte pas le mode compact (shader-f16). Mets à jour tes pilotes graphiques ou ton navigateur pour de meilleures performances.</div>`;
+      gpuOK = false;
+      return;
+    }
     el.className = 'gpu-check ok';
     el.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><div class="gc-title">Ton appareil est compatible ✓</div>Tu peux télécharger et utiliser des modèles hors-ligne.</div>`;
-    return true;
+    gpuOK = true;
   } catch {
     el.className = 'gpu-check bad';
     el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><div><div class="gc-title">WebGPU non détecté</div>Ton navigateur ne semble pas supporter cette fonctionnalité.</div>`;
-    return false;
+    gpuOK = false;
   }
+}
+
+// ══ Vérifie le VRAI état du cache navigateur, pas seulement localStorage ══
+// (corrige les cas où le cache existe mais le flag localStorage a été perdu, ou l'inverse)
+async function verifyCache() {
+  const checks = await Promise.all(MODELS.map(async (m) => {
+    try {
+      const ok = await webllm.hasModelInCache(m.mlcId, appConfig);
+      return [m.id, ok];
+    } catch {
+      return [m.id, false];
+    }
+  }));
+  downloaded = checks.filter(([, ok]) => ok).map(([id]) => id);
+  localStorage.setItem('wm_offline_downloaded', JSON.stringify(downloaded));
+  renderModels();
 }
 
 function updateBudget() {
   const used = MODELS.filter(m => downloaded.includes(m.id)).reduce((s, m) => s + m.sizeGB, 0);
   document.getElementById('budget-text').textContent = `${used.toFixed(1)} Go / ${MAX_BUDGET_GB} Go`;
   document.getElementById('budget-fill').style.width = Math.min(100, (used / MAX_BUDGET_GB) * 100) + '%';
+  document.getElementById('budget-note').textContent = `Catalogue complet : ~${CATALOG_TOTAL_GB.toFixed(1)} Go si tu télécharges tous les modèles — toujours sous la limite de ${MAX_BUDGET_GB} Go.`;
 }
 
-function renderModels() {
-  const grid = document.getElementById('model-grid');
-  grid.innerHTML = MODELS.map(m => {
-    const isDown = downloaded.includes(m.id);
-    return `
-    <div class="model-card ${isDown ? 'downloaded' : ''}" id="card-${m.id}">
+function cardHTML(m) {
+  const isDown = downloaded.includes(m.id);
+  const isActive = activeModelId === m.id;
+  const tier = TIERS[m.tier];
+  let actionBtn;
+  if (isActive) {
+    actionBtn = `<button class="mc-btn active-now" disabled><i class="fa-solid fa-circle-check"></i> Actif maintenant</button>`;
+  } else if (isDown) {
+    actionBtn = `<button class="mc-btn use" onclick="window.wmUseModel('${m.id}')"><i class="fa-solid fa-message"></i> Utiliser</button>`;
+  } else {
+    actionBtn = `<button class="mc-btn download" onclick="window.wmDownloadModel('${m.id}')" ${gpuOK ? '' : 'disabled'}><i class="fa-solid fa-download"></i> ${gpuOK ? 'Télécharger' : 'GPU requis'}</button>`;
+  }
+  return `
+    <div class="model-card ${isDown ? 'downloaded' : ''}" id="card-${m.id}" style="--tc:${tier.color}">
       <div class="mc-top">
-        <div class="mc-icon ${m.icon}">${m.iconChar}</div>
+        <div class="mc-icon"><i class="fa-solid ${tier.icon}"></i></div>
         <div class="mc-size-tag">${m.sizeGB.toFixed(1)} Go</div>
       </div>
       <div>
@@ -413,12 +541,25 @@ function renderModels() {
       <div class="mc-progress-wrap" id="progress-${m.id}"><div class="mc-progress-bar" id="progress-bar-${m.id}"></div></div>
       <div class="mc-status" id="status-${m.id}"></div>
       <div style="display:flex; gap:8px;">
-        ${isDown
-          ? `<button class="mc-btn use" onclick="window.wmUseModel('${m.id}')" style="flex:1"><i class="fa-solid fa-message"></i> Utiliser</button>
-             <button class="mc-btn remove" onclick="window.wmRemoveModel('${m.id}')"><i class="fa-solid fa-trash"></i></button>`
-          : `<button class="mc-btn download" onclick="window.wmDownloadModel('${m.id}')" style="flex:1"><i class="fa-solid fa-download"></i> Télécharger</button>`
-        }
+        ${actionBtn}
+        ${isDown ? `<button class="mc-btn remove" onclick="window.wmRemoveModel('${m.id}')" title="Supprimer"><i class="fa-solid fa-trash"></i></button>` : ''}
       </div>
+    </div>`;
+}
+
+function renderModels() {
+  const wrap = document.getElementById('models-wrap');
+  wrap.innerHTML = TIER_ORDER.map(tierKey => {
+    const list = MODELS.filter(m => m.tier === tierKey);
+    if (!list.length) return '';
+    const tier = TIERS[tierKey];
+    return `
+    <div class="tier-block">
+      <div class="tier-head">
+        <span class="tier-badge" style="--tc:${tier.color}"><i class="fa-solid ${tier.icon}"></i> ${tier.label}</span>
+        <span class="tier-desc">${tier.desc}</span>
+      </div>
+      <div class="model-grid">${list.map(cardHTML).join('')}</div>
     </div>`;
   }).join('');
   updateBudget();
@@ -433,96 +574,116 @@ function updateChatModelSelect() {
   if (downloaded.includes(current)) sel.value = current;
 }
 
-window.wmDownloadModel = async function(id) {
+// ══ Cœur du système : un seul moteur, réutilisé pour télécharger ET utiliser ══
+async function activateModel(id, { focusChat = false } = {}) {
+  if (isBusy) return;
   const model = MODELS.find(m => m.id === id);
+  if (!model) return;
+
+  if (activeModelId === id && engine) {
+    if (focusChat) document.getElementById('chat-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+
+  isBusy = true;
+  const card = document.getElementById(`card-${id}`);
   const progressWrap = document.getElementById(`progress-${id}`);
   const progressBar = document.getElementById(`progress-bar-${id}`);
   const status = document.getElementById(`status-${id}`);
-  const card = document.getElementById(`card-${id}`);
+  progressWrap?.classList.add('active');
+  status?.classList.add('active');
+  card?.querySelectorAll('.mc-btn').forEach(b => b.disabled = true);
 
-  progressWrap.classList.add('active');
-  status.classList.add('active');
-  card.querySelector('.mc-btn.download').disabled = true;
-
-  try {
-    const tempEngine = await webllm.CreateMLCEngine(model.mlcId, {
-      initProgressCallback: (report) => {
-        const pct = Math.round((report.progress || 0) * 100);
-        progressBar.style.width = pct + '%';
-        status.textContent = report.text || `Téléchargement... ${pct}%`;
-      }
-    });
-    tempEngine.unload?.();
-
-    downloaded.push(id);
-    localStorage.setItem('wm_offline_downloaded', JSON.stringify(downloaded));
-    toast(`${model.name} téléchargé et prêt hors-ligne !`, 'success');
-    renderModels();
-  } catch (err) {
-    console.error(err);
-    toast(`Échec du téléchargement de ${model.name}. Vérifie ta connexion.`, 'error');
-    progressWrap.classList.remove('active');
-    status.classList.remove('active');
-    card.querySelector('.mc-btn.download').disabled = false;
-  }
-};
-
-window.wmRemoveModel = function(id) {
-  const model = MODELS.find(m => m.id === id);
-  downloaded = downloaded.filter(d => d !== id);
-  localStorage.setItem('wm_offline_downloaded', JSON.stringify(downloaded));
-  if (currentModelId === id) {
-    engine = null;
-    currentModelId = null;
-    resetChatUI();
-  }
-  toast(`${model.name} supprimé.`, 'info');
-  renderModels();
-};
-
-window.wmUseModel = async function(id) {
-  document.getElementById('chat-model-select').value = id;
-  await loadModelForChat(id);
-  document.getElementById('chat-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-};
-
-async function loadModelForChat(id) {
-  const model = MODELS.find(m => m.id === id);
-  if (!model) return;
   document.getElementById('chat-model-name').textContent = `Chargement de ${model.name}...`;
   document.getElementById('chat-dot').classList.remove('ready');
   document.getElementById('chat-input').disabled = true;
   document.getElementById('chat-send').disabled = true;
 
+  const progressCb = (report) => {
+    const pct = Math.round((report.progress || 0) * 100);
+    if (progressBar) progressBar.style.width = pct + '%';
+    if (status) status.textContent = report.text || `Téléchargement... ${pct}%`;
+    document.getElementById('chat-model-name').textContent = `${model.name} — ${pct}%`;
+  };
+
   try {
-    engine = await webllm.CreateMLCEngine(model.mlcId, {
-      initProgressCallback: (report) => {
-        document.getElementById('chat-model-name').textContent = `${model.name} — ${Math.round((report.progress||0)*100)}%`;
-      }
-    });
-    currentModelId = id;
+    if (!engine) {
+      engine = new webllm.MLCEngine({ appConfig, initProgressCallback: progressCb });
+    } else {
+      engine.setInitProgressCallback(progressCb);
+    }
+    await engine.reload(model.mlcId);
+    activeModelId = id;
+
+    if (!downloaded.includes(id)) {
+      downloaded.push(id);
+      localStorage.setItem('wm_offline_downloaded', JSON.stringify(downloaded));
+      toast(`${model.name} téléchargé et prêt hors-ligne !`, 'success');
+    }
+
     document.getElementById('chat-model-name').textContent = model.name;
     document.getElementById('chat-dot').classList.add('ready');
     document.getElementById('chat-input').disabled = false;
     document.getElementById('chat-send').disabled = false;
-    document.getElementById('chat-empty').style.display = 'none';
+    const empty = document.getElementById('chat-empty');
+    if (empty) empty.style.display = 'none';
+    document.getElementById('chat-model-select').value = id;
+
+    renderModels();
+    if (focusChat) document.getElementById('chat-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (err) {
     console.error(err);
-    toast('Erreur de chargement du modèle.', 'error');
-    document.getElementById('chat-model-name').textContent = 'Erreur de chargement';
+    toast(`Échec avec ${model.name} : ${err?.message || 'erreur inconnue'}. Vérifie ta connexion et réessaie.`, 'error');
+    const stillActive = activeModelId ? MODELS.find(m => m.id === activeModelId) : null;
+    document.getElementById('chat-model-name').textContent = stillActive ? stillActive.name : 'Aucun modèle chargé';
+  } finally {
+    progressWrap?.classList.remove('active');
+    status?.classList.remove('active');
+    if (progressBar) progressBar.style.width = '0%';
+    card?.querySelectorAll('.mc-btn').forEach(b => b.disabled = false);
+    isBusy = false;
   }
 }
+
+window.wmDownloadModel = (id) => activateModel(id, { focusChat: false });
+window.wmUseModel = (id) => activateModel(id, { focusChat: true });
+
+window.wmRemoveModel = async function (id) {
+  if (isBusy) return;
+  const model = MODELS.find(m => m.id === id);
+  if (!model) return;
+
+  if (activeModelId === id && engine) {
+    try { await engine.unload(); } catch (e) { /* noop */ }
+    activeModelId = null;
+    resetChatUI();
+  }
+
+  try {
+    await webllm.deleteModelAllInfoInCache(model.mlcId, appConfig);
+  } catch (e) {
+    console.warn('Suppression du cache partiellement échouée :', e);
+  }
+
+  downloaded = downloaded.filter(d => d !== id);
+  localStorage.setItem('wm_offline_downloaded', JSON.stringify(downloaded));
+  toast(`${model.name} supprimé, espace libéré.`, 'info');
+  renderModels();
+};
 
 function resetChatUI() {
   document.getElementById('chat-model-name').textContent = 'Aucun modèle chargé';
   document.getElementById('chat-dot').classList.remove('ready');
   document.getElementById('chat-input').disabled = true;
   document.getElementById('chat-send').disabled = true;
+  document.getElementById('chat-model-select').value = '';
+  chatHistory = [];
   document.getElementById('chat-body').innerHTML = `<div class="chat-empty" id="chat-empty"><i class="fa-solid fa-cloud-arrow-down"></i><p>Télécharge un modèle ci-dessus, puis reviens ici pour discuter — même sans connexion internet.</p></div>`;
 }
 
 document.getElementById('chat-model-select').addEventListener('change', (e) => {
-  if (e.target.value) loadModelForChat(e.target.value);
+  if (e.target.value) activateModel(e.target.value, { focusChat: false });
+  else resetChatUI();
 });
 
 let chatHistory = [];
@@ -530,7 +691,7 @@ let chatHistory = [];
 async function sendMessage() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
-  if (!text || !engine) return;
+  if (!text || !engine || !activeModelId) return;
 
   const body = document.getElementById('chat-body');
   const empty = document.getElementById('chat-empty');
@@ -593,14 +754,37 @@ window.toast = (msg, type = 'info') => {
   const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
   const el = document.createElement('div');
   el.className = `toast ${type}`;
-  el.innerHTML = `<i class="fa-solid ${icons[type]}"></i>${msg}`;
+  el.innerHTML = `<i class="fa-solid ${icons[type]}"></i><span>${msg}</span>`;
   document.getElementById('toast-container').appendChild(el);
-  setTimeout(() => el.remove(), 4000);
+  setTimeout(() => el.remove(), 5000);
 };
 
+// ══ PWA install ══
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('btn-install-hero').hidden = false;
+});
+window.wmInstallPWA = async function () {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  if (outcome === 'accepted') document.getElementById('btn-install-hero').hidden = true;
+  deferredInstallPrompt = null;
+};
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/Wikimind/wikimind/sw.js', { scope: '/Wikimind/' })
+      .then(reg => console.log('[WikiMind PWA] SW enregistré ✓', reg.scope))
+      .catch(err => console.warn('[WikiMind PWA] SW échec :', err));
+  });
+}
+
 // ══ Init ══
-checkWebGPU();
 renderModels();
+checkWebGPU().then(() => renderModels());
+verifyCache();
 </script>
 
 </body>
