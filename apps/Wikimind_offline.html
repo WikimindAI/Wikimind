@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WikiMind Offline — IA hors-ligne, gratuite et privée</title>
+<link rel="icon" type="image/png" href="wikimind.png">
+<link rel="manifest" href="wikimind/manifest.json">
+<meta name="theme-color" content="#050505">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WikiMind Offline">
+<link rel="apple-touch-icon" href="wikimind.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #060608;
+  --surface: rgba(255,255,255,0.04);
+  --surface-h: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.07);
+  --border-h: rgba(255,255,255,0.16);
+  --t1: #ffffff;
+  --t2: rgba(255,255,255,0.52);
+  --t3: rgba(255,255,255,0.26);
+  --sans: 'Inter', sans-serif;
+  --display: 'Space Grotesk', sans-serif;
+  --r: 14px;
+  --rl: 22px;
+  --nav: 64px;
+  --accent1: #6366f1;
+  --accent2: #8b5cf6;
+  --accent3: #a78bfa;
+  --green: #34d399;
+  --amber: #fbbf24;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--t1); font-family: var(--sans); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+/* ══ NAV ══ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: var(--nav);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px;
+  background: rgba(6,6,8,0.85);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo img { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; }
+.nav-logo-text { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: -.02em; color: #fff; }
+.nav-logo-text span { color: rgba(255,255,255,0.28); font-weight: 400; }
+.nav-back { font-size: 13px; font-weight: 500; color: var(--t2); text-decoration: none; display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; transition: color .15s, background .15s; }
+.nav-back:hover { color: #fff; background: rgba(255,255,255,0.06); }
+
+/* ══ HERO ══ */
+.hero { padding: calc(var(--nav) + 64px) 24px 48px; max-width: 900px; margin: 0 auto; text-align: center; }
+.badge { display: inline-flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 100px; background: var(--surface); border: 1px solid var(--border); font-size: 12px; font-weight: 600; color: var(--t2); margin-bottom: 24px; }
+.badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+.hero h1 { font-family: var(--display); font-size: clamp(32px, 6vw, 52px); font-weight: 700; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 18px; }
+.hero h1 .grad { background: linear-gradient(135deg, var(--accent1), var(--accent3)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p { font-size: 16px; color: var(--t2); line-height: 1.6; max-width: 620px; margin: 0 auto 32px; }
+
+.hero-facts { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.hero-fact { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; font-size: 13px; color: var(--t2); }
+.hero-fact i { color: var(--accent3); font-size: 13px; }
+.hero-fact b { color: #fff; font-weight: 600; }
+
+/* ══ WEBGPU CHECK ══ */
+.gpu-check { max-width: 640px; margin: 32px auto 0; padding: 16px 20px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--t2); }
+.gpu-check.ok { border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.06); }
+.gpu-check.bad { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.06); }
+.gpu-check i { font-size: 18px; flex-shrink: 0; }
+.gpu-check.ok i { color: var(--green); }
+.gpu-check.bad i { color: var(--amber); }
+.gpu-check .gc-title { color: #fff; font-weight: 600; margin-bottom: 2px; }
+
+/* ══ SECTION ══ */
+.section { max-width: 1000px; margin: 0 auto; padding: 56px 24px; }
+.section-head { text-align: center; margin-bottom: 40px; }
+.section-tag { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent3); margin-bottom: 10px; }
+.section-head h2 { font-family: var(--display); font-size: clamp(24px, 4vw, 32px); font-weight: 700; letter-spacing: -.02em; margin-bottom: 10px; }
+.section-head p { font-size: 14px; color: var(--t2); max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+/* ══ MODEL CARDS ══ */
+.model-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.model-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl);
+  padding: 22px; display: flex; flex-direction: column; gap: 14px;
+  transition: border-color .2s, transform .2s, background .2s;
+  position: relative;
+}
+.model-card:hover { border-color: var(--border-h); transform: translateY(-2px); background: rgba(255,255,255,0.06); }
+.model-card.downloaded { border-color: rgba(52,211,153,0.35); }
+.mc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.mc-icon { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.mc-icon.flash { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+.mc-icon.coder { background: linear-gradient(135deg, #34d399, #10b981); }
+.mc-icon.pro { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+.mc-size-tag { font-size: 11px; font-weight: 700; color: var(--t2); background: rgba(255,255,255,0.06); border: 1px solid var(--border); padding: 4px 10px; border-radius: 100px; white-space: nowrap; }
+.mc-name { font-family: var(--display); font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+.mc-desc { font-size: 12.5px; color: var(--t2); line-height: 1.55; }
+.mc-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.mc-pill { font-size: 10.5px; font-weight: 600; color: var(--t3); background: rgba(255,255,255,0.04); border: 1px solid var(--border); padding: 3px 9px; border-radius: 100px; }
+.mc-progress-wrap { display: none; height: 5px; border-radius: 100px; background: rgba(255,255,255,0.06); overflow: hidden; }
+.mc-progress-wrap.active { display: block; }
+.mc-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent1), var(--accent3)); border-radius: 100px; transition: width .25s ease; }
+.mc-status { font-size: 11px; color: var(--t3); display: none; }
+.mc-status.active { display: block; }
+.mc-btn {
+  margin-top: auto; width: 100%; padding: 11px; border-radius: 10px; border: none; cursor: pointer;
+  font-family: var(--sans); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity .15s, transform .15s, background .15s;
+}
+.mc-btn.download { background: #fff; color: #000; }
+.mc-btn.download:hover { opacity: .85; transform: translateY(-1px); }
+.mc-btn.use { background: linear-gradient(135deg, var(--accent1), var(--accent2)); color: #fff; }
+.mc-btn.use:hover { opacity: .9; }
+.mc-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.mc-btn.remove { background: rgba(255,255,255,0.06); color: var(--t2); border: 1px solid var(--border); }
+.mc-btn.remove:hover { color: #f87171; border-color: rgba(248,113,113,0.3); }
+
+.budget-bar-wrap { max-width: 500px; margin: 8px auto 0; }
+.budget-bar { height: 8px; border-radius: 100px; background: rgba(255,255,255,0.06); overflow: hidden; margin-top: 8px; }
+.budget-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--accent3)); border-radius: 100px; transition: width .3s ease; }
+.budget-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--t2); }
+.budget-label b { color: #fff; }
+
+/* ══ STEPS ══ */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.step-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px; }
+.step-num { width: 28px; height: 28px; border-radius: 8px; background: rgba(139,92,246,0.15); color: var(--accent3); font-family: var(--display); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+.step-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.step-card p { font-size: 12.5px; color: var(--t2); line-height: 1.5; }
+
+/* ══ CHAT ══ */
+.chat-shell { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); overflow: hidden; display: flex; flex-direction: column; height: 520px; }
+.chat-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.chat-head-left { display: flex; align-items: center; gap: 10px; }
+.chat-model-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--t3); }
+.chat-model-dot.ready { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.chat-model-name { font-size: 13px; font-weight: 600; }
+.chat-model-select { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--t1); font-size: 12px; padding: 6px 10px; border-radius: 8px; font-family: var(--sans); }
+.chat-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.chat-msg { max-width: 82%; padding: 11px 14px; border-radius: 14px; font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; }
+.chat-msg.user { align-self: flex-end; background: linear-gradient(135deg, var(--accent1), var(--accent2)); color: #fff; border-bottom-right-radius: 4px; }
+.chat-msg.bot { align-self: flex-start; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+.chat-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; color: var(--t3); padding: 20px; }
+.chat-empty i { font-size: 28px; opacity: .5; }
+.chat-empty p { font-size: 13px; max-width: 280px; }
+.chat-input-row { padding: 14px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+.chat-input { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 11px; padding: 12px 14px; color: #fff; font-family: var(--sans); font-size: 13.5px; outline: none; resize: none; }
+.chat-input:focus { border-color: rgba(139,92,246,0.5); }
+.chat-send { width: 44px; height: 44px; border-radius: 11px; border: none; background: linear-gradient(135deg, var(--accent1), var(--accent2)); color: #fff; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: opacity .15s; }
+.chat-send:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ══ FAQ ══ */
+.faq-item { border-bottom: 1px solid var(--border); padding: 18px 0; }
+.faq-q { display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 14px; font-weight: 600; }
+.faq-q i { color: var(--t3); transition: transform .2s; font-size: 12px; }
+.faq-item.open .faq-q i { transform: rotate(45deg); }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height .25s ease; font-size: 13px; color: var(--t2); line-height: 1.6; }
+.faq-item.open .faq-a { max-height: 300px; padding-top: 12px; }
+
+/* ══ FOOTER LICENSE ══ */
+.license-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 20px; font-size: 11.5px; color: var(--t3); line-height: 1.7; }
+.license-box b { color: var(--t2); }
+
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: rgba(14,14,18,0.96); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 13px; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(20px); animation: toastIn .25s ease; }
+@keyframes toastIn { from { opacity:0; transform: translateY(10px);} to {opacity:1; transform:none;} }
+.toast.error i { color: #f87171; }
+.toast.success i { color: var(--green); }
+
+@media (max-width: 640px) {
+  nav { padding: 0 16px; }
+  .hero { padding: calc(var(--nav) + 40px) 16px 32px; }
+  .section { padding: 40px 16px; }
+  .chat-shell { height: 460px; }
+  .chat-msg { max-width: 90%; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="wikimind.png" alt="WikiMind">
+    <span class="nav-logo-text">WikiMind <span>Offline</span></span>
+  </a>
+  <a href="index.html" class="nav-back"><i class="fa-solid fa-arrow-left"></i> Retour au site</a>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="badge"><span class="dot"></span> Fonctionne sans connexion, sans compte, sans serveur</div>
+  <h1>WikiMind <span class="grad">Offline</span></h1>
+  <p>Télécharge une IA une seule fois, garde-la pour toujours. Aucune donnée n'est envoyée nulle part — tout tourne directement dans ton navigateur, même dans l'avion, même sans wifi.</p>
+
+  <div class="hero-facts">
+    <div class="hero-fact"><i class="fa-solid fa-lock"></i> 100% <b>privé</b> — rien ne quitte ton appareil</div>
+    <div class="hero-fact"><i class="fa-solid fa-wifi-slash"></i> Fonctionne <b>hors-ligne</b> après téléchargement</div>
+    <div class="hero-fact"><i class="fa-solid fa-download"></i> Moins de <b>12 Go</b> au total, à toi de choisir</div>
+  </div>
+
+  <div class="gpu-check" id="gpu-check">
+    <i class="fa-solid fa-circle-notch fa-spin"></i>
+    <div><div class="gc-title">Vérification de la compatibilité...</div></div>
+  </div>
+</section>
+
+<!-- ══ MODELS ══ -->
+<section class="section" id="models">
+  <div class="section-head">
+    <div class="section-tag">Étape 1</div>
+    <h2>Choisis tes modèles</h2>
+    <p>Chaque modèle a un usage différent. Tu peux en télécharger un seul ou plusieurs — reste sous 12 Go pour garder ton appareil fluide.</p>
+  </div>
+
+  <div class="budget-bar-wrap">
+    <div class="budget-label"><span>Espace utilisé</span><b id="budget-text">0 Go / 12 Go</b></div>
+    <div class="budget-bar"><div class="budget-bar-fill" id="budget-fill" style="width:0%"></div></div>
+  </div>
+  <div style="height:28px"></div>
+
+  <div class="model-grid" id="model-grid"></div>
+</section>
+
+<!-- ══ CHAT ══ -->
+<section class="section" id="chat-section">
+  <div class="section-head">
+    <div class="section-tag">Étape 2</div>
+    <h2>Utilise ton IA hors-ligne</h2>
+    <p>Une fois un modèle téléchargé, discute avec lui directement ici — coupe le wifi, ça continuera de marcher.</p>
+  </div>
+
+  <div class="chat-shell">
+    <div class="chat-head">
+      <div class="chat-head-left">
+        <span class="chat-model-dot" id="chat-dot"></span>
+        <span class="chat-model-name" id="chat-model-name">Aucun modèle chargé</span>
+      </div>
+      <select class="chat-model-select" id="chat-model-select">
+        <option value="">Choisir un modèle téléchargé...</option>
+      </select>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="chat-empty" id="chat-empty">
+        <i class="fa-solid fa-cloud-arrow-down"></i>
+        <p>Télécharge un modèle ci-dessus, puis reviens ici pour discuter — même sans connexion internet.</p>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Écris ton message..." disabled></textarea>
+      <button class="chat-send" id="chat-send" disabled><i class="fa-solid fa-arrow-up"></i></button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STEPS / APP ══ -->
+<section class="section" id="app">
+  <div class="section-head">
+    <div class="section-tag">Vraie application</div>
+    <h2>Installer WikiMind comme une app</h2>
+    <p>Pas besoin d'App Store — installe cette page comme une vraie application sur ton PC, ton téléphone ou ta tablette.</p>
+  </div>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <h3>Sur Chrome / Edge (PC)</h3>
+      <p>Clique sur l'icône d'installation dans la barre d'adresse (⊕ ou écran avec flèche), ou menu ⋮ → "Installer WikiMind Offline". Une icône apparaît sur ton bureau.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <h3>Sur Android</h3>
+      <p>Menu ⋮ du navigateur → "Ajouter à l'écran d'accueil" ou "Installer l'application". WikiMind s'ouvre ensuite comme une app normale, en plein écran.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <h3>Sur iPhone / iPad</h3>
+      <p>Bouton Partager (carré avec flèche) → "Sur l'écran d'accueil". Note : le mode offline complet nécessite Safari récent, les performances peuvent varier.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FAQ ══ -->
+<section class="section" id="faq">
+  <div class="section-head">
+    <div class="section-tag">Questions fréquentes</div>
+    <h2>Tout comprendre en 2 minutes</h2>
+  </div>
+  <div id="faq-list">
+    <div class="faq-item">
+      <div class="faq-q">Est-ce que mes conversations sont envoyées à Wikimind ?<i class="fa-solid fa-plus"></i></div>
+      <div class="faq-a">Non. En mode Offline, tout le calcul se fait dans ton navigateur, sur ton appareil. Aucune conversation n'est envoyée à un serveur — on ne peut même pas les voir.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Pourquoi ça ne marche pas sur mon appareil ?<i class="fa-solid fa-plus"></i></div>
+      <div class="faq-a">Le mode Offline a besoin de WebGPU, une technologie récente disponible sur Chrome et Edge à jour. Safari et les vieux navigateurs ne sont pas encore bien supportés. Un appareil avec au moins 4 Go de RAM libre est recommandé.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Est-ce que je peux supprimer un modèle téléchargé ?<i class="fa-solid fa-plus"></i></div>
+      <div class="faq-a">Oui, chaque carte modèle a un bouton pour le supprimer et libérer l'espace pris dans le cache de ton navigateur.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Ces modèles sont-ils aussi forts que la version en ligne de Wikimind ?<i class="fa-solid fa-plus"></i></div>
+      <div class="faq-a">Non, honnêtement. Ce sont des modèles légers optimisés pour tourner sur ton appareil — pratiques et privés, mais moins puissants que les modèles cloud utilisés par Wikimind en ligne pour les tâches complexes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ LICENSE ══ -->
+<section class="section" id="license" style="padding-top:0;">
+  <div class="license-box">
+    <b>À propos des modèles :</b> les modèles proposés ici sont des versions renommées de modèles open source (licences MIT et Apache 2.0), exécutés localement via la technologie WebLLM (MLC-AI / Apache 2.0). Aucune modification des poids n'est effectuée — seul le nom d'affichage est personnalisé pour l'expérience Wikimind. Le texte complet des licences reste disponible sur demande.
+  </div>
+</section>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script type="module">
+import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+
+// ══ Config modèles — noms Wikimind mappés aux modèles MLC réels ══
+const MODELS = [
+  {
+    id: "wikimind-flash",
+    mlcId: "Qwen2.5-1.5B-Instruct-q4f16_1-MLC",
+    name: "WikiMind Flash",
+    icon: "flash",
+    iconChar: '<i class="fa-solid fa-bolt"></i>',
+    desc: "Ultra léger et rapide. Idéal pour les questions courtes, résumés simples, et les appareils moins puissants.",
+    sizeGB: 1.0,
+    tags: ["Généraliste", "Rapide", "1.5B"]
+  },
+  {
+    id: "wikimind-coder",
+    mlcId: "Qwen2.5-Coder-1.5B-Instruct-q4f16_1-MLC",
+    name: "WikiMind Coder",
+    icon: "coder",
+    iconChar: '<i class="fa-solid fa-code"></i>',
+    desc: "Spécialisé code : Python, JavaScript, debug, structuration. Pour les étudiants en info.",
+    sizeGB: 1.1,
+    tags: ["Code", "Étudiant", "1.5B"]
+  },
+  {
+    id: "wikimind-pro",
+    mlcId: "Phi-3.5-mini-instruct-q4f16_1-MLC",
+    name: "WikiMind Pro",
+    icon: "pro",
+    iconChar: '<i class="fa-solid fa-graduation-cap"></i>',
+    desc: "Le plus complet des trois : raisonnement, rédaction, aide aux devoirs plus poussée.",
+    sizeGB: 2.3,
+    tags: ["Complet", "Devoirs", "3.8B"]
+  }
+];
+
+const MAX_BUDGET_GB = 12;
+let engine = null;
+let currentModelId = null;
+let downloaded = JSON.parse(localStorage.getItem('wm_offline_downloaded') || '[]');
+
+// ══ WebGPU check ══
+async function checkWebGPU() {
+  const el = document.getElementById('gpu-check');
+  if (!navigator.gpu) {
+    el.className = 'gpu-check bad';
+    el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><div><div class="gc-title">Navigateur non compatible</div>Utilise Chrome ou Edge (version récente) pour activer le mode Offline.</div>`;
+    return false;
+  }
+  try {
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) throw new Error();
+    el.className = 'gpu-check ok';
+    el.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><div class="gc-title">Ton appareil est compatible ✓</div>Tu peux télécharger et utiliser des modèles hors-ligne.</div>`;
+    return true;
+  } catch {
+    el.className = 'gpu-check bad';
+    el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i><div><div class="gc-title">WebGPU non détecté</div>Ton navigateur ne semble pas supporter cette fonctionnalité.</div>`;
+    return false;
+  }
+}
+
+function updateBudget() {
+  const used = MODELS.filter(m => downloaded.includes(m.id)).reduce((s, m) => s + m.sizeGB, 0);
+  document.getElementById('budget-text').textContent = `${used.toFixed(1)} Go / ${MAX_BUDGET_GB} Go`;
+  document.getElementById('budget-fill').style.width = Math.min(100, (used / MAX_BUDGET_GB) * 100) + '%';
+}
+
+function renderModels() {
+  const grid = document.getElementById('model-grid');
+  grid.innerHTML = MODELS.map(m => {
+    const isDown = downloaded.includes(m.id);
+    return `
+    <div class="model-card ${isDown ? 'downloaded' : ''}" id="card-${m.id}">
+      <div class="mc-top">
+        <div class="mc-icon ${m.icon}">${m.iconChar}</div>
+        <div class="mc-size-tag">${m.sizeGB.toFixed(1)} Go</div>
+      </div>
+      <div>
+        <div class="mc-name">${m.name}</div>
+        <div class="mc-desc">${m.desc}</div>
+      </div>
+      <div class="mc-meta">${m.tags.map(t => `<span class="mc-pill">${t}</span>`).join('')}</div>
+      <div class="mc-progress-wrap" id="progress-${m.id}"><div class="mc-progress-bar" id="progress-bar-${m.id}"></div></div>
+      <div class="mc-status" id="status-${m.id}"></div>
+      <div style="display:flex; gap:8px;">
+        ${isDown
+          ? `<button class="mc-btn use" onclick="window.wmUseModel('${m.id}')" style="flex:1"><i class="fa-solid fa-message"></i> Utiliser</button>
+             <button class="mc-btn remove" onclick="window.wmRemoveModel('${m.id}')"><i class="fa-solid fa-trash"></i></button>`
+          : `<button class="mc-btn download" onclick="window.wmDownloadModel('${m.id}')" style="flex:1"><i class="fa-solid fa-download"></i> Télécharger</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+  updateBudget();
+  updateChatModelSelect();
+}
+
+function updateChatModelSelect() {
+  const sel = document.getElementById('chat-model-select');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Choisir un modèle téléchargé...</option>' +
+    MODELS.filter(m => downloaded.includes(m.id)).map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  if (downloaded.includes(current)) sel.value = current;
+}
+
+window.wmDownloadModel = async function(id) {
+  const model = MODELS.find(m => m.id === id);
+  const progressWrap = document.getElementById(`progress-${id}`);
+  const progressBar = document.getElementById(`progress-bar-${id}`);
+  const status = document.getElementById(`status-${id}`);
+  const card = document.getElementById(`card-${id}`);
+
+  progressWrap.classList.add('active');
+  status.classList.add('active');
+  card.querySelector('.mc-btn.download').disabled = true;
+
+  try {
+    const tempEngine = await webllm.CreateMLCEngine(model.mlcId, {
+      initProgressCallback: (report) => {
+        const pct = Math.round((report.progress || 0) * 100);
+        progressBar.style.width = pct + '%';
+        status.textContent = report.text || `Téléchargement... ${pct}%`;
+      }
+    });
+    tempEngine.unload?.();
+
+    downloaded.push(id);
+    localStorage.setItem('wm_offline_downloaded', JSON.stringify(downloaded));
+    toast(`${model.name} téléchargé et prêt hors-ligne !`, 'success');
+    renderModels();
+  } catch (err) {
+    console.error(err);
+    toast(`Échec du téléchargement de ${model.name}. Vérifie ta connexion.`, 'error');
+    progressWrap.classList.remove('active');
+    status.classList.remove('active');
+    card.querySelector('.mc-btn.download').disabled = false;
+  }
+};
+
+window.wmRemoveModel = function(id) {
+  const model = MODELS.find(m => m.id === id);
+  downloaded = downloaded.filter(d => d !== id);
+  localStorage.setItem('wm_offline_downloaded', JSON.stringify(downloaded));
+  if (currentModelId === id) {
+    engine = null;
+    currentModelId = null;
+    resetChatUI();
+  }
+  toast(`${model.name} supprimé.`, 'info');
+  renderModels();
+};
+
+window.wmUseModel = async function(id) {
+  document.getElementById('chat-model-select').value = id;
+  await loadModelForChat(id);
+  document.getElementById('chat-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+async function loadModelForChat(id) {
+  const model = MODELS.find(m => m.id === id);
+  if (!model) return;
+  document.getElementById('chat-model-name').textContent = `Chargement de ${model.name}...`;
+  document.getElementById('chat-dot').classList.remove('ready');
+  document.getElementById('chat-input').disabled = true;
+  document.getElementById('chat-send').disabled = true;
+
+  try {
+    engine = await webllm.CreateMLCEngine(model.mlcId, {
+      initProgressCallback: (report) => {
+        document.getElementById('chat-model-name').textContent = `${model.name} — ${Math.round((report.progress||0)*100)}%`;
+      }
+    });
+    currentModelId = id;
+    document.getElementById('chat-model-name').textContent = model.name;
+    document.getElementById('chat-dot').classList.add('ready');
+    document.getElementById('chat-input').disabled = false;
+    document.getElementById('chat-send').disabled = false;
+    document.getElementById('chat-empty').style.display = 'none';
+  } catch (err) {
+    console.error(err);
+    toast('Erreur de chargement du modèle.', 'error');
+    document.getElementById('chat-model-name').textContent = 'Erreur de chargement';
+  }
+}
+
+function resetChatUI() {
+  document.getElementById('chat-model-name').textContent = 'Aucun modèle chargé';
+  document.getElementById('chat-dot').classList.remove('ready');
+  document.getElementById('chat-input').disabled = true;
+  document.getElementById('chat-send').disabled = true;
+  document.getElementById('chat-body').innerHTML = `<div class="chat-empty" id="chat-empty"><i class="fa-solid fa-cloud-arrow-down"></i><p>Télécharge un modèle ci-dessus, puis reviens ici pour discuter — même sans connexion internet.</p></div>`;
+}
+
+document.getElementById('chat-model-select').addEventListener('change', (e) => {
+  if (e.target.value) loadModelForChat(e.target.value);
+});
+
+let chatHistory = [];
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || !engine) return;
+
+  const body = document.getElementById('chat-body');
+  const empty = document.getElementById('chat-empty');
+  if (empty) empty.remove();
+
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-msg user';
+  userMsg.textContent = text;
+  body.appendChild(userMsg);
+  input.value = '';
+  body.scrollTop = body.scrollHeight;
+
+  const botMsg = document.createElement('div');
+  botMsg.className = 'chat-msg bot';
+  botMsg.textContent = '...';
+  body.appendChild(botMsg);
+  body.scrollTop = body.scrollHeight;
+
+  chatHistory.push({ role: 'user', content: text });
+
+  try {
+    const stream = await engine.chat.completions.create({
+      messages: chatHistory,
+      stream: true,
+      temperature: 0.7,
+    });
+
+    let full = '';
+    botMsg.textContent = '';
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content || '';
+      full += delta;
+      botMsg.textContent = full;
+      body.scrollTop = body.scrollHeight;
+    }
+    chatHistory.push({ role: 'assistant', content: full });
+  } catch (err) {
+    console.error(err);
+    botMsg.textContent = "Erreur pendant la génération. Réessaie.";
+  }
+}
+
+document.getElementById('chat-send').addEventListener('click', sendMessage);
+document.getElementById('chat-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+// ══ FAQ toggle ══
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    q.parentElement.classList.toggle('open');
+  });
+});
+
+// ══ Toast ══
+window.toast = (msg, type = 'info') => {
+  const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<i class="fa-solid ${icons[type]}"></i>${msg}`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+};
+
+// ══ Init ══
+checkWebGPU();
+renderModels();
+</script>
+
+</body>
+</html>
