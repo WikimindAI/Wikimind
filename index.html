@@ -530,14 +530,6 @@
     <a href="#gallery" class="nav-link">Galerie IA</a>
     <a href="#apps" class="nav-link">Applications</a>
   </div>
-  <button class="theme-toggle" id="theme-toggle" aria-label="Changer de theme" title="Changer de theme">
-    <span class="theme-toggle-track">
-      <span class="theme-toggle-thumb">
-        <i class="fa-solid fa-sun icon-sun"></i>
-        <i class="fa-solid fa-moon icon-moon"></i>
-      </span>
-    </span>
-  </button>
   <div class="nav-auth" id="nav-auth-guest">
     <button class="btn-nav-login" id="btn-open-login">Se connecter</button>
     <button class="btn-nav-signup" id="btn-open-signup">Commencer</button>
@@ -1014,12 +1006,12 @@
 
  
   <div class="hero-stats reveal d4" style="margin-bottom: 48px;">
-    <div class="hero-stat"><div class="hero-stat-num"><span class="count-target" data-count="20">0</span>+</div><div class="hero-stat-label">Applications</div></div>
-    <div class="hero-stat"><div class="hero-stat-num"><span class="count-target" data-count="37">0</span>+</div><div class="hero-stat-label">Modèles IA</div></div>
-    <div class="hero-stat"><div class="hero-stat-num"><span class="count-target" data-count="1.9" data-decimals="1">0</span>M+</div><div class="hero-stat-label">Tokens générés</div></div>
-    <div class="hero-stat"><div class="hero-stat-num"><span class="count-target" data-count="100">0</span>%</div><div class="hero-stat-label">Gratuit</div></div>
-    <div class="hero-stat"><div class="hero-stat-num"><span class="count-target" data-count="1">0</span> an</div><div class="hero-stat-label">D'existence</div></div>
-    <div class="hero-stat"><div class="hero-stat-num"><span class="count-target" data-count="100">0</span><span style="font-size:18px;opacity:.7"> req/24h</span></div><div class="hero-stat-label">Requêtes par jour</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">20+</div><div class="hero-stat-label">Applications</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">37+</div><div class="hero-stat-label">Modèles IA</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">1,9M+</div><div class="hero-stat-label">Tokens générés</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">Gratuit</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">1 an</div><div class="hero-stat-label">D'existence</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">100<span style="font-size:18px;opacity:.7"> req/24h</span></div><div class="hero-stat-label">Requêtes par jour</div></div>
     <div class="hero-stat hero-stat-france"><div class="hero-stat-num hero-stat-flag"><img src="exemples/frenchlogo.png" alt="🇫🇷" class="flag-img" onerror="this.outerHTML='🇫🇷'"> Made in France</div></div>
   </div>
 </div>
@@ -1188,7 +1180,7 @@
   <div class="mgrid" id="modules-grid">
 
     <!-- FEATURED  WikiMind AI -->
-    <a href="apps/AI/Wikimind_AI.html" class="mc featured reveal spotlight-card gradient-border" data-name="wikimind ai chat modeles canvas documents" target="_blank">
+    <a href="apps/AI/Wikimind_AI.html" class="mc featured reveal" data-name="wikimind ai chat modeles canvas documents" target="_blank">
       <div class="mc-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" style="color:#fff;"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z"/></svg>
       </div>
@@ -2182,209 +2174,7 @@ function showInstallBanner(promptEvent) {
 .pwa-btn.dismiss { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); padding: 7px 10px; border: 1px solid rgba(255,255,255,0.1); }
 .pwa-btn:hover { opacity: .8; }
 @media (max-width: 400px) { #pwa-banner { right: 12px; left: 12px; max-width: none; } }
-
-/* ══════════════════════════════════════════
-   AMÉLIORATIONS — thème clair, spotlight,
-   parallax, reveal texte, count-up, bordure
-   animée, micro-interactions
-   ══════════════════════════════════════════ */
-
-/* ---- Theme toggle button ---- */
-.theme-toggle { border: none; background: none; cursor: pointer; padding: 0; margin: 0 6px; }
-.theme-toggle-track {
-  position: relative; display: flex; align-items: center;
-  width: 46px; height: 26px; border-radius: 100px;
-  background: rgba(255,255,255,0.08); border: 1px solid var(--border);
-  transition: background .35s ease, border-color .35s ease;
-}
-.theme-toggle-thumb {
-  position: absolute; top: 2px; left: 2px;
-  width: 20px; height: 20px; border-radius: 50%;
-  background: #fff; display: flex; align-items: center; justify-content: center;
-  transition: transform .45s cubic-bezier(.34,1.56,.64,1), background .35s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,.3);
-}
-.theme-toggle-thumb i { position: absolute; font-size: 11px; transition: opacity .3s ease, transform .4s ease; }
-.theme-toggle-thumb .icon-sun { color: #f5a623; opacity: 1; transform: rotate(0deg) scale(1); }
-.theme-toggle-thumb .icon-moon { color: #6b6bff; opacity: 0; transform: rotate(-90deg) scale(.4); }
-[data-theme="light"] .theme-toggle-thumb { transform: translateX(20px); background: #1a1a1e; }
-[data-theme="light"] .theme-toggle-thumb .icon-sun { opacity: 0; transform: rotate(90deg) scale(.4); }
-[data-theme="light"] .theme-toggle-thumb .icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
-[data-theme="light"] .theme-toggle-track { background: rgba(0,0,0,0.08); }
-
-/* ---- Light theme palette ---- */
-html[data-theme="light"] {
-  --bg: #f7f7f9;
-  --surface: rgba(0,0,0,0.03);
-  --border: rgba(0,0,0,0.08);
-  --border-h: rgba(0,0,0,0.18);
-  --t1: #0c0c0e;
-  --t2: rgba(0,0,0,0.55);
-  --t3: rgba(0,0,0,0.32);
-}
-html[data-theme="light"] body { background: var(--bg); color: var(--t1); }
-html[data-theme="light"] nav { background: rgba(247,247,249,0.85); }
-html[data-theme="light"] .hero-title { background: linear-gradient(150deg, #0c0c0e 25%, rgba(0,0,0,0.45) 100%); -webkit-background-clip: text; background-clip: text; }
-html[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.14); }
-html[data-theme="light"] .btn-nav-signup, html[data-theme="light"] .pwa-btn.install { background: #0c0c0e; color: #fff; }
-html, body { transition: background-color .4s ease, color .4s ease; }
-nav, .bento-card, .mc, .modal-box, #profile-panel, .btn-nav-login, .btn-nav-signup, .form-input, .pwa-toast {
-  transition: background-color .3s ease, border-color .3s ease, color .3s ease;
-}
-
-/* ---- Spotlight halo on cards ---- */
-.bento-card, .mc {
-  position: relative;
-  overflow: hidden;
-}
-.bento-card::after, .mc::after {
-  content: "";
-  position: absolute; inset: 0; border-radius: inherit;
-  background: radial-gradient(200px at var(--x, 50%) var(--y, 50%), rgba(255,255,255,.08), transparent 70%);
-  opacity: 0; transition: opacity .3s ease; pointer-events: none;
-}
-html[data-theme="light"] .bento-card::after, html[data-theme="light"] .mc::after {
-  background: radial-gradient(200px at var(--x, 50%) var(--y, 50%), rgba(0,0,0,.05), transparent 70%);
-}
-.bento-card:hover::after, .mc:hover::after { opacity: 1; }
-
-/* ---- Animated gradient border on featured card (cheap: single small element, background-position sweep) ---- */
-.gradient-border { position: relative; z-index: 0; }
-.gradient-border::before {
-  content: "";
-  position: absolute; inset: -1px; border-radius: inherit; z-index: -1;
-  padding: 1.5px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.75) 15%, transparent 30%, transparent 100%);
-  background-size: 260% 100%;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-  animation: sweep-border 4.5s linear infinite;
-}
-@keyframes sweep-border { from { background-position: 0% 0; } to { background-position: -260% 0; } }
-@media (prefers-reduced-motion: reduce) { .gradient-border::before { animation: none; } }
-
-/* ---- Hero parallax blobs ---- */
-.hero-glow { will-change: transform; }
-
-/* ---- Word-by-word title reveal ---- */
-.hero-title .word-reveal {
-  display: inline-block;
-  opacity: 0; transform: translateY(24px);
-  animation: word-in .6s cubic-bezier(.22,1,.36,1) forwards;
-}
-@keyframes word-in { to { opacity: 1; transform: translateY(0); } }
-
-/* ---- Button micro-interactions ---- */
-button, .btn-nav-login, .btn-nav-signup, .btn-submit, .pwa-btn, .mc, .bento-card, .theme-toggle {
-  transition: transform .18s cubic-bezier(.34,1.56,.64,1), background-color .25s ease, border-color .25s ease, color .25s ease, box-shadow .25s ease;
-}
-button:active, .btn-nav-login:active, .btn-nav-signup:active, .btn-submit:active, .pwa-btn:active {
-  transform: scale(.97);
-}
-
-/* ---- Icon micro-animations on card hover ---- */
-.mc-icon { transition: transform .35s cubic-bezier(.34,1.56,.64,1); }
-.mc:hover .mc-icon { transform: scale(1.12) rotate(-4deg); }
-.mc-icon svg, .mc-icon i { transition: transform .35s ease; }
-.mc:hover .mc-icon i.fa-sparkles, .mc:hover .mc-icon i.fa-wand-magic-sparkles { animation: sparkle-pulse 1.1s ease-in-out infinite; }
-@keyframes sparkle-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: .75; } }
-.mc-arr { transition: transform .35s cubic-bezier(.34,1.56,.64,1); display: inline-block; }
-.mc:hover .mc-arr { transform: translate(4px, -4px); }
-
-/* ---- Count-up number styling (no visual shift) ---- */
-.count-target { font-variant-numeric: tabular-nums; }
 </style>
-
-<script>
-(function () {
-  /* ===== 1. THEME TOGGLE ===== */
-  var root = document.documentElement;
-  var toggle = document.getElementById('theme-toggle');
-  var saved = localStorage.getItem('wm-theme');
-  if (saved === 'light') root.setAttribute('data-theme', 'light');
-  if (toggle) {
-    toggle.addEventListener('click', function () {
-      var isLight = root.getAttribute('data-theme') === 'light';
-      root.setAttribute('data-theme', isLight ? 'dark' : 'light');
-      localStorage.setItem('wm-theme', isLight ? 'dark' : 'light');
-    });
-  }
-
-  /* ===== 2. SPOTLIGHT EFFECT ON CARDS (rAF-throttled, skipped on touch) ===== */
-  var supportsHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if (supportsHover) {
-    var spotlightEls = document.querySelectorAll('.bento-card, .mc');
-    var pendingCard = null, pendingEvent = null, spotlightTicking = false;
-    function flushSpotlight() {
-      if (pendingCard) {
-        var rect = pendingCard.getBoundingClientRect();
-        pendingCard.style.setProperty('--x', (pendingEvent.clientX - rect.left) + 'px');
-        pendingCard.style.setProperty('--y', (pendingEvent.clientY - rect.top) + 'px');
-      }
-      spotlightTicking = false;
-    }
-    spotlightEls.forEach(function (card) {
-      card.addEventListener('mousemove', function (e) {
-        pendingCard = card; pendingEvent = e;
-        if (!spotlightTicking) { requestAnimationFrame(flushSpotlight); spotlightTicking = true; }
-      }, { passive: true });
-    });
-  }
-
-  /* ===== 3. PARALLAX ON HERO GLOW (rAF, no raw scroll jank) ===== */
-  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var glow = document.querySelector('.hero-glow');
-  var ticking = false;
-  function updateParallax() {
-    if (glow) {
-      var y = window.scrollY || window.pageYOffset;
-      var offset = Math.min(y * 0.18, 120);
-      glow.style.transform = 'translateY(' + offset + 'px)';
-    }
-    ticking = false;
-  }
-  if (glow && !reduceMotion) {
-    window.addEventListener('scroll', function () {
-      if (!ticking) { requestAnimationFrame(updateParallax); ticking = true; }
-    }, { passive: true });
-  }
-
-  /* ===== 4. WORD-BY-WORD HERO TITLE REVEAL ===== */
-  var heroTitle = document.querySelector('.hero-title');
-  if (heroTitle && !heroTitle.dataset.split) {
-    heroTitle.dataset.split = '1';
-    var words = heroTitle.textContent.trim().split(/\s+/);
-    heroTitle.innerHTML = words.map(function (w, i) {
-      return '<span class="word-reveal" style="animation-delay:' + (i * 0.08) + 's">' + w + '&nbsp;</span>';
-    }).join('');
-  }
-
-  /* ===== 5. COUNT-UP ON STATS WHEN IN VIEWPORT ===== */
-  var counters = document.querySelectorAll('.count-target');
-  var counterObserver = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      if (!entry.isIntersecting || entry.target.dataset.counted) return;
-      entry.target.dataset.counted = '1';
-      var el = entry.target;
-      var target = parseFloat(el.getAttribute('data-count')) || 0;
-      var decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
-      var duration = 1200;
-      var start = null;
-      function step(ts) {
-        if (!start) start = ts;
-        var progress = Math.min((ts - start) / duration, 1);
-        var eased = 1 - Math.pow(1 - progress, 3);
-        var current = target * eased;
-        el.textContent = decimals > 0 ? current.toFixed(decimals) : Math.round(current);
-        if (progress < 1) requestAnimationFrame(step);
-        else el.textContent = decimals > 0 ? target.toFixed(decimals) : target;
-      }
-      requestAnimationFrame(step);
-    });
-  }, { threshold: 0.4 });
-  counters.forEach(function (c) { counterObserver.observe(c); });
-})();
-</script>
 
 </body>
 </html>
