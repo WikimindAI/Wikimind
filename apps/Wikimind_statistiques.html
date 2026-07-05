@@ -516,11 +516,11 @@ body {
 
   <!-- PERIOD SELECTOR -->
   <div class="filter-bar" style="margin-bottom:20px">
-    <button class="filter-btn active" data-period="1" onclick="setPeriod('1',this)">1 jour</button>
+    <button class="filter-btn" data-period="1" onclick="setPeriod('1',this)">1 jour</button>
     <button class="filter-btn" data-period="7" onclick="setPeriod('7',this)">7 jours</button>
     <button class="filter-btn" data-period="30" onclick="setPeriod('30',this)">30 jours</button>
     <button class="filter-btn" data-period="90" onclick="setPeriod('90',this)">90 jours</button>
-    <button class="filter-btn" data-period="all" onclick="setPeriod('all',this)">Toujours</button>
+    <button class="filter-btn active" data-period="all" onclick="setPeriod('all',this)">Toujours</button>
     <button class="filter-btn" data-period="custom" onclick="setPeriod('custom',this)">Personnalisé</button>
     <div id="custom-period-inputs" style="display:none;align-items:center;gap:6px">
       <input type="date" id="custom-from" class="filter-search" style="width:auto;margin-left:0" onchange="applyCustomPeriod()">
@@ -751,7 +751,7 @@ function logoSrc(logo) { return LOGOS_PATH + (logo || 'mistrallogo.png'); }
 // ══════════ STATE ══════════
 let _rawData = null, _stats = [], _charts = {};
 let _currentFilter = 'all', _currentSearch = '';
-let _currentPeriod = '1'; // '1','7','30','90','all','custom'
+let _currentPeriod = 'all'; // '1','7','30','90','all','custom'
 
 // ══════════ FIREBASE (dynamique, changeable) ══════════
 let _app = null, _db = null;
@@ -918,7 +918,7 @@ function renderSummary() {
 
 function setFilter(f, btn) {
   _currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-bar .filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderModelsList();
 }
