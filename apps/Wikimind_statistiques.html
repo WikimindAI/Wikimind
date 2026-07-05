@@ -21,9 +21,9 @@
   --text:      #f0f0f5;
   --muted:     #52526a;
   --muted2:    #2e2e3e;
-  --accent1:   #7c3aed;
-  --accent2:   #06b6d4;
-  --accent-g:  linear-gradient(135deg, #7c3aed, #06b6d4);
+  --accent1:   #ffffff;
+  --accent2:   #9ca3af;
+  --accent-g:  linear-gradient(135deg, #ffffff, #9ca3af);
   --green:     #34d399;
   --amber:     #fbbf24;
   --red:       #f87171;
@@ -71,8 +71,8 @@ body {
 .page-header-left { display: flex; align-items: center; gap: 14px; }
 .page-logo {
   width: 44px; height: 44px; border-radius: 13px;
-  background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(6,182,212,0.15));
-  border: 1px solid rgba(124,58,237,0.3);
+  background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.3);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; position: relative;
 }
@@ -158,7 +158,7 @@ body {
   font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent;
   transition: all 0.15s; margin-bottom: -1px; letter-spacing: 0.01em;
 }
-.tab-btn.active { color: #fff; border-bottom-color: #7c3aed; }
+.tab-btn.active { color: #fff; border-bottom-color: #ffffff; }
 .tab-btn:hover:not(.active) { color: #aaa; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
@@ -172,7 +172,7 @@ body {
   background: transparent; color: var(--muted); font-family: var(--font);
   font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
 }
-.filter-btn.active { background: rgba(124,58,237,0.12); color: #a78bfa; border-color: rgba(124,58,237,0.3); }
+.filter-btn.active { background: rgba(255,255,255,0.12); color: #d4d4d8; border-color: rgba(255,255,255,0.3); }
 .filter-btn:hover:not(.active) { border-color: var(--border2); color: #aaa; }
 .filter-sep { width: 1px; height: 18px; background: var(--border); margin: 0 2px; }
 .filter-search {
@@ -181,7 +181,7 @@ body {
   color: var(--text); font-family: var(--font); font-size: 0.78rem;
   outline: none; width: 180px; transition: border-color 0.15s;
 }
-.filter-search:focus { border-color: rgba(124,58,237,0.4); }
+.filter-search:focus { border-color: rgba(255,255,255,0.4); }
 .filter-search::placeholder { color: var(--muted); }
 
 /* ── MODEL CARD ── */
@@ -192,8 +192,8 @@ body {
   overflow: hidden;
 }
 .model-card:hover {
-  border-color: rgba(124,58,237,0.25);
-  box-shadow: 0 0 0 1px rgba(124,58,237,0.06), 0 8px 32px rgba(0,0,0,0.3);
+  border-color: rgba(255,255,255,0.25);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 8px 32px rgba(0,0,0,0.3);
 }
 .model-card:last-child { margin-bottom: 0; }
 
@@ -301,7 +301,7 @@ body {
   color: var(--muted); font-family: var(--font); font-size: 0.73rem; font-weight: 600;
   cursor: pointer; transition: all 0.15s;
 }
-.voir-plus-btn:hover { border-color: rgba(124,58,237,0.3); color: #a78bfa; background: rgba(124,58,237,0.05); }
+.voir-plus-btn:hover { border-color: rgba(255,255,255,0.3); color: #d4d4d8; background: rgba(255,255,255,0.05); }
 .voir-plus-btn svg { width: 11px; height: 11px; transition: transform 0.2s; }
 .voir-plus-btn.open svg { transform: rotate(180deg); }
 
@@ -379,7 +379,7 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 10px center;
 }
-.cmp-select:focus { outline: none; border-color: rgba(124,58,237,0.35); }
+.cmp-select:focus { outline: none; border-color: rgba(255,255,255,0.35); }
 .cmp-vs {
   display: flex; align-items: center; justify-content: center;
   font-size: 0.65rem; font-weight: 900; color: var(--muted2);
@@ -449,8 +449,8 @@ body {
 }
 .spinner {
   width: 28px; height: 28px;
-  border: 2px solid rgba(124,58,237,0.15);
-  border-top-color: #7c3aed; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-top-color: #ffffff; border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 .state-loading-text { font-size: 0.8rem; letter-spacing: 0.02em; }
@@ -491,11 +491,7 @@ body {
   <header class="page-header">
     <div class="page-header-left">
       <div class="page-logo">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#hg)" stroke-width="1.8">
-          <defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>
-          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-          <line x1="6" y1="20" x2="6" y2="14"/><line x1="3" y1="20" x2="21" y2="20"/>
-        </svg>
+        <img src="../wikimind.png" alt="WikiMind" style="width:26px;height:26px;object-fit:contain;border-radius:6px">
       </div>
       <div>
         <div class="page-title">Statistiques des modèles</div>
@@ -536,13 +532,13 @@ body {
   <!-- SUMMARY -->
   <div class="summary-row">
     <div class="summary-card">
-      <div class="summary-card-glow" style="background:#7c3aed"></div>
+      <div class="summary-card-glow" style="background:#ffffff"></div>
       <div class="summary-card-label">Réponses totales</div>
       <div class="summary-card-value v-white" id="s-total">—</div>
       <div class="summary-card-sub">messages analysés</div>
     </div>
     <div class="summary-card">
-      <div class="summary-card-glow" style="background:#06b6d4"></div>
+      <div class="summary-card-glow" style="background:#9ca3af"></div>
       <div class="summary-card-label">Modèles actifs</div>
       <div class="summary-card-value v-grad" id="s-models">—</div>
       <div class="summary-card-sub">sur <span id="s-total-models">—</span> disponibles</div>
@@ -749,7 +745,7 @@ const PROVIDER_CSS_VAR = {
 };
 
 // Logo paths
-const LOGOS_PATH = "./logos/";
+const LOGOS_PATH = "../providers/";
 function logoSrc(logo) { return LOGOS_PATH + (logo || 'mistrallogo.png'); }
 
 // ══════════ STATE ══════════
@@ -1213,8 +1209,8 @@ function cmpBar(valA, valB, higherBetter=true) {
   return {
     pctA: (valA/max*100).toFixed(0),
     pctB: (valB/max*100).toFixed(0),
-    colA: winA ? '#7c3aed' : '#333',
-    colB: winB ? '#06b6d4' : '#333',
+    colA: winA ? '#ffffff' : '#333',
+    colB: winB ? '#9ca3af' : '#333',
     winA, winB,
   };
 }
@@ -1346,7 +1342,7 @@ function renderCharts() {
   _charts['timeline'] = new Chart(document.getElementById('chart-timeline'), {
     type:'line',
     data:{ labels:tl.map(b=>new Date(b.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})),
-      datasets:[{ data:tl.map(b=>b.count), borderColor:'#7c3aed', backgroundColor:'rgba(124,58,237,0.08)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#7c3aed', fill:true, tension:0.4 }] },
+      datasets:[{ data:tl.map(b=>b.count), borderColor:'#ffffff', backgroundColor:'rgba(255,255,255,0.08)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#ffffff', fill:true, tension:0.4 }] },
     options:{ ...base, scales:{ x:{ticks:{color:tickColor,font:{size:9},maxTicksLimit:12,maxRotation:0},grid:{color:'rgba(255,255,255,0.03)'}}, y:{ticks:{color:tickColor,font:{size:9},stepSize:1},grid:{color:gridCol},beginAtZero:true} },
       plugins:{...base.plugins, tooltip:{callbacks:{label:ctx=>` ${ctx.raw} requête${ctx.raw>1?'s':''}`}}} }
   });
