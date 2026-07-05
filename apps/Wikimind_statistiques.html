@@ -634,7 +634,7 @@ body {
       </div>
       <div class="chart-card full">
         <div class="chart-card-title">Volume de requêtes dans le temps</div>
-        <div class="chart-card-sub">Nombre de réponses par heure (24 dernières heures)</div>
+        <div class="chart-card-sub" id="chart-timeline-sub">Nombre de réponses (période sélectionnée)</div>
         <div class="chart-container" style="height:200px"><canvas id="chart-timeline"></canvas></div>
       </div>
     </div>
@@ -872,17 +872,40 @@ function computeStats(rawData) {
   }).sort((a,b) => b.count - a.count);
 }
 
+function getEffectiveBounds(rawData) {
+  let { from, to } = periodBounds();
+  if (_currentPeriod === 'all') {
+    let minTs = Infinity;
+    Object.values(rawData || {}).forEach(e => { if (e && e.ts && e.ts < minTs) minTs = e.ts; });
+    from = isFinite(minTs) ? minTs : (to - 30 * 86400000);
+  }
+  return { from, to };
+}
+
 function computeTimeline(rawData) {
-  const now = Date.now();
-  const buckets = Array.from({length:24}, (_,i) => ({ ts: now - (23-i)*3600000, count:0 }));
-  Object.values(rawData||{}).forEach(e => {
+  const HOUR = 3600000, DAY = 86400000, WEEK = 7 * DAY;
+  const { from, to } = getEffectiveBounds(rawData);
+  const range = Math.max(to - from, HOUR);
+
+  let bucketSize, granularity;
+  if (range <= 2 * DAY)       { bucketSize = HOUR; granularity = 'hour'; }
+  else if (range <= 90 * DAY) { bucketSize = DAY;  granularity = 'day';  }
+  else                        { bucketSize = WEEK; granularity = 'week'; }
+
+  const bucketCount = Math.max(1, Math.min(60, Math.ceil(range / bucketSize)));
+  const buckets = Array.from({ length: bucketCount }, (_, i) => ({
+    ts: to - (bucketCount - 1 - i) * bucketSize,
+    count: 0,
+  }));
+
+  Object.values(rawData || {}).forEach(e => {
     if (!e || !e.ts) return;
-    const diff = now - e.ts;
-    if (diff < 0 || diff > 86400000) return;
-    const idx = 23 - Math.floor(diff / 3600000);
+    if (e.ts < from || e.ts > to) return;
+    const idx = bucketCount - 1 - Math.floor((to - e.ts) / bucketSize);
     if (buckets[idx]) buckets[idx].count++;
   });
-  return buckets;
+
+  return { buckets, granularity };
 }
 
 // ══════════ FORMAT ══════════
@@ -903,6 +926,8 @@ function renderAll() {
   renderModelsList();
   populateComparatorSelects();
   if (_charts['cps']) { Object.values(_charts).forEach(c => c.destroy()); _charts = {}; }
+  const chartsTabActive = document.getElementById('tab-charts') && document.getElementById('tab-charts').classList.contains('active');
+  if (chartsTabActive) renderCharts();
 }
 
 function renderSummary() {
@@ -1180,7 +1205,7 @@ function switchTab(id) {
   document.querySelectorAll('.tab-panel').forEach(p => {
     p.classList.toggle('active', p.id === 'tab-'+id);
   });
-  if (id === 'charts' && _stats.length && !_charts['cps']) renderCharts();
+  if (id === 'charts' && !_charts['cps']) renderCharts();
 }
 
 // ══════════ COMPARATEUR ══════════
@@ -1338,10 +1363,19 @@ function renderCharts() {
   });
 
   destroyChart('timeline');
-  const tl = computeTimeline(_rawData);
+  const { buckets: tl, granularity } = computeTimeline(_rawData);
+  const tlLabelFmt = b => {
+    const d = new Date(b.ts);
+    if (granularity === 'hour') return d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+    if (granularity === 'day')  return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });
+    return 'Sem. ' + d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });
+  };
+  const tlUnit = granularity === 'hour' ? 'heure' : granularity === 'day' ? 'jour' : 'semaine';
+  const subEl = document.getElementById('chart-timeline-sub');
+  if (subEl) subEl.textContent = `Nombre de réponses par ${tlUnit} (période sélectionnée)`;
   _charts['timeline'] = new Chart(document.getElementById('chart-timeline'), {
     type:'line',
-    data:{ labels:tl.map(b=>new Date(b.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})),
+    data:{ labels:tl.map(tlLabelFmt),
       datasets:[{ data:tl.map(b=>b.count), borderColor:'#ffffff', backgroundColor:'rgba(255,255,255,0.08)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#ffffff', fill:true, tension:0.4 }] },
     options:{ ...base, scales:{ x:{ticks:{color:tickColor,font:{size:9},maxTicksLimit:12,maxRotation:0},grid:{color:'rgba(255,255,255,0.03)'}}, y:{ticks:{color:tickColor,font:{size:9},stepSize:1},grid:{color:gridCol},beginAtZero:true} },
       plugins:{...base.plugins, tooltip:{callbacks:{label:ctx=>` ${ctx.raw} requête${ctx.raw>1?'s':''}`}}} }
