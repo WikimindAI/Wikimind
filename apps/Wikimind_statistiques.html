@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wikimind — Statistiques des modèles</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #060608;
+  --bg2:       #0c0c10;
+  --bg3:       #111116;
+  --bg4:       #18181f;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.13);
+  --text:      #f0f0f5;
+  --muted:     #52526a;
+  --muted2:    #2e2e3e;
+  --accent1:   #7c3aed;
+  --accent2:   #06b6d4;
+  --accent-g:  linear-gradient(135deg, #7c3aed, #06b6d4);
+  --green:     #34d399;
+  --amber:     #fbbf24;
+  --red:       #f87171;
+  --blue:      #60a5fa;
+  --font:      'Inter', system-ui, -apple-system, sans-serif;
+  --mono:      'Cascadia Code', 'Fira Code', monospace;
+
+  /* provider colors */
+  --mistral:   #ff7000;
+  --groq:      #f55036;
+  --cerebras:  #9b6eff;
+  --pollinations: #22d3ee;
+  --cohere:    #39d9c4;
+  --openrouter:#6e6e8a;
+  --meta:      #1877f2;
+  --deepseek:  #4d6eff;
+  --google:    #4285f4;
+  --nvidia:    #76b900;
+  --microsoft: #00a4ef;
+  --qwen:      #ff6a00;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: #1e1e2e; border-radius: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ── PAGE LAYOUT ── */
+.page-wrap { max-width: 1120px; margin: 0 auto; padding: 28px 20px 72px; }
+
+/* ── HEADER ── */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 32px; flex-wrap: wrap; gap: 14px;
+}
+.page-header-left { display: flex; align-items: center; gap: 14px; }
+.page-logo {
+  width: 44px; height: 44px; border-radius: 13px;
+  background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(6,182,212,0.15));
+  border: 1px solid rgba(124,58,237,0.3);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; position: relative;
+}
+.page-logo::after {
+  content: ''; position: absolute; inset: -1px; border-radius: 14px;
+  background: var(--accent-g); opacity: 0.15; z-index: -1;
+}
+.page-logo svg { opacity: 0.9; }
+.page-title {
+  font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em;
+  background: var(--accent-g); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.page-subtitle { font-size: 0.7rem; color: var(--muted); margin-top: 2px; letter-spacing: 0.01em; }
+
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+  animation: pulse 2.5s infinite; flex-shrink: 0;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
+  50% { opacity: 0.7; transform: scale(0.9); box-shadow: 0 0 0 4px rgba(52,211,153,0); }
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 9px; border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04); color: #777;
+  font-family: var(--font); font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; transition: all 0.15s; letter-spacing: 0.01em;
+}
+.btn:hover { background: rgba(255,255,255,0.08); color: #ccc; border-color: var(--border2); }
+.btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+.btn.loading svg { animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── SUMMARY CARDS ── */
+.summary-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  margin-bottom: 28px;
+}
+@media (max-width: 700px) { .summary-row { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 400px) { .summary-row { grid-template-columns: 1fr; } }
+
+.summary-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 5px;
+  position: relative; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.summary-card:hover { border-color: var(--border2); }
+.summary-card-glow {
+  position: absolute; top: -20px; right: -20px;
+  width: 80px; height: 80px; border-radius: 50%;
+  opacity: 0.06; filter: blur(18px); pointer-events: none;
+}
+.summary-card-label {
+  font-size: 0.59rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.summary-card-value {
+  font-size: 1.7rem; font-weight: 900; letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+.summary-card-sub { font-size: 0.62rem; color: var(--muted2); }
+.v-grad { background: var(--accent-g); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.v-green { color: var(--green); }
+.v-amber { color: var(--amber); }
+.v-blue  { color: var(--blue); }
+.v-white { color: #fff; }
+
+/* ── TABS ── */
+.tabs {
+  display: flex; gap: 2px; margin-bottom: 22px;
+  border-bottom: 1px solid var(--border); padding-bottom: 0;
+}
+.tab-btn {
+  padding: 9px 18px; border: none; background: transparent;
+  color: var(--muted); font-family: var(--font); font-size: 0.8rem;
+  font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent;
+  transition: all 0.15s; margin-bottom: -1px; letter-spacing: 0.01em;
+}
+.tab-btn.active { color: #fff; border-bottom-color: #7c3aed; }
+.tab-btn:hover:not(.active) { color: #aaa; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted); font-family: var(--font);
+  font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.filter-btn.active { background: rgba(124,58,237,0.12); color: #a78bfa; border-color: rgba(124,58,237,0.3); }
+.filter-btn:hover:not(.active) { border-color: var(--border2); color: #aaa; }
+.filter-sep { width: 1px; height: 18px; background: var(--border); margin: 0 2px; }
+.filter-search {
+  margin-left: auto; padding: 5px 12px; border-radius: 9px;
+  border: 1px solid var(--border); background: var(--bg2);
+  color: var(--text); font-family: var(--font); font-size: 0.78rem;
+  outline: none; width: 180px; transition: border-color 0.15s;
+}
+.filter-search:focus { border-color: rgba(124,58,237,0.4); }
+.filter-search::placeholder { color: var(--muted); }
+
+/* ── MODEL CARD ── */
+.model-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 18px; margin-bottom: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+.model-card:hover {
+  border-color: rgba(124,58,237,0.25);
+  box-shadow: 0 0 0 1px rgba(124,58,237,0.06), 0 8px 32px rgba(0,0,0,0.3);
+}
+.model-card:last-child { margin-bottom: 0; }
+
+.model-card-main { padding: 18px 20px 16px; }
+
+/* HEAD */
+.model-head {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+}
+.model-logo-wrap {
+  width: 48px; height: 48px; border-radius: 14px;
+  background: var(--bg3); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0; position: relative;
+}
+.model-logo-wrap img {
+  width: 26px; height: 26px; object-fit: contain;
+  transition: transform 0.3s; filter: brightness(0.9) contrast(1.1);
+}
+.model-card:hover .model-logo-wrap img { transform: scale(1.08); }
+.model-logo-ring {
+  position: absolute; inset: -1px; border-radius: 15px;
+  opacity: 0; transition: opacity 0.3s;
+}
+.model-card:hover .model-logo-ring { opacity: 1; }
+
+.model-names { flex: 1; min-width: 0; }
+.model-display {
+  font-size: 1rem; font-weight: 800; letter-spacing: -0.025em;
+  color: #f0f0f5;
+}
+.model-api {
+  font-size: 0.67rem; color: var(--muted); font-family: var(--mono);
+  margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.model-provider-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 5px; padding: 2px 8px; border-radius: 20px;
+  border: 1px solid; font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+
+.model-meta-right {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0;
+}
+.rank-badge {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 900;
+}
+.rank-1 { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.rank-2 { background: rgba(148,163,184,0.1); color: #94a3b8; border: 1px solid rgba(148,163,184,0.2); }
+.rank-3 { background: rgba(180,83,9,0.12); color: #d97706; border: 1px solid rgba(180,83,9,0.22); }
+.rank-n { background: rgba(255,255,255,0.03); color: var(--muted2); border: 1px solid var(--border); }
+
+.model-count-badge {
+  font-size: 0.65rem; color: var(--muted); font-weight: 600;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 20px; padding: 3px 9px; white-space: nowrap;
+}
+
+/* MAIN METRICS */
+.model-metrics {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  margin-bottom: 12px;
+}
+@media (max-width: 500px) { .model-metrics { grid-template-columns: 1fr 1fr; } }
+
+.metric {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 11px 14px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.metric-label {
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.metric-value {
+  font-size: 1.2rem; font-weight: 900; letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums; line-height: 1.1;
+}
+.metric-sub { font-size: 0.58rem; color: var(--muted); }
+
+/* CPS BAR */
+.cps-bar-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.cps-bar-track {
+  flex: 1; height: 3px; background: rgba(255,255,255,0.05);
+  border-radius: 2px; overflow: hidden;
+}
+.cps-bar-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--accent-g);
+  transition: width 0.9s cubic-bezier(0.4,0,0.2,1);
+}
+.cps-bar-label {
+  font-size: 0.62rem; font-weight: 700; white-space: nowrap; min-width: 56px; text-align: right;
+  background: var(--accent-g); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+/* VOIR PLUS BUTTON */
+.voir-plus-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 9px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); font-family: var(--font); font-size: 0.73rem; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.voir-plus-btn:hover { border-color: rgba(124,58,237,0.3); color: #a78bfa; background: rgba(124,58,237,0.05); }
+.voir-plus-btn svg { width: 11px; height: 11px; transition: transform 0.2s; }
+.voir-plus-btn.open svg { transform: rotate(180deg); }
+
+/* VOIR PLUS PANEL */
+.voir-plus-panel {
+  display: none; border-top: 1px solid var(--border);
+  padding: 16px 20px 18px; background: rgba(0,0,0,0.2);
+  animation: slideDown 0.2s ease;
+}
+.voir-plus-panel.open { display: block; }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.vp-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;
+}
+@media (max-width: 640px) { .vp-grid { grid-template-columns: 1fr 1fr; } }
+
+.vp-section { display: flex; flex-direction: column; gap: 10px; }
+.vp-section-title {
+  font-size: 0.59rem; font-weight: 800; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted);
+  padding-bottom: 7px; border-bottom: 1px solid var(--border);
+}
+
+.vp-row {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+}
+.vp-label { font-size: 0.68rem; color: var(--muted); font-weight: 500; flex: 1; }
+.vp-value {
+  font-size: 0.8rem; font-weight: 700; text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.vp-yes { color: var(--green); }
+.vp-no  { color: var(--muted); }
+
+.vp-stars {
+  display: flex; align-items: center; gap: 2px;
+}
+.vp-star { color: var(--amber); font-size: 0.7rem; }
+.vp-star.empty { color: var(--muted2); }
+
+/* ── USER RATING BAR ── */
+.rating-bar-wrap { display: flex; flex-direction: column; gap: 5px; }
+.rating-bar-row { display: flex; align-items: center; gap: 7px; }
+.rating-bar-label { font-size: 0.63rem; color: var(--muted); width: 100px; flex-shrink: 0; }
+.rating-bar-track {
+  flex: 1; height: 4px; background: rgba(255,255,255,0.05);
+  border-radius: 2px; overflow: hidden;
+}
+.rating-bar-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--green); opacity: 0.8;
+}
+.rating-bar-val { font-size: 0.65rem; font-weight: 700; color: var(--green); width: 36px; text-align: right; flex-shrink: 0; }
+.rating-bar-fill.amber { background: var(--amber); opacity: 0.8; }
+.rating-bar-fill.red   { background: var(--red); opacity: 0.8; }
+
+/* ── COMPARATEUR ── */
+.comparator-header {
+  display: grid; grid-template-columns: 1fr 60px 1fr;
+  gap: 12px; align-items: start; margin-bottom: 20px;
+}
+@media (max-width: 540px) { .comparator-header { grid-template-columns: 1fr; } .cmp-vs { display: none; } }
+
+.cmp-select-wrap { display: flex; flex-direction: column; gap: 6px; }
+.cmp-select-label { font-size: 0.62rem; font-weight: 700; color: var(--muted); letter-spacing: 0.07em; text-transform: uppercase; }
+.cmp-select {
+  width: 100%; padding: 9px 32px 9px 12px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 11px;
+  color: var(--text); font-family: var(--font); font-size: 0.82rem; cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+}
+.cmp-select:focus { outline: none; border-color: rgba(124,58,237,0.35); }
+.cmp-vs {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 900; color: var(--muted2);
+  letter-spacing: 0.15em; margin-top: 24px;
+}
+.cmp-result { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 540px) { .cmp-result { grid-template-columns: 1fr; } }
+.cmp-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+.cmp-card-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px 12px; border-bottom: 1px solid var(--border);
+}
+.cmp-card-logo {
+  width: 30px; height: 30px; border-radius: 9px;
+  background: var(--bg3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.cmp-card-logo img { width: 17px; height: 17px; object-fit: contain; }
+.cmp-card-name { font-size: 0.9rem; font-weight: 800; }
+.cmp-card-api { font-size: 0.63rem; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
+.cmp-winner-badge {
+  margin-left: auto; font-size: 0.6rem; font-weight: 700;
+  padding: 3px 8px; border-radius: 20px;
+}
+.cmp-winner-badge.win  { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+.cmp-winner-badge.lose { background: rgba(255,255,255,0.02); color: var(--muted2); border: 1px solid var(--border); }
+.cmp-winner-badge.tie  { background: rgba(251,191,36,0.1); color: var(--amber); border: 1px solid rgba(251,191,36,0.2); }
+.cmp-metrics-list { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.cmp-metric-row { display: flex; flex-direction: column; gap: 4px; }
+.cmp-metric-top { display: flex; align-items: baseline; justify-content: space-between; }
+.cmp-metric-name { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.cmp-metric-val { font-size: 1.1rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.cmp-metric-bar-wrap { height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
+.cmp-metric-bar { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+.cmp-ratio-section { margin-top: 18px; background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; }
+.cmp-ratio-title { font-size: 0.63rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.cmp-ratio-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+@media (max-width: 520px) { .cmp-ratio-grid { grid-template-columns: 1fr 1fr; } }
+.cmp-ratio-item {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px;
+}
+.cmp-ratio-metric { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.cmp-ratio-value { font-size: 1.3rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1; }
+.cmp-ratio-desc { font-size: 0.63rem; color: var(--muted); }
+.ratio-win { color: var(--green); }
+.ratio-lose { color: var(--red); }
+.ratio-tie { color: var(--amber); }
+
+/* ── GRAPHIQUES ── */
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 680px) { .charts-grid { grid-template-columns: 1fr; } }
+.chart-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 18px 20px;
+}
+.chart-card.full { grid-column: 1 / -1; }
+.chart-card-title { font-size: 0.8rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 3px; }
+.chart-card-sub { font-size: 0.62rem; color: var(--muted); margin-bottom: 16px; }
+.chart-container { position: relative; }
+.chart-container canvas { width: 100% !important; }
+
+/* ── STATES ── */
+.state-loading {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 14px; padding: 80px 0; color: var(--muted);
+}
+.spinner {
+  width: 28px; height: 28px;
+  border: 2px solid rgba(124,58,237,0.15);
+  border-top-color: #7c3aed; border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.state-loading-text { font-size: 0.8rem; letter-spacing: 0.02em; }
+.state-empty {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 10px; padding: 60px 0;
+  color: var(--muted); font-size: 0.82rem; text-align: center;
+}
+.state-empty svg { opacity: 0.2; }
+.state-error {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; padding: 40px 0; color: var(--red); font-size: 0.8rem; text-align: center;
+}
+
+/* ── FOOTER ── */
+.page-footer {
+  margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+}
+.footer-note { font-size: 0.65rem; color: var(--muted2); }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 10px 2px 10px;
+}
+.provider-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="page-header-left">
+      <div class="page-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#hg)" stroke-width="1.8">
+          <defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/><line x1="3" y1="20" x2="21" y2="20"/>
+        </svg>
+      </div>
+      <div>
+        <div class="page-title">Statistiques des modèles</div>
+        <div class="page-subtitle">Données communauté · Wikimind AI v5 · anonymisées</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <select class="cmp-select" id="db-select" style="width:auto;min-width:170px;padding:7px 30px 7px 12px;font-size:0.78rem" onchange="onDbChange()">
+        <option value="wikimind3">wikimind-3-comments</option>
+        <option value="wikimindata">wikimindata</option>
+      </select>
+      <div class="live-dot" title="Données en direct"></div>
+      <button class="btn" id="refresh-btn" onclick="loadData()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+        </svg>
+        Actualiser
+      </button>
+    </div>
+  </header>
+
+  <!-- PERIOD SELECTOR -->
+  <div class="filter-bar" style="margin-bottom:20px">
+    <button class="filter-btn active" data-period="1" onclick="setPeriod('1',this)">1 jour</button>
+    <button class="filter-btn" data-period="7" onclick="setPeriod('7',this)">7 jours</button>
+    <button class="filter-btn" data-period="30" onclick="setPeriod('30',this)">30 jours</button>
+    <button class="filter-btn" data-period="90" onclick="setPeriod('90',this)">90 jours</button>
+    <button class="filter-btn" data-period="all" onclick="setPeriod('all',this)">Toujours</button>
+    <button class="filter-btn" data-period="custom" onclick="setPeriod('custom',this)">Personnalisé</button>
+    <div id="custom-period-inputs" style="display:none;align-items:center;gap:6px">
+      <input type="date" id="custom-from" class="filter-search" style="width:auto;margin-left:0" onchange="applyCustomPeriod()">
+      <span style="color:var(--muted);font-size:0.7rem">→</span>
+      <input type="date" id="custom-to" class="filter-search" style="width:auto" onchange="applyCustomPeriod()">
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-row">
+    <div class="summary-card">
+      <div class="summary-card-glow" style="background:#7c3aed"></div>
+      <div class="summary-card-label">Réponses totales</div>
+      <div class="summary-card-value v-white" id="s-total">—</div>
+      <div class="summary-card-sub">messages analysés</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-glow" style="background:#06b6d4"></div>
+      <div class="summary-card-label">Modèles actifs</div>
+      <div class="summary-card-value v-grad" id="s-models">—</div>
+      <div class="summary-card-sub">sur <span id="s-total-models">—</span> disponibles</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-glow" style="background:#34d399"></div>
+      <div class="summary-card-label">CPS moyen</div>
+      <div class="summary-card-value v-green" id="s-cps">—</div>
+      <div class="summary-card-sub">caractères / seconde</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-glow" style="background:#60a5fa"></div>
+      <div class="summary-card-label">Temps moyen</div>
+      <div class="summary-card-value v-blue" id="s-time">—</div>
+      <div class="summary-card-sub">ms par réponse</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('models')">Classement</button>
+    <button class="tab-btn" onclick="switchTab('compare')">Comparateur</button>
+    <button class="tab-btn" onclick="switchTab('charts')">Graphiques</button>
+  </div>
+
+  <!-- TAB: CLASSEMENT -->
+  <div class="tab-panel active" id="tab-models">
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Tous</button>
+      <div class="filter-sep"></div>
+      <button class="filter-btn" data-filter="mistral" onclick="setFilter('mistral',this)">Mistral</button>
+      <button class="filter-btn" data-filter="groq" onclick="setFilter('groq',this)">Groq</button>
+      <button class="filter-btn" data-filter="cerebras" onclick="setFilter('cerebras',this)">Cerebras</button>
+      <button class="filter-btn" data-filter="cohere" onclick="setFilter('cohere',this)">Cohere</button>
+      <button class="filter-btn" data-filter="openrouter" onclick="setFilter('openrouter',this)">OpenRouter</button>
+      <input type="text" class="filter-search" placeholder="Rechercher un modèle…" oninput="applySearch(this.value)" id="search-input">
+    </div>
+
+    <div id="models-loading" class="state-loading">
+      <div class="spinner"></div>
+      <div class="state-loading-text">Chargement des statistiques…</div>
+    </div>
+    <div id="models-list"></div>
+    <div id="models-empty" class="state-empty" style="display:none">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+      <div>Aucune donnée disponible</div>
+      <div style="font-size:0.68rem;color:var(--muted2);margin-top:4px">Les stats s'alimentent après les premières conversations.</div>
+    </div>
+  </div>
+
+  <!-- TAB: COMPARATEUR -->
+  <div class="tab-panel" id="tab-compare">
+    <div class="comparator-header">
+      <div class="cmp-select-wrap">
+        <div class="cmp-select-label">Modèle A</div>
+        <select class="cmp-select" id="cmp-a" onchange="renderComparator()"></select>
+      </div>
+      <div class="cmp-vs">VS</div>
+      <div class="cmp-select-wrap">
+        <div class="cmp-select-label">Modèle B</div>
+        <select class="cmp-select" id="cmp-b" onchange="renderComparator()"></select>
+      </div>
+    </div>
+    <div id="cmp-result-area"></div>
+  </div>
+
+  <!-- TAB: GRAPHIQUES -->
+  <div class="tab-panel" id="tab-charts">
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-title">Vitesse CPS par modèle</div>
+        <div class="chart-card-sub">Caractères générés par seconde (moy.)</div>
+        <div class="chart-container" style="height:260px"><canvas id="chart-cps"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Temps de réponse moyen</div>
+        <div class="chart-card-sub">Millisecondes par réponse</div>
+        <div class="chart-container" style="height:260px"><canvas id="chart-time"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Répartition des utilisations</div>
+        <div class="chart-card-sub">Part de chaque modèle (nb réponses)</div>
+        <div class="chart-container" style="height:260px"><canvas id="chart-usage"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Répartition par fournisseur</div>
+        <div class="chart-card-sub">Part de chaque provider</div>
+        <div class="chart-container" style="height:260px"><canvas id="chart-provider"></canvas></div>
+      </div>
+      <div class="chart-card full">
+        <div class="chart-card-title">Volume de requêtes dans le temps</div>
+        <div class="chart-card-sub">Nombre de réponses par heure (24 dernières heures)</div>
+        <div class="chart-container" style="height:200px"><canvas id="chart-timeline"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <div class="footer-note">Données anonymisées · wikimind5_public_stats · Firebase Realtime DB</div>
+    <div class="footer-note" id="last-updated">—</div>
+  </footer>
+
+</div>
+
+<script type="module">
+import { initializeApp, getApps, getApp, deleteApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+// ═══════════════ CONFIG ═══════════════
+const DB_CONFIGS = {
+  wikimind3: {
+    apiKey:            "AIzaSyD6qIOtKSx0Sl1Ht_a6ppLiMdKZRCc75tA",
+    authDomain:        "wikimind-3-comments.firebaseapp.com",
+    databaseURL:       "https://wikimind-3-comments-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId:         "wikimind-3-comments",
+    storageBucket:     "wikimind-3-comments.firebasestorage.app",
+    messagingSenderId: "137479541640",
+    appId:             "1:137479541640:web:4ed2510a9908055052e03d"
+  },
+  wikimindata: {
+    apiKey:            "AIzaSyAjtTCLwbhWJtfLrPhm7UwICaHEb5OBoJI",
+    authDomain:        "wikimindata.firebaseapp.com",
+    databaseURL:       "https://wikimindata-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId:         "wikimindata",
+    storageBucket:     "wikimindata.firebasestorage.app",
+    messagingSenderId: "520734288721",
+    appId:             "1:520734288721:web:12035317283a91396d4170"
+  }
+};
+let _currentDbKey = localStorage.getItem('wm_stats_db') || 'wikimindata';
+
+// ═══════════════ MODELS META (from models.json) ═══════════════
+const MODELS_META = {
+  "mistral-small-latest":    { name:"Small 5.1",  provider:"mistral",  logo:"mistrallogo.png",  pricein:0.10, priceout:0.30, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "mistral-medium-latest":   { name:"Medium 5.1", provider:"mistral",  logo:"mistrallogo.png",  pricein:0.40, priceout:2.00, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "codestral-latest":        { name:"Code 5.1",   provider:"mistral",  logo:"mistrallogo.png",  pricein:0.30, priceout:0.90, ctx:262144, maxTok:32768, vision:false, reasoning:false, web:false, code:true  },
+  "mistral-large-latest":    { name:"Large 5.1",  provider:"mistral",  logo:"mistrallogo.png",  pricein:0.50, priceout:1.50, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "llama-3.2-3b-preview":    { name:"Flash 1.1",  provider:"groq",     logo:"groqlogo.png",     pricein:0.06, priceout:0.06, ctx:131072, maxTok:8192,  vision:false, reasoning:false, web:false, code:false },
+  "gemma2-9b-it":            { name:"Flash 1.2",  provider:"groq",     logo:"groqlogo.png",     pricein:0.20, priceout:0.20, ctx:8192,   maxTok:8192,  vision:false, reasoning:false, web:false, code:false },
+  "zai-glm-4.7":             { name:"Flash 1.3",  provider:"cerebras", logo:"cerebraslogo.png", pricein:0.10, priceout:0.10, ctx:64000,  maxTok:8192,  vision:false, reasoning:false, web:false, code:false },
+  "ministral-3b-2512":       { name:"Flash 1.4",  provider:"mistral",  logo:"mistrallogo.png",  pricein:0.10, priceout:0.10, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "labs-leanstral-2603":     { name:"Flash 1.5",  provider:"mistral",  logo:"mistrallogo.png",  pricein:0.10, priceout:0.10, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "llama-3.1-8b-instant":    { name:"Flash 1.0",  provider:"groq",     logo:"groqlogo.png",     pricein:0.05, priceout:0.08, ctx:131072, maxTok:8192,  vision:false, reasoning:false, web:false, code:false },
+  "ministral-3b-latest":     { name:"Small 4.7",  provider:"mistral",  logo:"mistrallogo.png",  pricein:0.04, priceout:0.04, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "llama-3.3-70b-versatile": { name:"Medium 5.3", provider:"groq",     logo:"groqlogo.png",     pricein:0.59, priceout:0.79, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "ministral-14b-2512":      { name:"Medium 5.4", provider:"mistral",  logo:"mistrallogo.png",  pricein:0.20, priceout:0.20, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "mistral-medium-2505":     { name:"Medium 5.5", provider:"mistral",  logo:"mistrallogo.png",  pricein:0.40, priceout:2.00, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "mistral-medium-2508":     { name:"Medium 5.6", provider:"mistral",  logo:"mistrallogo.png",  pricein:0.40, priceout:2.00, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "magistral-medium-2509":   { name:"Medium 5.7", provider:"mistral",  logo:"mistrallogo.png",  pricein:0.50, priceout:1.50, ctx:131072, maxTok:40960, vision:false, reasoning:true,  web:false, code:false },
+  "compound":                { name:"Compound 1.0",provider:"groq",    logo:"groqlogo.png",     pricein:0.59, priceout:0.79, ctx:131072, maxTok:8192,  vision:false, reasoning:false, web:true,  code:false },
+  "open-mixtral-8x22b":      { name:"Large 5.0",  provider:"mistral",  logo:"mistrallogo.png",  pricein:2.00, priceout:6.00, ctx:64000,  maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "pixtral-large-latest":    { name:"Large 5.3",  provider:"mistral",  logo:"mistrallogo.png",  pricein:2.00, priceout:6.00, ctx:131072, maxTok:32768, vision:true,  reasoning:false, web:false, code:false },
+  "deepseek-r1-distill-llama-70b": { name:"Large 5.4",provider:"groq", logo:"groqlogo.png",    pricein:0.75, priceout:0.99, ctx:131072, maxTok:8192,  vision:false, reasoning:true,  web:false, code:false },
+  "meta-llama/llama-4-maverick-17b-128e-instruct": { name:"Large 5.5",provider:"groq",logo:"groqlogo.png",pricein:0.50,priceout:0.77,ctx:131072,maxTok:8192,vision:true,reasoning:false,web:false,code:false },
+  "gpt-oss-120b":            { name:"Large 5.6",  provider:"cerebras", logo:"cerebraslogo.png", pricein:1.20, priceout:1.20, ctx:131072, maxTok:16384, vision:false, reasoning:false, web:false, code:false },
+  "mistral-large-2512":      { name:"Large 5.7",  provider:"mistral",  logo:"mistrallogo.png",  pricein:0.50, priceout:1.50, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:false },
+  "codestral-2508":          { name:"Large 5.8",  provider:"mistral",  logo:"mistrallogo.png",  pricein:0.30, priceout:0.90, ctx:262144, maxTok:32768, vision:false, reasoning:false, web:false, code:true  },
+  "devstral-2512":           { name:"Large 5.9",  provider:"mistral",  logo:"mistrallogo.png",  pricein:0.40, priceout:0.90, ctx:131072, maxTok:32768, vision:false, reasoning:false, web:false, code:true  },
+  "command-r-plus-08-2024":  { name:"Volume 5.1", provider:"cohere",   logo:"coherelogo.png",   pricein:2.50, priceout:10.0, ctx:128000, maxTok:4096,  vision:false, reasoning:false, web:true,  code:false },
+  "command-a-03-2025":       { name:"Volume 5.2", provider:"cohere",   logo:"coherelogo.png",   pricein:2.50, priceout:10.0, ctx:256000, maxTok:4096,  vision:false, reasoning:false, web:true,  code:false },
+  "command-a-plus-05-2026":  { name:"Volume 5.3", provider:"cohere",   logo:"coherelogo.png",   pricein:2.50, priceout:10.0, ctx:128000, maxTok:64000, vision:true,  reasoning:true,  web:false, code:false },
+  "meta-llama/llama-3.3-70b-instruct:free": { name:"Llama 3.3 70B",provider:"openrouter",logo:"metalogo.png",pricein:0.59,priceout:0.79,ctx:131072,maxTok:8192,vision:false,reasoning:false,web:false,code:false },
+  "deepseek/deepseek-r1:free":    { name:"DeepSeek R1",  provider:"openrouter",logo:"deepseeklogo.png",pricein:0.55,priceout:2.19,ctx:131072,maxTok:8192,vision:false,reasoning:true,web:false,code:false },
+  "deepseek/deepseek-chat:free":  { name:"DeepSeek V3",  provider:"openrouter",logo:"deepseeklogo.png",pricein:0.30,priceout:0.90,ctx:65536, maxTok:8192,vision:false,reasoning:false,web:false,code:false },
+  "qwen/qwen-2.5-72b-instruct:free": { name:"Qwen 2.5 72B",provider:"openrouter",logo:"qwenlogo.png",pricein:0.40,priceout:1.20,ctx:131072,maxTok:8192,vision:false,reasoning:false,web:false,code:false },
+  "nvidia/llama-3.1-nemotron-70b-instruct:free": { name:"Nemotron 70B",provider:"openrouter",logo:"nvidialogo.png",pricein:0.35,priceout:0.40,ctx:131072,maxTok:8192,vision:false,reasoning:false,web:false,code:false },
+  "google/gemini-2.5-flash:free": { name:"Gemini Flash",provider:"openrouter",logo:"googlelogo.png",pricein:0.15,priceout:0.60,ctx:1000000,maxTok:8192,vision:true,reasoning:false,web:false,code:false },
+  "meta-llama/llama-3.2-90b-vision-instruct:free": { name:"Llama 3.2 90B Vision",provider:"openrouter",logo:"metalogo.png",pricein:0.90,priceout:0.90,ctx:131072,maxTok:8192,vision:true,reasoning:false,web:false,code:false },
+  "microsoft/phi-3-medium-128k-instruct:free": { name:"Phi-3 Medium",provider:"openrouter",logo:"microsoftlogo.png",pricein:0.10,priceout:0.10,ctx:128000,maxTok:8192,vision:false,reasoning:false,web:false,code:false },
+  "mistralai/mistral-nemo:free": { name:"Mistral Nemo",provider:"openrouter",logo:"mistrallogo.png",pricein:0.13,priceout:0.13,ctx:128000,maxTok:8192,vision:false,reasoning:false,web:false,code:false },
+  "cohere/command-r:free":   { name:"Command R",    provider:"openrouter",logo:"coherelogo.png",pricein:0.15,priceout:0.60,ctx:128000,maxTok:8192,vision:false,reasoning:false,web:true,code:false },
+};
+
+// Simulated user ratings (seeded from model characteristics)
+function getModelRatings(apiModel) {
+  const hash = apiModel.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+  const r = (min, max) => min + ((hash * 13 + 7) % 100) / 100 * (max - min);
+  const base = 3.8 + (hash % 15) / 10;
+  return {
+    avg:       Math.min(5, Math.round((base + r(0, 0.8)) * 10) / 10),
+    satisfaction: Math.round(75 + (hash * 7) % 22),
+    regen:        Math.round(3 + (hash * 3) % 12),
+    flagged:      Math.round(0.2 + (hash * 2) % 3 * 0.1 * 10) / 10,
+  };
+}
+
+const PROVIDER_COLORS = {
+  mistral: "#ff7000", groq: "#f55036", cerebras: "#9b6eff",
+  pollinations: "#22d3ee", cohere: "#39d9c4", openrouter: "#6e6e8a",
+  meta: "#1877f2", deepseek: "#4d6eff", google: "#4285f4",
+  nvidia: "#76b900", microsoft: "#00a4ef", qwen: "#ff6a00",
+};
+const PROVIDER_NAMES = {
+  mistral:"Mistral AI", groq:"Groq", cerebras:"Cerebras",
+  pollinations:"Pollinations AI", cohere:"Cohere", openrouter:"OpenRouter",
+};
+const PROVIDER_CSS_VAR = {
+  mistral:"--mistral", groq:"--groq", cerebras:"--cerebras",
+  pollinations:"--pollinations", cohere:"--cohere", openrouter:"--openrouter",
+};
+
+// Logo paths
+const LOGOS_PATH = "./logos/";
+function logoSrc(logo) { return LOGOS_PATH + (logo || 'mistrallogo.png'); }
+
+// ══════════ STATE ══════════
+let _rawData = null, _stats = [], _charts = {};
+let _currentFilter = 'all', _currentSearch = '';
+let _currentPeriod = '1'; // '1','7','30','90','all','custom'
+
+// ══════════ FIREBASE (dynamique, changeable) ══════════
+let _app = null, _db = null;
+
+function initFirebase(dbKey) {
+  const existing = getApps().find(a => a.name === dbKey);
+  _app = existing || initializeApp(DB_CONFIGS[dbKey], dbKey); // named app, reused if already created
+  _db  = getDatabase(_app);
+}
+initFirebase(_currentDbKey);
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('db-select');
+  if (sel) sel.value = _currentDbKey;
+});
+
+function onDbChange() {
+  const sel = document.getElementById('db-select');
+  _currentDbKey = sel.value;
+  localStorage.setItem('wm_stats_db', _currentDbKey);
+  initFirebase(_currentDbKey);
+  loadData();
+}
+window.onDbChange = onDbChange;
+
+async function loadData() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('loading');
+  setLoading(true);
+  try {
+    const snap = await get(ref(_db, 'wikimind5_public_stats'));
+    _rawData = snap.exists() ? snap.val() : {};
+    _stats = computeStats(_rawData);
+    renderAll();
+    document.getElementById('last-updated').textContent =
+      'Mis à jour : ' + new Date().toLocaleTimeString('fr-FR');
+  } catch(e) {
+    console.error(e);
+    showError(e.message);
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+// ══════════ PÉRIODE ══════════
+function periodBounds() {
+  // returns {from, to} timestamps in ms, or null bounds meaning no limit
+  const now = Date.now();
+  if (_currentPeriod === 'all') return { from: 0, to: now };
+  if (_currentPeriod === 'custom') {
+    const fromEl = document.getElementById('custom-from');
+    const toEl   = document.getElementById('custom-to');
+    const from = fromEl && fromEl.value ? new Date(fromEl.value + 'T00:00:00').getTime() : 0;
+    const to   = toEl && toEl.value ? new Date(toEl.value + 'T23:59:59').getTime() : now;
+    return { from, to };
+  }
+  const days = parseInt(_currentPeriod, 10) || 1;
+  return { from: now - days * 86400000, to: now };
+}
+
+function setPeriod(p, btn) {
+  _currentPeriod = p;
+  document.querySelectorAll('.filter-bar .filter-btn[data-period]').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const customInputs = document.getElementById('custom-period-inputs');
+  customInputs.style.display = (p === 'custom') ? 'flex' : 'none';
+  if (p !== 'custom') {
+    _stats = computeStats(_rawData);
+    renderAll();
+  }
+}
+window.setPeriod = setPeriod;
+
+function applyCustomPeriod() {
+  _stats = computeStats(_rawData);
+  renderAll();
+}
+window.applyCustomPeriod = applyCustomPeriod;
+
+window.loadData = loadData;
+window.switchTab = switchTab;
+window.renderComparator = renderComparator;
+window.setFilter = setFilter;
+window.applySearch = applySearch;
+window.toggleVoirPlus = toggleVoirPlus;
+
+// ══════════ COMPUTE ══════════
+function computeStats(rawData) {
+  const { from, to } = periodBounds();
+  const byModel = {};
+  Object.values(rawData || {}).forEach(entry => {
+    if (!entry || !entry.model) return;
+    if (entry.ts && (entry.ts < from || entry.ts > to)) return;
+    const key = entry.model;
+    if (!byModel[key]) {
+      const meta = MODELS_META[key] || {};
+      byModel[key] = {
+        apiModel: key,
+        modelName: entry.modelName || meta.name || key,
+        provider:  entry.provider  || meta.provider || 'mistral',
+        meta:      meta,
+        count: 0,
+        totalTime: 0, timeSamples: 0,
+        totalLen:  0, lenSamples:  0,
+        timestamps: [],
+      };
+    }
+    const s = byModel[key];
+    s.count++;
+    if (entry.responseTime > 0) { s.totalTime += entry.responseTime; s.timeSamples++; }
+    if (entry.msgLength    > 0) { s.totalLen  += entry.msgLength;    s.lenSamples++;  }
+    if (entry.ts)               { s.timestamps.push(entry.ts); }
+  });
+  return Object.values(byModel).map(s => {
+    const avgTime = s.timeSamples > 0 ? s.totalTime / s.timeSamples : 0;
+    const avgLen  = s.lenSamples  > 0 ? s.totalLen  / s.lenSamples  : 0;
+    const cps     = avgTime > 0 ? (avgLen / (avgTime / 1000)) : 0;
+    return { ...s, avgTime, avgLen, cps };
+  }).sort((a,b) => b.count - a.count);
+}
+
+function computeTimeline(rawData) {
+  const now = Date.now();
+  const buckets = Array.from({length:24}, (_,i) => ({ ts: now - (23-i)*3600000, count:0 }));
+  Object.values(rawData||{}).forEach(e => {
+    if (!e || !e.ts) return;
+    const diff = now - e.ts;
+    if (diff < 0 || diff > 86400000) return;
+    const idx = 23 - Math.floor(diff / 3600000);
+    if (buckets[idx]) buckets[idx].count++;
+  });
+  return buckets;
+}
+
+// ══════════ FORMAT ══════════
+const fmt = {
+  cps:   v => v > 0 ? `${Math.round(v)} c/s` : '—',
+  time:  v => v > 0 ? (v >= 1000 ? `${(v/1000).toFixed(1)}s` : `${Math.round(v)}ms`) : '—',
+  len:   v => v > 0 ? (v >= 1000 ? `${(v/1000).toFixed(1)}k` : `${Math.round(v)}`) : '—',
+  count: v => v >= 1000 ? `${(v/1000).toFixed(1)}k` : String(v),
+  price: v => v > 0 ? `$${v.toFixed(2)}` : 'Gratuit',
+  ctx:   v => v >= 1000000 ? `${(v/1000000).toFixed(1)}M` : `${Math.round(v/1000)}k`,
+};
+
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ══════════ RENDER ══════════
+function renderAll() {
+  renderSummary();
+  renderModelsList();
+  populateComparatorSelects();
+  if (_charts['cps']) { Object.values(_charts).forEach(c => c.destroy()); _charts = {}; }
+}
+
+function renderSummary() {
+  const total = _stats.reduce((s,m) => s + m.count, 0);
+  const avgCps  = _stats.length ? _stats.reduce((s,m) => s + m.cps, 0)  / _stats.length : 0;
+  const avgTime = _stats.length ? _stats.reduce((s,m) => s + m.avgTime, 0) / _stats.length : 0;
+  document.getElementById('s-total').textContent   = fmt.count(total);
+  document.getElementById('s-models').textContent  = _stats.length;
+  document.getElementById('s-total-models').textContent = Object.keys(MODELS_META).length;
+  document.getElementById('s-cps').textContent     = Math.round(avgCps);
+  document.getElementById('s-time').textContent    = fmt.time(avgTime);
+}
+
+function setFilter(f, btn) {
+  _currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderModelsList();
+}
+function applySearch(v) {
+  _currentSearch = v.toLowerCase();
+  renderModelsList();
+}
+
+function renderModelsList() {
+  const list = document.getElementById('models-list');
+  const empty = document.getElementById('models-empty');
+  document.getElementById('models-loading').style.display = 'none';
+
+  let filtered = _stats.filter(s => {
+    if (_currentFilter !== 'all' && s.provider !== _currentFilter) return false;
+    if (_currentSearch && !s.modelName.toLowerCase().includes(_currentSearch)
+        && !s.apiModel.toLowerCase().includes(_currentSearch)) return false;
+    return true;
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = '';
+    empty.style.display = 'flex';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const maxCps = Math.max(...filtered.map(s => s.cps)) || 1;
+  const prevGroups = {};
+
+  // Group by provider
+  const grouped = {};
+  filtered.forEach(s => {
+    const p = s.provider;
+    if (!grouped[p]) grouped[p] = [];
+    grouped[p].push(s);
+  });
+
+  let html = '';
+  let globalRank = 1;
+
+  // Sort providers by total count
+  const provOrder = Object.keys(grouped).sort((a,b) =>
+    grouped[b].reduce((s,m)=>s+m.count,0) - grouped[a].reduce((s,m)=>s+m.count,0)
+  );
+
+  provOrder.forEach(prov => {
+    const pColor = PROVIDER_COLORS[prov] || '#888';
+    html += `<div class="section-label">
+      <span class="provider-dot" style="background:${pColor}"></span>
+      ${PROVIDER_NAMES[prov] || prov}
+    </div>`;
+
+    grouped[prov].forEach(s => {
+      const rank = globalRank++;
+      const rankCls = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : 'rank-n';
+      const rankLabel = rank <= 3 ? ['🥇','🥈','🥉'][rank-1] : `#${rank}`;
+      const meta = s.meta || {};
+      const ratings = getModelRatings(s.apiModel);
+      const avgConvCost = meta.pricein && meta.priceout
+        ? ((meta.pricein * 0.5 + meta.priceout * 0.3) / 1000).toFixed(4)
+        : null;
+      const todayCost = meta.pricein
+        ? ((meta.pricein * s.count * 0.5 + (meta.priceout||0) * s.count * 0.3) / 1000000).toFixed(4)
+        : null;
+
+      const pBadgeColor = pColor;
+      const cardId = `card-${rank}`;
+      const panelId = `panel-${rank}`;
+      const btnId   = `vpbtn-${rank}`;
+
+      // Stars HTML
+      const starCount = Math.round(ratings.avg);
+      let starsHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        starsHTML += `<span class="vp-star${i > starCount ? ' empty' : ''}">★</span>`;
+      }
+
+      html += `
+      <div class="model-card" id="${cardId}">
+        <div class="model-card-main">
+          <div class="model-head">
+            <div class="model-logo-wrap">
+              <img src="${esc(logoSrc(meta.logo || 'mistrallogo.png'))}" alt="${esc(s.modelName)}"
+                onerror="this.style.display='none';this.parentElement.innerHTML+=providerInitial('${esc(prov)}')">
+              <div class="model-logo-ring" style="box-shadow:0 0 0 1px ${pBadgeColor}33"></div>
+            </div>
+            <div class="model-names">
+              <div class="model-display">${esc(s.modelName)}</div>
+              <div class="model-api">${esc(s.apiModel)}</div>
+              <div class="model-provider-badge" style="color:${pBadgeColor};border-color:${pBadgeColor}33;background:${pBadgeColor}10">
+                ${esc(PROVIDER_NAMES[prov] || prov)}
+              </div>
+            </div>
+            <div class="model-meta-right">
+              <div class="rank-badge ${rankCls}">${rankLabel}</div>
+              <div class="model-count-badge">${fmt.count(s.count)} rép.</div>
+            </div>
+          </div>
+
+          <!-- MAIN METRICS -->
+          <div class="model-metrics">
+            <div class="metric">
+              <div class="metric-label">Vitesse</div>
+              <div class="metric-value v-green">${fmt.cps(s.cps)}</div>
+              <div class="metric-sub">caractères/sec</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Tps réponse</div>
+              <div class="metric-value v-blue">${fmt.time(s.avgTime)}</div>
+              <div class="metric-sub">temps moyen</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Long. moyenne</div>
+              <div class="metric-value v-white">${fmt.len(s.avgLen)}</div>
+              <div class="metric-sub">caractères / rép.</div>
+            </div>
+          </div>
+
+          <!-- CPS BAR -->
+          <div class="cps-bar-wrap">
+            <div class="cps-bar-track">
+              <div class="cps-bar-fill" style="width:${Math.min(100, s.cps / maxCps * 100).toFixed(1)}%"></div>
+            </div>
+            <div class="cps-bar-label">${Math.round(s.cps / maxCps * 100)}% vitesse max</div>
+          </div>
+
+          <!-- VOIR PLUS BUTTON -->
+          <button class="voir-plus-btn" id="${btnId}" onclick="toggleVoirPlus('${rank}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+            Voir plus de statistiques
+          </button>
+        </div>
+
+        <!-- VOIR PLUS PANEL -->
+        <div class="voir-plus-panel" id="${panelId}">
+          <div class="vp-grid">
+
+            <!-- COL 1: COÛTS -->
+            <div class="vp-section">
+              <div class="vp-section-title">💰 Coûts (prix public API)</div>
+              <div class="vp-row">
+                <span class="vp-label">Entrée / 1M tokens</span>
+                <span class="vp-value" style="color:#fbbf24">${meta.pricein != null ? '$'+meta.pricein.toFixed(2) : '—'}</span>
+              </div>
+              <div class="vp-row">
+                <span class="vp-label">Sortie / 1M tokens</span>
+                <span class="vp-value" style="color:#fbbf24">${meta.priceout != null ? '$'+meta.priceout.toFixed(2) : '—'}</span>
+              </div>
+              <div class="vp-row">
+                <span class="vp-label">Coût moy. par conv.</span>
+                <span class="vp-value">${avgConvCost ? '$'+avgConvCost : '—'}</span>
+              </div>
+              <div class="vp-row">
+                <span class="vp-label">Coût total aujourd'hui</span>
+                <span class="vp-value" style="color:#34d399">${todayCost ? '$'+todayCost : '—'}</span>
+              </div>
+              <div style="margin-top:6px;padding:8px 10px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px">
+                <div style="font-size:0.6rem;color:var(--muted);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em">Fenêtre de contexte</div>
+                <div style="font-size:1.1rem;font-weight:900;color:#fff">${meta.ctx ? fmt.ctx(meta.ctx) : '—'} <span style="font-size:0.65rem;font-weight:500;color:var(--muted)">tokens</span></div>
+                <div style="font-size:0.62rem;color:var(--muted);margin-top:2px">Max génération : ${meta.maxTok ? fmt.ctx(meta.maxTok) : '—'} tokens</div>
+              </div>
+            </div>
+
+            <!-- COL 2: CAPACITÉS -->
+            <div class="vp-section">
+              <div class="vp-section-title">⚙️ Capacités</div>
+              <div class="vp-row">
+                <span class="vp-label">Support images</span>
+                <span class="vp-value ${meta.vision ? 'vp-yes':'vp-no'}">${meta.vision ? '✓ Oui' : '✗ Non'}</span>
+              </div>
+              <div class="vp-row">
+                <span class="vp-label">Raisonnement</span>
+                <span class="vp-value ${meta.reasoning ? 'vp-yes':'vp-no'}">${meta.reasoning ? '✓ Oui' : '✗ Non'}</span>
+              </div>
+              <div class="vp-row">
+                <span class="vp-label">Recherche web</span>
+                <span class="vp-value ${meta.web ? 'vp-yes':'vp-no'}">${meta.web ? '✓ Oui' : '✗ Non'}</span>
+              </div>
+              <div class="vp-row">
+                <span class="vp-label">Optimisé code</span>
+                <span class="vp-value ${meta.code ? 'vp-yes':'vp-no'}">${meta.code ? '✓ Oui' : '✗ Non'}</span>
+              </div>
+              <div class="vp-row">
+                <span class="vp-label">Streaming</span>
+                <span class="vp-value vp-yes">✓ Oui</span>
+              </div>
+            </div>
+
+            <!-- COL 3: AVIS UTILISATEURS -->
+            <div class="vp-section">
+              <div class="vp-section-title">⭐ Avis utilisateurs</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <div class="vp-stars">${starsHTML}</div>
+                <span style="font-size:1rem;font-weight:900;color:#fff">${ratings.avg}/5</span>
+              </div>
+              <div class="rating-bar-wrap">
+                <div class="rating-bar-row">
+                  <span class="rating-bar-label">Satisfaction</span>
+                  <div class="rating-bar-track"><div class="rating-bar-fill" style="width:${ratings.satisfaction}%"></div></div>
+                  <span class="rating-bar-val">${ratings.satisfaction}%</span>
+                </div>
+                <div class="rating-bar-row">
+                  <span class="rating-bar-label">Régénérations</span>
+                  <div class="rating-bar-track"><div class="rating-bar-fill amber" style="width:${Math.min(100,ratings.regen*4)}%"></div></div>
+                  <span class="rating-bar-val" style="color:var(--amber)">${ratings.regen}%</span>
+                </div>
+                <div class="rating-bar-row">
+                  <span class="rating-bar-label">Signalements</span>
+                  <div class="rating-bar-track"><div class="rating-bar-fill red" style="width:${Math.min(100,ratings.flagged*20)}%"></div></div>
+                  <span class="rating-bar-val" style="color:var(--red)">${ratings.flagged}%</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>`;
+    });
+  });
+
+  list.innerHTML = html;
+}
+
+function toggleVoirPlus(rank) {
+  const panel = document.getElementById(`panel-${rank}`);
+  const btn   = document.getElementById(`vpbtn-${rank}`);
+  const isOpen = panel.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  btn.innerHTML = isOpen
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transform:rotate(180deg)"><polyline points="6 9 12 15 18 9"/></svg> Voir moins`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg> Voir plus de statistiques`;
+}
+
+function setLoading(on) {
+  document.getElementById('models-loading').style.display = on ? 'flex' : 'none';
+  document.getElementById('models-list').innerHTML = '';
+  document.getElementById('models-empty').style.display = 'none';
+}
+
+function showError(msg) {
+  const el = document.getElementById('models-loading');
+  el.innerHTML = `<div class="state-error">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <div>Erreur de chargement</div>
+    <div style="font-size:0.7rem;color:#6b1b1b;max-width:300px">${esc(msg)}</div>
+  </div>`;
+  el.style.display = 'flex';
+}
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['models','compare','charts'][i] === id);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'tab-'+id);
+  });
+  if (id === 'charts' && _stats.length && !_charts['cps']) renderCharts();
+}
+
+// ══════════ COMPARATEUR ══════════
+function populateComparatorSelects() {
+  const opts = _stats.map(s =>
+    `<option value="${esc(s.apiModel)}">${esc(s.modelName)} (${esc(PROVIDER_NAMES[s.provider] || s.provider)})</option>`
+  ).join('');
+  ['cmp-a','cmp-b'].forEach(id => { document.getElementById(id).innerHTML = opts; });
+  if (_stats.length >= 2) document.getElementById('cmp-b').selectedIndex = 1;
+  renderComparator();
+}
+
+function renderComparator() {
+  const va = document.getElementById('cmp-a').value;
+  const vb = document.getElementById('cmp-b').value;
+  const A = _stats.find(s => s.apiModel === va);
+  const B = _stats.find(s => s.apiModel === vb);
+  if (!A || !B) return;
+  document.getElementById('cmp-result-area').innerHTML = buildCmpHTML(A, B);
+}
+
+function cmpBar(valA, valB, higherBetter=true) {
+  const max = Math.max(valA, valB) || 1;
+  const winA = higherBetter ? valA >= valB : valA <= valB;
+  const winB = higherBetter ? valB >= valA : valB <= valA;
+  return {
+    pctA: (valA/max*100).toFixed(0),
+    pctB: (valB/max*100).toFixed(0),
+    colA: winA ? '#7c3aed' : '#333',
+    colB: winB ? '#06b6d4' : '#333',
+    winA, winB,
+  };
+}
+
+function metricRows(main, other, isA) {
+  const metrics = [
+    { label:'CPS',     va: main.cps,     vb: other.cps,     fmt: v => fmt.cps(v),  higher:true  },
+    { label:'Tps rép.',va: main.avgTime, vb: other.avgTime, fmt: v => fmt.time(v), higher:false },
+    { label:'Long. rép.',va:main.avgLen, vb: other.avgLen,  fmt: v => fmt.len(v),  higher:true  },
+    { label:'Utilisations',va:main.count,vb:other.count,    fmt: v => fmt.count(v),higher:true  },
+  ];
+  return metrics.map(m => {
+    const bar = cmpBar(m.va, m.vb, m.higher);
+    const pct = isA ? bar.pctA : bar.pctB;
+    const col = isA ? bar.colA : bar.colB;
+    const val = isA ? m.va : m.vb;
+    return `<div class="cmp-metric-row">
+      <div class="cmp-metric-top">
+        <div class="cmp-metric-name">${m.label}</div>
+        <div class="cmp-metric-val">${m.fmt(val)}</div>
+      </div>
+      <div class="cmp-metric-bar-wrap"><div class="cmp-metric-bar" style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function buildCmpHTML(A, B) {
+  const metaA = A.meta || {}; const metaB = B.meta || {};
+  const winsA = [A.cps >= B.cps, A.avgTime <= B.avgTime, A.avgLen >= B.avgLen, A.count >= B.count];
+  const winsB = winsA.map(w => !w);
+  const countA = winsA.filter(Boolean).length;
+  const countB = winsB.filter(Boolean).length;
+  const overallA = countA > countB ? 'win' : countA < countB ? 'lose' : 'tie';
+  const overallB = countB > countA ? 'win' : countB < countA ? 'lose' : 'tie';
+  const badgeA = overallA==='win' ? '🏆 Meilleur' : overallA==='tie' ? '🤝 Égalité' : 'Perdant';
+  const badgeB = overallB==='win' ? '🏆 Meilleur' : overallB==='tie' ? '🤝 Égalité' : 'Perdant';
+
+  const pColorA = PROVIDER_COLORS[A.provider] || '#888';
+  const pColorB = PROVIDER_COLORS[B.provider] || '#888';
+  const logoA = metaA.logo || 'mistrallogo.png';
+  const logoB = metaB.logo || 'mistrallogo.png';
+
+  const ratioCPS  = ratio(A.cps,     B.cps,     true,  'c/s');
+  const ratioTime = ratio(A.avgTime, B.avgTime, false, 'ms');
+  const ratioLen  = ratio(A.avgLen,  B.avgLen,  true,  'car.');
+  const ratioCount= ratio(A.count,   B.count,   true,  'rép.');
+
+  return `<div class="cmp-result">
+    <div class="cmp-card">
+      <div class="cmp-card-header">
+        <div class="cmp-card-logo"><img src="${logoSrc(logoA)}" onerror="this.style.display='none'" style="width:17px;height:17px;object-fit:contain"></div>
+        <div><div class="cmp-card-name">${esc(A.modelName)}</div><div class="cmp-card-api">${esc(A.provider)}</div></div>
+        <div class="cmp-winner-badge ${overallA}">${badgeA}</div>
+      </div>
+      <div class="cmp-metrics-list">${metricRows(A, B, true)}</div>
+    </div>
+    <div class="cmp-card">
+      <div class="cmp-card-header">
+        <div class="cmp-card-logo"><img src="${logoSrc(logoB)}" onerror="this.style.display='none'" style="width:17px;height:17px;object-fit:contain"></div>
+        <div><div class="cmp-card-name">${esc(B.modelName)}</div><div class="cmp-card-api">${esc(B.provider)}</div></div>
+        <div class="cmp-winner-badge ${overallB}">${badgeB}</div>
+      </div>
+      <div class="cmp-metrics-list">${metricRows(B, A, false)}</div>
+    </div>
+  </div>
+  <div class="cmp-ratio-section">
+    <div class="cmp-ratio-title">Rapports A / B</div>
+    <div class="cmp-ratio-grid">
+      <div class="cmp-ratio-item"><div class="cmp-ratio-metric">Vitesse CPS</div><div class="cmp-ratio-value ${ratioCPS.cls}">${ratioCPS.val}</div><div class="cmp-ratio-desc">${ratioCPS.sub}</div></div>
+      <div class="cmp-ratio-item"><div class="cmp-ratio-metric">Tps de rép.</div><div class="cmp-ratio-value ${ratioTime.cls}">${ratioTime.val}</div><div class="cmp-ratio-desc">${ratioTime.sub}</div></div>
+      <div class="cmp-ratio-item"><div class="cmp-ratio-metric">Taille rép.</div><div class="cmp-ratio-value ${ratioLen.cls}">${ratioLen.val}</div><div class="cmp-ratio-desc">${ratioLen.sub}</div></div>
+      <div class="cmp-ratio-item"><div class="cmp-ratio-metric">Utilisations</div><div class="cmp-ratio-value ${ratioCount.cls}">${ratioCount.val}</div><div class="cmp-ratio-desc">${ratioCount.sub}</div></div>
+    </div>
+  </div>`;
+}
+
+function ratio(va, vb, higherBetter, unit) {
+  if (!vb || !va) return { val:'—', cls:'ratio-tie', sub:'' };
+  const r = va / vb;
+  const win = higherBetter ? r >= 1 : r <= 1;
+  const cls = Math.abs(r - 1) < 0.05 ? 'ratio-tie' : win ? 'ratio-win' : 'ratio-lose';
+  const label = r >= 1 ? `×${r.toFixed(2)}` : `×${r.toFixed(2)}`;
+  const sub = win ? `A meilleur` : `B meilleur`;
+  return { val: label, cls, sub };
+}
+
+// ══════════ CHARTS ══════════
+function renderCharts() {
+  const top = _stats.slice(0, 8);
+  const labels = top.map(s => s.modelName);
+  const provColors = top.map(s => PROVIDER_COLORS[s.provider] || '#777');
+  const gridCol = 'rgba(255,255,255,0.04)';
+  const tickColor = '#444';
+  const base = { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{bodyFont:{size:11},titleFont:{size:11}} } };
+
+  destroyChart('cps');
+  _charts['cps'] = new Chart(document.getElementById('chart-cps'), {
+    type:'bar',
+    data:{ labels, datasets:[{ data:top.map(s=>Math.round(s.cps)), backgroundColor:provColors, borderRadius:7, borderSkipped:false }] },
+    options:{ ...base, scales:{ x:{ticks:{color:tickColor,font:{size:10}},grid:{color:gridCol}}, y:{ticks:{color:tickColor,font:{size:10}},grid:{color:gridCol}} },
+      plugins:{...base.plugins, tooltip:{callbacks:{label:ctx=>` ${ctx.raw} c/s`}}} }
+  });
+
+  destroyChart('time');
+  _charts['time'] = new Chart(document.getElementById('chart-time'), {
+    type:'bar',
+    data:{ labels, datasets:[{ data:top.map(s=>Math.round(s.avgTime)), backgroundColor:provColors.map(c=>c+'88'), borderColor:provColors, borderWidth:1, borderRadius:7, borderSkipped:false }] },
+    options:{ ...base, scales:{ x:{ticks:{color:tickColor,font:{size:10}},grid:{color:gridCol}}, y:{ticks:{color:tickColor,font:{size:10}},grid:{color:gridCol}} },
+      plugins:{...base.plugins, tooltip:{callbacks:{label:ctx=>` ${ctx.raw} ms`}}} }
+  });
+
+  destroyChart('usage');
+  _charts['usage'] = new Chart(document.getElementById('chart-usage'), {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data:top.map(s=>s.count), backgroundColor:provColors.map((c,i)=>c+(i===0?'dd':'88')), borderColor:'rgba(0,0,0,0)', hoverOffset:6 }] },
+    options:{ ...base, cutout:'62%', plugins:{ legend:{display:true,position:'right',labels:{color:'#666',font:{size:10},boxWidth:10,padding:8}}, tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${fmt.count(ctx.raw)} rép.`}} } }
+  });
+
+  destroyChart('provider');
+  const byProv = {}; _stats.forEach(s => { byProv[s.provider] = (byProv[s.provider]||0) + s.count; });
+  _charts['provider'] = new Chart(document.getElementById('chart-provider'), {
+    type:'doughnut',
+    data:{ labels:Object.keys(byProv).map(p=>PROVIDER_NAMES[p]||p), datasets:[{ data:Object.values(byProv), backgroundColor:Object.keys(byProv).map(p=>(PROVIDER_COLORS[p]||'#777')+'bb'), borderColor:'rgba(0,0,0,0)', hoverOffset:6 }] },
+    options:{ ...base, cutout:'55%', plugins:{ legend:{display:true,position:'right',labels:{color:'#666',font:{size:10},boxWidth:10,padding:8}}, tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${fmt.count(ctx.raw)}`}} } }
+  });
+
+  destroyChart('timeline');
+  const tl = computeTimeline(_rawData);
+  _charts['timeline'] = new Chart(document.getElementById('chart-timeline'), {
+    type:'line',
+    data:{ labels:tl.map(b=>new Date(b.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})),
+      datasets:[{ data:tl.map(b=>b.count), borderColor:'#7c3aed', backgroundColor:'rgba(124,58,237,0.08)', borderWidth:2, pointRadius:3, pointBackgroundColor:'#7c3aed', fill:true, tension:0.4 }] },
+    options:{ ...base, scales:{ x:{ticks:{color:tickColor,font:{size:9},maxTicksLimit:12,maxRotation:0},grid:{color:'rgba(255,255,255,0.03)'}}, y:{ticks:{color:tickColor,font:{size:9},stepSize:1},grid:{color:gridCol},beginAtZero:true} },
+      plugins:{...base.plugins, tooltip:{callbacks:{label:ctx=>` ${ctx.raw} requête${ctx.raw>1?'s':''}`}}} }
+  });
+}
+
+function destroyChart(id) {
+  if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+}
+
+loadData();
+</script>
+</body>
+</html>
