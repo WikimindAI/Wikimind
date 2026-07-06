@@ -1,0 +1,268 @@
+/* ============================================================
+   NEURONNE.CSS — Mode "Organisation Neuronale" de Wikimind
+   ============================================================ */
+
+#neuronne-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: auto;
+  padding: 0 9px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Geist', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+#neuronne-toggle-btn:hover { background: rgba(255,255,255,0.05); color: var(--text2); }
+#neuronne-toggle-btn.active {
+  background: rgba(124, 92, 255, 0.14);
+  border-color: rgba(124, 92, 255, 0.45);
+  color: #b09bff;
+}
+#neuronne-toggle-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+#neuronne-toggle-btn .nrn-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #7c5cff; flex-shrink: 0;
+  box-shadow: 0 0 6px #7c5cff;
+  display: none;
+}
+#neuronne-toggle-btn.active .nrn-dot { display: block; animation: nrnPulse 1.6s ease-in-out infinite; }
+
+@keyframes nrnPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+#neuronne-view-btn {
+  position: fixed;
+  bottom: 96px;
+  right: 22px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #7c5cff, #4d8fff);
+  border: none;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 22px rgba(124,92,255,0.45);
+  z-index: 9500;
+  transition: transform 0.15s;
+}
+#neuronne-view-btn.show { display: flex; }
+#neuronne-view-btn:hover { transform: scale(1.08); }
+#neuronne-view-btn svg { width: 20px; height: 20px; color: #fff; }
+#neuronne-view-btn .nrn-count {
+  position: absolute;
+  top: -4px; right: -4px;
+  min-width: 17px; height: 17px;
+  border-radius: 9px;
+  background: #ff6b6b;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--bg1, #0d0d0f);
+}
+
+#neuronne-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(6px);
+  z-index: 10050;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: nrnFadeIn 0.15s ease;
+}
+#neuronne-overlay.show { display: flex; }
+@keyframes nrnFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+#neuronne-panel {
+  width: min(980px, 94vw);
+  height: min(720px, 88vh);
+  background: var(--bg2, #141416);
+  border: 1px solid var(--border2, #2a2a2e);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 70px rgba(0,0,0,0.6);
+}
+
+#neuronne-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border, #232327);
+  flex-shrink: 0;
+}
+#neuronne-header .nrn-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text, #eee);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#neuronne-header .nrn-title svg { width: 17px; height: 17px; color: #7c5cff; }
+#neuronne-close-btn {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+}
+#neuronne-close-btn:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+
+#neuronne-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 18px 0;
+  flex-shrink: 0;
+}
+.nrn-tab {
+  padding: 7px 13px;
+  border-radius: 9px 9px 0 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text3);
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: none;
+  transition: all 0.12s;
+}
+.nrn-tab:hover { color: var(--text2); }
+.nrn-tab.active {
+  color: var(--text);
+  background: var(--bg3, #1b1b1e);
+  border-color: var(--border, #232327);
+}
+.nrn-tab .nrn-tab-count { margin-left: 5px; font-size: 0.65rem; color: var(--text3); }
+
+#neuronne-body { flex: 1; display: flex; min-height: 0; background: var(--bg3, #1b1b1e); }
+
+#neuronne-graph-zone { flex: 1; position: relative; overflow: hidden; cursor: grab; }
+#neuronne-graph-zone.dragging { cursor: grabbing; }
+#neuronne-graph-zone svg { width: 100%; height: 100%; display: block; }
+
+#neuronne-empty {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; color: var(--text3); text-align: center; padding: 20px;
+}
+#neuronne-empty svg { width: 40px; height: 40px; opacity: 0.35; }
+#neuronne-empty .nrn-empty-title { font-size: 0.88rem; font-weight: 600; color: var(--text2); }
+#neuronne-empty .nrn-empty-sub { font-size: 0.76rem; max-width: 320px; line-height: 1.5; }
+
+.nrn-link { stroke: rgba(255,255,255,0.14); stroke-width: 1.3; fill: none; transition: stroke 0.15s, stroke-width 0.15s; }
+.nrn-link.highlight { stroke: rgba(124,92,255,0.65); stroke-width: 2; }
+
+.nrn-node-g { cursor: pointer; }
+.nrn-node-circle { stroke: rgba(0,0,0,0.4); stroke-width: 1.5; transition: r 0.15s, filter 0.15s; }
+.nrn-node-g:hover .nrn-node-circle { filter: brightness(1.25); }
+.nrn-node-g.selected .nrn-node-circle { stroke: #fff; stroke-width: 2.2; }
+.nrn-node-label {
+  font-family: 'Geist', sans-serif; font-size: 9px; fill: rgba(255,255,255,0.6);
+  pointer-events: none; text-anchor: middle;
+}
+
+#neuronne-sidebar {
+  width: 280px; flex-shrink: 0;
+  border-left: 1px solid var(--border, #232327);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+#neuronne-sidebar-search { padding: 10px 12px; border-bottom: 1px solid var(--border, #232327); flex-shrink: 0; }
+#neuronne-sidebar-search input {
+  width: 100%; background: var(--bg4, #212124); border: 1px solid var(--border2, #2a2a2e);
+  border-radius: 8px; padding: 7px 10px; font-size: 0.78rem; color: var(--text); outline: none;
+  font-family: 'Geist', sans-serif;
+}
+#neuronne-sidebar-list { flex: 1; overflow-y: auto; padding: 6px; }
+.nrn-list-item {
+  display: flex; gap: 9px; padding: 8px 9px; border-radius: 9px; cursor: pointer;
+  transition: background 0.12s; align-items: flex-start; border: 1px solid transparent;
+}
+.nrn-list-item:hover { background: rgba(255,255,255,0.04); }
+.nrn-list-item.selected { background: rgba(124,92,255,0.1); border-color: rgba(124,92,255,0.3); }
+.nrn-list-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.nrn-list-info { flex: 1; min-width: 0; }
+.nrn-list-type { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.75; }
+.nrn-list-text {
+  font-size: 0.78rem; color: var(--text2); line-height: 1.35; margin-top: 2px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.nrn-list-topic { font-size: 0.66rem; color: var(--text3); margin-top: 3px; }
+
+#neuronne-detail {
+  border-top: 1px solid var(--border, #232327); padding: 12px; flex-shrink: 0;
+  max-height: 42%; overflow-y: auto; display: none;
+}
+#neuronne-detail.show { display: block; }
+#neuronne-detail .nrn-detail-type {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 0.65rem; font-weight: 700;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 6px; margin-bottom: 8px;
+}
+#neuronne-detail .nrn-detail-text { font-size: 0.8rem; color: var(--text); line-height: 1.5; margin-bottom: 8px; white-space: pre-wrap; }
+#neuronne-detail .nrn-detail-meta { font-size: 0.68rem; color: var(--text3); display: flex; flex-direction: column; gap: 3px; }
+#neuronne-detail .nrn-detail-links { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
+.nrn-link-chip {
+  font-size: 0.65rem; padding: 3px 8px; border-radius: 6px; background: rgba(255,255,255,0.06);
+  color: var(--text2); cursor: pointer; border: 1px solid var(--border2);
+}
+.nrn-link-chip:hover { background: rgba(124,92,255,0.15); border-color: rgba(124,92,255,0.4); }
+
+#neuronne-footer {
+  display: flex; align-items: center; justify-content: space-between; padding: 10px 18px;
+  border-top: 1px solid var(--border, #232327); flex-shrink: 0; gap: 10px;
+}
+#neuronne-footer .nrn-footer-info { font-size: 0.7rem; color: var(--text3); }
+#neuronne-footer .nrn-footer-actions { display: flex; gap: 8px; }
+.nrn-btn-small {
+  font-size: 0.72rem; font-weight: 600; padding: 6px 12px; border-radius: 8px;
+  border: 1px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer;
+  transition: all 0.12s; display: flex; align-items: center; gap: 5px;
+}
+.nrn-btn-small:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+.nrn-btn-small.danger:hover { background: rgba(255,107,107,0.12); color: #ff8080; border-color: rgba(255,107,107,0.35); }
+.nrn-btn-small.primary { background: rgba(124,92,255,0.15); border-color: rgba(124,92,255,0.4); color: #b09bff; }
+.nrn-btn-small.primary:hover { background: rgba(124,92,255,0.25); }
+
+#neuronne-legend {
+  position: absolute; bottom: 10px; left: 10px; display: flex; flex-wrap: wrap;
+  gap: 8px; max-width: 60%; pointer-events: none;
+}
+.nrn-legend-item {
+  display: flex; align-items: center; gap: 5px; font-size: 0.62rem; color: rgba(255,255,255,0.5);
+  background: rgba(0,0,0,0.35); padding: 3px 7px; border-radius: 6px;
+}
+.nrn-legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+#neuronne-sidebar-list::-webkit-scrollbar, #neuronne-detail::-webkit-scrollbar { width: 6px; }
+#neuronne-sidebar-list::-webkit-scrollbar-thumb, #neuronne-detail::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12); border-radius: 3px;
+}
+
+@media (max-width: 720px) {
+  #neuronne-panel { width: 100vw; height: 100vh; border-radius: 0; }
+  #neuronne-sidebar { position: absolute; right: 0; top: 0; bottom: 0; background: var(--bg2); z-index: 5; }
+  #neuronne-view-btn { bottom: 84px; right: 14px; }
+}
