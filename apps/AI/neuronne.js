@@ -247,7 +247,6 @@
       NRN.active = !NRN.active;
       persistActive();
       btn.classList.toggle("active", NRN.active);
-      if (window.toast) window.toast(NRN.active ? "Organisation neuronale activée ✦" : "Organisation neuronale désactivée");
       updateViewBtn();
     });
     // insérer avant le bouton "plus"
