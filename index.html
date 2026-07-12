@@ -444,7 +444,8 @@
     @keyframes gscroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
     .gallery-track { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; gap: 14px; width: max-content; will-change: transform; }
     .gallery-img { width: 260px; height: 185px; border-radius: var(--r); overflow: hidden; flex-shrink: 0; border: 1px solid var(--border); }
-    .gallery-img img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .gallery-img img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; opacity: 0; transition: opacity .35s ease; background: rgba(255,255,255,0.03); }
+    .gallery-img img[src] { opacity: 1; }
 
     /* ══ APPS ══ */
     .apps-section { padding: 96px 32px 120px; max-width: 1160px; margin: 0 auto; }
@@ -867,95 +868,156 @@
   <h1 class="hero-title reveal" style="font-size: clamp(52px, 8vw, 96px);">L'IA au service de votre quotidien</h1>
   <div class="gallery-wrap" style="margin-top: 20px; margin-bottom: 10px;">
     <div class="gallery-track" id="hero-gallery-track">
-      <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false" loading="eager" decoding="async" width="260" height="185" fetchpriority="high"></div>
-      <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false" loading="eager" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/3.png" alt="" draggable="false" loading="eager" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/4.png" alt="" draggable="false" loading="eager" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/5.png" alt="" draggable="false" loading="eager" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/6.png" alt="" draggable="false" loading="eager" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/7.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/8.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/9.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/10.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/11.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/12.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/13.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/14.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/15.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/16.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/17.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/18.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/19.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/20.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/21.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/22.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/23.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/24.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/25.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/26.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/27.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/28.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/29.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/30.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/31.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/32.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/33.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/34.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/35.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/36.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/37.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/38.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/39.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/40.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/41.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/42.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/43.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
+      <div class="gallery-img"><img data-src="exemples/1.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/2.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/3.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/4.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/5.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/6.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/7.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/8.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/9.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/10.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/11.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/12.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/13.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/14.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/15.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/16.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/17.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/18.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/19.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/20.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/21.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/22.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/23.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/24.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/25.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/26.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/27.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/28.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/29.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/30.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/31.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/32.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/33.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/34.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/35.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/36.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/37.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/38.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/39.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/40.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/41.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/42.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/43.png" alt="" draggable="false" class="wm-cache-img"></div>
       <!-- Duplicate pour boucle seamless -->
-      <div class="gallery-img"><img src="exemples/1.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/2.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/3.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/4.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/5.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/6.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/7.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/8.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/9.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/10.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/11.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/12.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/13.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/14.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/15.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/16.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/17.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/18.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/19.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/20.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/21.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/22.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/23.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/24.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/25.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/26.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/27.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/28.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/29.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/30.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/31.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/32.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/33.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/34.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/35.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/36.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/37.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/38.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/39.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/40.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/41.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/42.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
-      <div class="gallery-img"><img src="exemples/43.png" alt="" draggable="false" loading="lazy" decoding="async" width="260" height="185"></div>
+      <div class="gallery-img"><img data-src="exemples/1.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/2.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/3.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/4.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/5.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/6.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/7.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/8.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/9.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/10.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/11.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/12.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/13.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/14.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/15.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/16.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/17.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/18.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/19.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/20.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/21.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/22.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/23.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/24.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/25.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/26.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/27.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/28.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/29.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/30.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/31.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/32.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/33.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/34.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/35.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/36.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/37.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/38.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/39.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/40.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/41.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/42.png" alt="" draggable="false" class="wm-cache-img"></div>
+      <div class="gallery-img"><img data-src="exemples/43.png" alt="" draggable="false" class="wm-cache-img"></div>
     </div>
   </div>
+
+  <script>
+  // ══ Cache IndexedDB : les images de la galerie sont stockées localement au premier
+  // chargement, puis servies instantanément depuis le navigateur les fois suivantes ══
+  (function() {
+    const DB_NAME = 'wikimind-img-cache';
+    const STORE = 'images';
+    const imgs = document.querySelectorAll('.wm-cache-img');
+
+    function loadPlain() { imgs.forEach(img => { img.src = img.dataset.src; }); }
+
+    if (!('indexedDB' in window)) { loadPlain(); return; }
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE); };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    function idbGet(db, key) {
+      return new Promise(resolve => {
+        try {
+          const tx = db.transaction(STORE, 'readonly');
+          const rq = tx.objectStore(STORE).get(key);
+          rq.onsuccess = () => resolve(rq.result || null);
+          rq.onerror = () => resolve(null);
+        } catch { resolve(null); }
+      });
+    }
+    function idbSet(db, key, blob) {
+      return new Promise(resolve => {
+        try {
+          const tx = db.transaction(STORE, 'readwrite');
+          tx.objectStore(STORE).put(blob, key);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => resolve();
+        } catch { resolve(); }
+      });
+    }
+
+    async function hydrate(db, img) {
+      const src = img.dataset.src;
+      if (!src) return;
+      const cached = await idbGet(db, src);
+      if (cached) {
+        img.src = URL.createObjectURL(cached);
+        return;
+      }
+      // Pas encore en cache : affichage normal via réseau…
+      img.src = src;
+      // …et on met en cache en arrière-plan pour la prochaine visite
+      fetch(src).then(r => (r.ok ? r.blob() : null)).then(blob => { if (blob) idbSet(db, src, blob); }).catch(() => {});
+    }
+
+    openDB().then(db => {
+      imgs.forEach(img => hydrate(db, img));
+    }).catch(loadPlain);
+  })();
+  </script>
 
   <script>
   (function() {
