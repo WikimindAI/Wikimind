@@ -77,7 +77,62 @@
     .btn-signout:hover { color: var(--t2); }
     @media (max-width: 640px) { .nav-links, .nav-username { display: none; } }
 
-    /* ══ AUTH MODAL ══ */
+    /* ══ VERIFY EMAIL BANNER ══ */
+    #verify-banner {
+      display: none; align-items: center; gap: 10px;
+      position: fixed; top: var(--nav); left: 0; right: 0; z-index: 190;
+      background: linear-gradient(90deg, rgba(245,158,11,0.14), rgba(245,158,11,0.07));
+      border-bottom: 1px solid rgba(245,158,11,0.28);
+      padding: 10px 32px; font-size: 12.5px; color: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+    }
+    #verify-banner.visible { display: flex; }
+    .vb-icon { color: #f59e0b; font-size: 13px; flex-shrink: 0; }
+    .vb-text { flex: 1; min-width: 0; }
+    .vb-btn { background: rgba(245,158,11,0.16); border: 1px solid rgba(245,158,11,0.35); color: #fcd34d; font-size: 11.5px; font-weight: 700; padding: 6px 13px; border-radius: 100px; cursor: pointer; white-space: nowrap; transition: background .15s; }
+    .vb-btn:hover { background: rgba(245,158,11,0.26); }
+    .vb-btn:disabled { opacity: .6; cursor: default; }
+    .vb-close { background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 12px; padding: 4px 6px; flex-shrink: 0; }
+    .vb-close:hover { color: rgba(255,255,255,0.8); }
+    @media (max-width: 640px) { #verify-banner { padding: 9px 14px; font-size: 11.5px; } .vb-text { display: none; } }
+
+    /* ══ PROFILE — édition ══ */
+    .profile-avatar-big { cursor: pointer; }
+    .profile-avatar-edit-badge {
+      position: absolute; bottom: -2px; right: -2px; width: 22px; height: 22px;
+      background: #fff; color: #000; border-radius: 50%; border: 2px solid var(--bg);
+      display: flex; align-items: center; justify-content: center; font-size: 9px;
+      pointer-events: none;
+    }
+    .profile-identity { flex: 1; min-width: 0; }
+    .profile-name-row { display: flex; align-items: center; gap: 8px; }
+    .profile-name { font-family: var(--display); font-size: 18px; font-weight: 700; }
+    .btn-edit-name { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--t3); width: 24px; height: 24px; border-radius: 7px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; transition: color .15s, background .15s; }
+    .btn-edit-name:hover { color: #fff; background: rgba(255,255,255,0.1); }
+    .name-edit-row { display: none; align-items: center; gap: 6px; margin-top: 2px; }
+    .name-edit-row.active { display: flex; }
+    .name-edit-row input { flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(139,92,246,0.4); border-radius: 8px; padding: 7px 10px; color: #fff; font-family: var(--sans); font-size: 13px; outline: none; }
+    .name-edit-row button { border: none; cursor: pointer; border-radius: 7px; width: 28px; height: 28px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+    .name-edit-save { background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff; }
+    .name-edit-cancel { background: rgba(255,255,255,0.06); color: var(--t3); }
+
+    /* Profile block with expandable form (password change) */
+    .profile-block-toggle { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: rgba(255,255,255,0.8); font-size: 11.5px; font-weight: 600; padding: 7px 13px; border-radius: 100px; cursor: pointer; white-space: nowrap; transition: background .15s; }
+    .profile-block-toggle:hover { background: rgba(255,255,255,0.11); }
+    .profile-block-form { display: none; padding: 0 18px 16px; }
+    .profile-block-form.open { display: block; }
+    .profile-block-form .form-group { margin-bottom: 10px; }
+    .profile-block-form .form-label { display: block; font-size: 10.5px; font-weight: 700; color: var(--t3); margin-bottom: 5px; letter-spacing: .05em; text-transform: uppercase; }
+    .profile-block-form .form-input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 9px; padding: 9px 12px; color: #fff; font-family: var(--sans); font-size: 13px; outline: none; }
+    .profile-block-form .form-input:focus { border-color: rgba(139,92,246,0.55); }
+    .profile-save-btn { width: 100%; background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff; border: none; cursor: pointer; border-radius: 10px; padding: 10px; font-family: var(--display); font-size: 13px; font-weight: 700; margin-top: 4px; position: relative; }
+    .profile-save-btn.loading { color: transparent !important; pointer-events: none; }
+    .profile-save-btn .btn-spinner { width: 15px; height: 15px; margin: -8px 0 0 -8px; }
+    .profile-form-msg { font-size: 11.5px; margin-top: 8px; min-height: 0; }
+    .profile-form-msg.error { color: #f87171; }
+    .profile-form-msg.success { color: #4ade80; }
+    .verify-inline-btn { background: none; border: none; color: rgba(139,92,246,0.9); font-size: 10px; font-weight: 700; cursor: pointer; margin-top: 2px; padding: 0; text-decoration: underline; }
+    .verify-inline-btn:disabled { opacity: .5; cursor: default; }
     .modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(0,0,0,0.72); backdrop-filter: blur(16px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .25s; }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal-box {
@@ -444,8 +499,7 @@
     @keyframes gscroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
     .gallery-track { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; gap: 14px; width: max-content; will-change: transform; }
     .gallery-img { width: 260px; height: 185px; border-radius: var(--r); overflow: hidden; flex-shrink: 0; border: 1px solid var(--border); }
-    .gallery-img img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; opacity: 0; transition: opacity .35s ease; background: rgba(255,255,255,0.03); }
-    .gallery-img img[src] { opacity: 1; }
+    .gallery-img img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; background: rgba(255,255,255,0.03); transition: opacity .25s ease; }
 
     /* ══ APPS ══ */
     .apps-section { padding: 96px 32px 120px; max-width: 1160px; margin: 0 auto; }
@@ -589,6 +643,14 @@
   </div>
 </nav>
 
+<!-- VERIFY EMAIL BANNER -->
+<div id="verify-banner">
+  <i class="fa-solid fa-triangle-exclamation vb-icon"></i>
+  <span class="vb-text">Vérifiez votre adresse email pour sécuriser votre compte et débloquer toutes les fonctionnalités.</span>
+  <button class="vb-btn" id="btn-verify-resend">Renvoyer l'email</button>
+  <button class="vb-close" id="btn-verify-dismiss" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+</div>
+
 <!-- AUTH MODAL -->
 <div class="modal-overlay" id="auth-modal">
   <div class="modal-box">
@@ -696,12 +758,22 @@
 
     <!-- Hero identity -->
     <div class="profile-hero">
-      <div class="profile-avatar-big" id="profile-avatar-big">
+      <div class="profile-avatar-big" id="profile-avatar-big" title="Changer la photo de profil">
         <img id="profile-avatar-img" src="" alt="">
         <span id="profile-avatar-initial-big"></span>
+        <div class="profile-avatar-edit-badge"><i class="fa-solid fa-pen"></i></div>
       </div>
+      <input type="file" id="avatar-file-input" accept="image/*" style="display:none">
       <div class="profile-identity">
-        <div class="profile-name" id="profile-name-text"></div>
+        <div class="profile-name-row">
+          <div class="profile-name" id="profile-name-text"></div>
+          <button class="btn-edit-name" id="btn-edit-name" title="Modifier le nom"><i class="fa-solid fa-pen"></i></button>
+        </div>
+        <div class="name-edit-row" id="name-edit-row">
+          <input type="text" id="name-edit-input" maxlength="40" placeholder="Votre nom">
+          <button class="name-edit-save" id="name-edit-save"><i class="fa-solid fa-check"></i></button>
+          <button class="name-edit-cancel" id="name-edit-cancel"><i class="fa-solid fa-xmark"></i></button>
+        </div>
         <div class="profile-email" id="profile-email-text"></div>
         <div class="profile-badge" id="profile-plan-badge">Free</div>
       </div>
@@ -712,6 +784,7 @@
       <div class="profile-stat-box">
         <div class="profile-stat-val" id="profile-verified-stat">—</div>
         <div class="profile-stat-lbl">Email vérifié</div>
+        <button class="verify-inline-btn" id="btn-verify-resend-inline" style="display:none;">Renvoyer</button>
       </div>
       <div class="profile-stat-divider"></div>
       <div class="profile-stat-box">
@@ -722,6 +795,30 @@
       <div class="profile-stat-box">
         <div class="profile-stat-val" id="profile-plan-stat">Free</div>
         <div class="profile-stat-lbl">Forfait</div>
+      </div>
+    </div>
+
+    <!-- Section : Sécurité -->
+    <p class="profile-sec-title" id="security-sec-title" style="display:none;">Sécurité</p>
+    <div class="profile-block" id="security-block" style="display:none;">
+      <div class="profile-block-row">
+        <div>
+          <div class="profile-block-label">Mot de passe</div>
+          <div class="profile-block-sub">Modifier votre mot de passe de connexion</div>
+        </div>
+        <button class="profile-block-toggle" id="btn-toggle-pw-form">Modifier</button>
+      </div>
+      <div class="profile-block-form" id="pw-change-form">
+        <div class="form-group">
+          <label class="form-label">Mot de passe actuel</label>
+          <input class="form-input" type="password" id="current-pw-input" autocomplete="current-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nouveau mot de passe</label>
+          <input class="form-input" type="password" id="new-pw-input" placeholder="8 caractères minimum" autocomplete="new-password">
+        </div>
+        <button class="profile-save-btn" id="btn-save-pw">Mettre à jour<span class="btn-spinner"></span></button>
+        <p class="profile-form-msg" id="pw-change-msg"></p>
       </div>
     </div>
 
@@ -959,63 +1056,52 @@
   </div>
 
   <script>
-  // ══ Cache IndexedDB : les images de la galerie sont stockées localement au premier
-  // chargement, puis servies instantanément depuis le navigateur les fois suivantes ══
+  // ══ Affichage + cache IndexedDB ══
+  // 1) Les images s'affichent TOUJOURS immédiatement (comme avant).
+  // 2) En arrière-plan, on les met en cache dans IndexedDB pour que les prochaines
+  //    visites les servent instantanément depuis le navigateur, sans requête réseau.
   (function() {
-    const DB_NAME = 'wikimind-img-cache';
-    const STORE = 'images';
     const imgs = document.querySelectorAll('.wm-cache-img');
 
-    function loadPlain() { imgs.forEach(img => { img.src = img.dataset.src; }); }
+    // Étape 1 — affichage immédiat et garanti, aucune dépendance
+    imgs.forEach(img => { if (!img.getAttribute('src')) img.src = img.dataset.src; });
 
-    if (!('indexedDB' in window)) { loadPlain(); return; }
+    // Étape 2 — cache en arrière-plan (best effort, ne bloque jamais l'affichage)
+    if (!('indexedDB' in window)) return;
 
-    function openDB() {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, 1);
-        req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE); };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-      });
-    }
-    function idbGet(db, key) {
-      return new Promise(resolve => {
-        try {
-          const tx = db.transaction(STORE, 'readonly');
-          const rq = tx.objectStore(STORE).get(key);
-          rq.onsuccess = () => resolve(rq.result || null);
-          rq.onerror = () => resolve(null);
-        } catch { resolve(null); }
-      });
-    }
-    function idbSet(db, key, blob) {
-      return new Promise(resolve => {
-        try {
-          const tx = db.transaction(STORE, 'readwrite');
-          tx.objectStore(STORE).put(blob, key);
-          tx.oncomplete = () => resolve();
-          tx.onerror = () => resolve();
-        } catch { resolve(); }
-      });
-    }
+    const DB_NAME = 'wikimind-img-cache';
+    const STORE = 'images';
+    let db;
 
-    async function hydrate(db, img) {
-      const src = img.dataset.src;
-      if (!src) return;
-      const cached = await idbGet(db, src);
-      if (cached) {
-        img.src = URL.createObjectURL(cached);
-        return;
-      }
-      // Pas encore en cache : affichage normal via réseau…
-      img.src = src;
-      // …et on met en cache en arrière-plan pour la prochaine visite
-      fetch(src).then(r => (r.ok ? r.blob() : null)).then(blob => { if (blob) idbSet(db, src, blob); }).catch(() => {});
-    }
-
-    openDB().then(db => {
-      imgs.forEach(img => hydrate(db, img));
-    }).catch(loadPlain);
+    try {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE); };
+      req.onerror = () => {};
+      req.onsuccess = () => {
+        db = req.result;
+        imgs.forEach(img => {
+          const src = img.dataset.src;
+          if (!src) return;
+          try {
+            const rq = db.transaction(STORE, 'readonly').objectStore(STORE).get(src);
+            rq.onsuccess = () => {
+              if (rq.result) {
+                // Déjà en cache : bascule instantanée sur la copie locale
+                const blobUrl = URL.createObjectURL(rq.result);
+                img.src = blobUrl;
+              } else {
+                // Pas encore en cache : on télécharge une copie pour la prochaine fois
+                fetch(src).then(r => (r.ok ? r.blob() : null)).then(blob => {
+                  if (!blob || !db) return;
+                  try { db.transaction(STORE, 'readwrite').objectStore(STORE).put(blob, src); } catch {}
+                }).catch(() => {});
+              }
+            };
+            rq.onerror = () => {};
+          } catch {}
+        });
+      };
+    } catch {}
   })();
   </script>
 
@@ -1969,8 +2055,8 @@
 <!-- FIREBASE AUTH -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, sendEmailVerification, updatePassword, reauthenticateWithCredential, EmailAuthProvider, reload } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+  import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
   const app = initializeApp({
     apiKey: "AIzaSyAjtTCLwbhWJtfLrPhm7UwICaHEb5OBoJI",
@@ -2054,8 +2140,21 @@
     }
   }
 
+  let currentUser = null;
+  let dismissedVerifyBanner = false;
+
+  function updateVerifyBanner(user) {
+    const banner = document.getElementById('verify-banner');
+    const inlineBtn = document.getElementById('btn-verify-resend-inline');
+    const hasPasswordProvider = user && user.providerData.some(p => p.providerId === 'password');
+    const shouldShow = !!(user && hasPasswordProvider && !user.emailVerified && !dismissedVerifyBanner);
+    banner.classList.toggle('visible', shouldShow);
+    inlineBtn.style.display = (user && hasPasswordProvider && !user.emailVerified) ? 'inline-block' : 'none';
+  }
+
   onAuthStateChanged(auth, async user => {
     resetGoogleBtn();
+    currentUser = user;
     if (user) {
       const name = user.displayName || user.email.split('@')[0];
       navAuthGuest.style.display = 'none';
@@ -2066,7 +2165,21 @@
       document.getElementById('profile-verified-stat').textContent = user.emailVerified ? 'Oui ✓' : 'Non';
       const d = user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString('fr-FR',{year:'numeric',month:'short'}) : '—';
       document.getElementById('profile-created-stat').textContent = d;
-      setAvatar(user.photoURL, name[0].toUpperCase());
+
+      const hasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
+      document.getElementById('security-sec-title').style.display = hasPasswordProvider ? '' : 'none';
+      document.getElementById('security-block').style.display = hasPasswordProvider ? '' : 'none';
+
+      updateVerifyBanner(user);
+
+      // Avatar : priorité à l'avatar personnalisé stocké en base, sinon photo Google, sinon initiale
+      let avatarUrl = user.photoURL;
+      try {
+        const avSnap = await get(ref(db, `users/${user.uid}/avatarBase64`));
+        if (avSnap.exists()) avatarUrl = avSnap.val();
+      } catch {}
+      setAvatar(avatarUrl, name[0].toUpperCase());
+
       try {
         const snap = await get(ref(db, `users/${user.uid}/FORFAIT`));
         const plans = ['Free','Plus','Pro','Entreprise'];
@@ -2081,6 +2194,7 @@
     } else {
       navAuthGuest.style.display = 'flex';
       navUserInfo.classList.remove('visible');
+      updateVerifyBanner(null);
       // Reset avatars
       document.getElementById('nav-avatar-img').classList.remove('loaded');
       document.getElementById('nav-avatar-img').src = '';
@@ -2219,8 +2333,152 @@
   };
 
   function friendlyError(code) {
-    return { 'auth/user-not-found':'Aucun compte avec cet email.', 'auth/wrong-password':'Mot de passe incorrect.', 'auth/email-already-in-use':'Cet email est déjà utilisé.', 'auth/invalid-email':'Email invalide.', 'auth/weak-password':'Mot de passe trop faible.', 'auth/invalid-credential':'Email ou mot de passe incorrect.', 'auth/too-many-requests':'Trop de tentatives. Réessayez plus tard.', 'auth/popup-blocked':'Popup bloquée par le navigateur. Autorisez les popups.' }[code] || 'Une erreur est survenue.';
+    return { 'auth/user-not-found':'Aucun compte avec cet email.', 'auth/wrong-password':'Mot de passe incorrect.', 'auth/email-already-in-use':'Cet email est déjà utilisé.', 'auth/invalid-email':'Email invalide.', 'auth/weak-password':'Mot de passe trop faible.', 'auth/invalid-credential':'Email ou mot de passe incorrect.', 'auth/too-many-requests':'Trop de tentatives. Réessayez plus tard.', 'auth/popup-blocked':'Popup bloquée par le navigateur. Autorisez les popups.', 'auth/requires-recent-login':'Reconnectez-vous puis réessayez pour des raisons de sécurité.' }[code] || 'Une erreur est survenue.';
   }
+
+  // ══ VERIFY EMAIL BANNER ══
+  async function resendVerification(btn) {
+    if (!currentUser) return;
+    const original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Envoi…';
+    try {
+      await sendEmailVerification(currentUser);
+      toast('Email de vérification envoyé 📩', 'success');
+    } catch (e) {
+      toast(friendlyError(e.code), 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = original;
+    }
+  }
+  document.getElementById('btn-verify-resend').addEventListener('click', e => resendVerification(e.target));
+  document.getElementById('btn-verify-resend-inline').addEventListener('click', e => resendVerification(e.target));
+  document.getElementById('btn-verify-dismiss').addEventListener('click', () => {
+    dismissedVerifyBanner = true;
+    updateVerifyBanner(currentUser);
+  });
+
+  // Vérifie périodiquement si l'email vient d'être confirmé (ex: lien ouvert dans un autre onglet)
+  setInterval(async () => {
+    if (currentUser && !currentUser.emailVerified) {
+      try {
+        await reload(currentUser);
+        if (currentUser.emailVerified) {
+          document.getElementById('profile-verified-stat').textContent = 'Oui ✓';
+          updateVerifyBanner(currentUser);
+          toast('Email vérifié avec succès ✓', 'success');
+        }
+      } catch {}
+    }
+  }, 20000);
+
+  // ══ ÉDITION DU NOM ══
+  const nameText = document.getElementById('profile-name-text');
+  const nameEditRow = document.getElementById('name-edit-row');
+  const nameEditInput = document.getElementById('name-edit-input');
+
+  document.getElementById('btn-edit-name').addEventListener('click', () => {
+    nameEditInput.value = nameText.textContent;
+    nameEditRow.classList.add('active');
+    nameText.style.display = 'none';
+    nameEditInput.focus();
+  });
+  function closeNameEdit() {
+    nameEditRow.classList.remove('active');
+    nameText.style.display = '';
+  }
+  document.getElementById('name-edit-cancel').addEventListener('click', closeNameEdit);
+  nameEditInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('name-edit-save').click();
+    if (e.key === 'Escape') closeNameEdit();
+  });
+  document.getElementById('name-edit-save').addEventListener('click', async () => {
+    const newName = nameEditInput.value.trim();
+    if (!newName || !currentUser) return;
+    const saveBtn = document.getElementById('name-edit-save');
+    saveBtn.disabled = true;
+    try {
+      await updateProfile(currentUser, { displayName: newName });
+      await update(ref(db, `users/${currentUser.uid}`), { displayName: newName });
+      nameText.textContent = newName;
+      document.getElementById('nav-username-text').textContent = newName;
+      closeNameEdit();
+      toast('Nom mis à jour', 'success');
+    } catch (e) {
+      toast(friendlyError(e.code), 'error');
+    } finally {
+      saveBtn.disabled = false;
+    }
+  });
+
+  // ══ CHANGEMENT D'AVATAR ══
+  document.getElementById('profile-avatar-big').addEventListener('click', () => {
+    if (!currentUser) return;
+    document.getElementById('avatar-file-input').click();
+  });
+  document.getElementById('avatar-file-input').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file || !currentUser) return;
+    if (!file.type.startsWith('image/')) { toast('Fichier image invalide.', 'error'); return; }
+    if (file.size > 8 * 1024 * 1024) { toast('Image trop lourde (8 Mo max).', 'error'); return; }
+    try {
+      const dataUrl = await resizeImageToDataUrl(file, 160, 160, 0.82);
+      await update(ref(db, `users/${currentUser.uid}`), { avatarBase64: dataUrl });
+      setAvatar(dataUrl, (currentUser.displayName || currentUser.email)[0].toUpperCase());
+      toast('Photo de profil mise à jour', 'success');
+    } catch (err) {
+      toast('Impossible de traiter cette image.', 'error');
+    } finally {
+      e.target.value = '';
+    }
+  });
+
+  function resizeImageToDataUrl(file, maxW, maxH, quality) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = () => { img.src = reader.result; };
+      reader.onerror = reject;
+      img.onload = () => {
+        let { width, height } = img;
+        const ratio = Math.min(maxW / width, maxH / height, 1);
+        width = Math.round(width * ratio); height = Math.round(height * ratio);
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ══ CHANGEMENT DE MOT DE PASSE ══
+  document.getElementById('btn-toggle-pw-form').addEventListener('click', () => {
+    document.getElementById('pw-change-form').classList.toggle('open');
+  });
+  document.getElementById('btn-save-pw').addEventListener('click', async () => {
+    const curPw = document.getElementById('current-pw-input').value;
+    const newPw = document.getElementById('new-pw-input').value;
+    const msg = document.getElementById('pw-change-msg');
+    const btn = document.getElementById('btn-save-pw');
+    msg.textContent = ''; msg.className = 'profile-form-msg';
+    if (!curPw || !newPw) { msg.textContent = 'Remplissez les deux champs.'; msg.classList.add('error'); return; }
+    if (newPw.length < 8) { msg.textContent = 'Le nouveau mot de passe doit faire 8 caractères min.'; msg.classList.add('error'); return; }
+    btn.classList.add('loading'); btn.disabled = true;
+    try {
+      const cred = EmailAuthProvider.credential(currentUser.email, curPw);
+      await reauthenticateWithCredential(currentUser, cred);
+      await updatePassword(currentUser, newPw);
+      msg.textContent = 'Mot de passe mis à jour ✓'; msg.classList.add('success');
+      document.getElementById('current-pw-input').value = '';
+      document.getElementById('new-pw-input').value = '';
+      toast('Mot de passe modifié', 'success');
+    } catch (e) {
+      msg.textContent = friendlyError(e.code); msg.classList.add('error');
+    } finally {
+      btn.classList.remove('loading'); btn.disabled = false;
+    }
+  });
 
   window.toast = (msg, type = 'info') => {
     const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
