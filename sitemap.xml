@@ -1,14 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <!-- Page d'accueil -->
   <url>
     <loc>https://wikimindai.github.io/Wikimind/</loc>
-    <lastmod>2026-06-20</lastmod>
+    <lastmod>2026-07-12</lastmod>
     <priority>1.00</priority>
+  </url>
+
+  <!-- Application Principale -->
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/AI/Wikimind_AI.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- Toutes les autres applications -->
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_BAC.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_image.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_impressai.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_study1.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_call.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_office.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_CV.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_bacoral.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_data.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_xls.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_galerie.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_cloud.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_calories.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_traducteur.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_resume.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_code.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
   </url>
   <url>
     <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_QR.html</loc>
-    <lastmod>2026-06-20</lastmod>
+    <lastmod>2026-07-12</lastmod>
     <priority>0.80</priority>
   </url>
-  <!-- Ajoute une balise <url> pour chaque outil/page -->
+  <url>
+    <loc>https://wikimindai.github.io/Wikimind/apps/Wikimind_offline.html</loc>
+    <lastmod>2026-07-12</lastmod>
+    <priority>0.80</priority>
+  </url>
+
 </urlset>
