@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>RÉSIDUEL - Prototype</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=EB+Garamond:ital@1&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=EB+Garamond:ital@1&display=swap');
   html,body{margin:0;padding:0;overflow:hidden;background:#000;font-family:'Courier New',monospace;}
   #renderCanvas{width:100vw;height:100vh;display:block;image-rendering:pixelated;}
   #crosshair{
@@ -24,25 +24,50 @@
   #startScreen{
     position:fixed;inset:0;background:#000;color:#999;display:flex;
     flex-direction:column;align-items:center;justify-content:center;z-index:100;
-    text-align:center;cursor:pointer;overflow:hidden;
+    text-align:center;overflow:hidden;
   }
-  #bgCanvas{
-    position:absolute;inset:0;width:100%;height:100%;
+  #bgVideo{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    filter:saturate(0.85) contrast(1.05) brightness(0.8);
     image-rendering:pixelated;
   }
   #startOverlay{
-    position:relative;z-index:2;background:radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%);
+    position:relative;z-index:2;background:radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 100%);
     width:100%;height:100%;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;
+    align-items:center;justify-content:flex-end;padding-bottom:9vh;box-sizing:border-box;
   }
   #startScreen h1{
-    color:#d4b96a;letter-spacing:10px;font-weight:600;font-size:52px;margin-bottom:14px;
-    font-family:'Cinzel',serif;text-shadow:0 0 20px rgba(212,185,106,0.35), 0 0 40px rgba(0,0,0,0.9);
+    font-family:'Press Start 2P',monospace;
+    font-size:38px;letter-spacing:4px;line-height:1.5;margin:0 0 46px 0;
+    color:#cfcac0;
+    text-shadow:
+      3px 3px 0 #000,
+      0 0 18px rgba(0,0,0,0.9);
   }
-  #startScreen p{
-    font-family:'EB Garamond',serif;font-style:italic;font-size:16px;color:#a8a096;
-    max-width:420px;line-height:1.8;text-shadow:0 0 6px #000;
+  #startScreen h1 .gold{
+    color:#e8c565;
+    text-shadow:3px 3px 0 #000, 0 0 12px rgba(232,197,101,0.6), 0 0 22px rgba(0,0,0,0.9);
   }
+  #menuButtons{
+    display:flex;flex-direction:column;gap:16px;align-items:center;
+  }
+  .pixelBtn{
+    font-family:'Press Start 2P',monospace;
+    font-size:14px;letter-spacing:2px;
+    color:#d8d2c6;background:#14110d;
+    padding:14px 34px;
+    border:4px solid #3a3226;
+    box-shadow:0 0 0 2px #0a0806, inset 0 0 0 2px #05040300;
+    cursor:pointer;image-rendering:pixelated;
+    transition:transform 0.08s ease, color 0.15s, border-color 0.15s;
+    min-width:220px;
+  }
+  .pixelBtn:hover{
+    color:#e8c565;border-color:#e8c565;
+    box-shadow:0 0 0 2px #0a0806, 0 0 12px rgba(232,197,101,0.35);
+    transform:translateY(-2px);
+  }
+  .pixelBtn:active{transform:translateY(1px);}
   #startScreen .signature{
     position:absolute;bottom:16px;right:20px;font-size:11px;color:#555;
     letter-spacing:2px;text-shadow:0 0 6px #000;
@@ -64,13 +89,15 @@
 </head>
 <body>
 <div id="startScreen">
-  <canvas id="bgCanvas"></canvas>
+  <video id="bgVideo" autoplay muted loop playsinline>
+    <source src="vid.mp4" type="video/mp4">
+  </video>
   <div id="startOverlay">
-    <h1>RÉSIDUEL</h1>
-    <p>ZQSD / WASD pour te déplacer — Souris pour regarder<br>
-    Clique pour commencer (verrouille la souris)<br>
-    E pour interagir — Trouve les 4 objets rituels<br><br>
-    <em>Ne reste pas trop longtemps dans le noir.</em></p>
+    <h1>RÉSID<span class="gold">U</span>EL</h1>
+    <div id="menuButtons">
+      <button class="pixelBtn" id="btnPlay">JOUER</button>
+      <button class="pixelBtn" id="btnSettings">PARAMÈTRES</button>
+    </div>
   </div>
   <div class="signature">by Wikimind</div>
 </div>
@@ -84,112 +111,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ============ SCÈNE D'ARRIÈRE-PLAN DE L'ÉCRAN D'ACCUEIL ============
-(function(){
-  const bgCanvas = document.getElementById('bgCanvas');
-  const W = 320, H = 180;
-  const bgRenderer = new THREE.WebGLRenderer({canvas:bgCanvas, antialias:false});
-  bgRenderer.setSize(W,H,false);
-
-  const bgScene = new THREE.Scene();
-  bgScene.background = new THREE.Color(0x0a0806);
-  bgScene.fog = new THREE.FogExp2(0x0a0806, 0.05);
-
-  const bgCam = new THREE.PerspectiveCamera(65, W/H, 0.05, 30);
-  bgCam.position.set(0, 1.5, 0);
-
-  const bgAmbient = new THREE.AmbientLight(0x3a2f1e, 0.85);
-  bgScene.add(bgAmbient);
-
-  // plusieurs lampes chaudes façon éclairage de galerie
-  const lampPositions = [
-    [1.8, 2.4, -3.2], [-1.8, 2.4, -3.2], [1.8, 2.4, 3.2], [-1.8, 2.4, 3.2], [0,2.4,0]
-  ];
-  const lamps = [];
-  lampPositions.forEach(p => {
-    const l = new THREE.PointLight(0xffc478, 1.6, 8, 2);
-    l.position.set(p[0],p[1],p[2]);
-    bgScene.add(l);
-    lamps.push(l);
-  });
-
-  const matWall = new THREE.MeshLambertMaterial({color:0x453b2c});
-  const matFloor = new THREE.MeshLambertMaterial({color:0x2a2219});
-  const matGold = new THREE.MeshStandardMaterial({color:0xcfa93c, emissive:0x3a2a05, metalness:0.6, roughness:0.35});
-  const matFrame = new THREE.MeshStandardMaterial({color:0xb8933a, metalness:0.5, roughness:0.4});
-  const matPainting = new THREE.MeshLambertMaterial({color:0x1a1512});
-  const matPedestal = new THREE.MeshLambertMaterial({color:0x3a3228});
-
-  function box(w,h,d,x,y,z,mat){
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), mat);
-    m.position.set(x,y,z);
-    bgScene.add(m);
-    return m;
-  }
-
-  // grande galerie
-  box(9,3.2,0.2, 0,1.6,-4.5, matWall);
-  box(9,3.2,0.2, 0,1.6, 4.5, matWall);
-  box(0.2,3.2,9, -4.5,1.6,0, matWall);
-  box(0.2,3.2,9,  4.5,1.6,0, matWall);
-  box(9,0.2,9, 0,-0.1,0, matFloor);
-  box(9,0.2,9, 0,3.2,0, matWall);
-
-  // cadres dorés avec tableaux sombres
-  function painting(x,y,z,rotY,w,h){
-    const g = new THREE.Group();
-    const frame = new THREE.Mesh(new THREE.BoxGeometry(w,h,0.08), matFrame);
-    const canvas = new THREE.Mesh(new THREE.BoxGeometry(w-0.15,h-0.15,0.02), matPainting);
-    canvas.position.z = 0.05;
-    g.add(frame, canvas);
-    g.position.set(x,y,z);
-    g.rotation.y = rotY;
-    bgScene.add(g);
-  }
-  painting(-2.5, 1.7, -4.38, 0, 1.3, 1.7);
-  painting(2.5, 1.7, -4.38, 0, 1.3, 1.7);
-  painting(-4.38, 1.7, -1.5, Math.PI/2, 1.2, 1.6);
-  painting(-4.38, 1.7, 1.8, Math.PI/2, 1.2, 1.6);
-  painting(4.38, 1.7, -1, -Math.PI/2, 1.2, 1.6);
-
-  // statues dorées sur socles
-  function statue(x,z){
-    const pedestal = new THREE.Mesh(new THREE.BoxGeometry(0.6,0.9,0.6), matPedestal);
-    pedestal.position.set(x,0.45,z);
-    bgScene.add(pedestal);
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.22,0.9,8), matGold);
-    body.position.set(x,1.35,z);
-    bgScene.add(body);
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.16,8,6), matGold);
-    head.position.set(x,1.9,z);
-    bgScene.add(head);
-  }
-  statue(-2, 2.4);
-  statue(2, -2.2);
-  statue(0, 0);
-
-  let lampFlicker = 0;
-  const clock = new THREE.Clock();
-  let angle = 0;
-  function animateBg(){
-    if(document.getElementById('startScreen').style.display === 'none'){
-      return; // stop dès que le jeu démarre
-    }
-    requestAnimationFrame(animateBg);
-    const dt = Math.min(clock.getDelta(), 0.05);
-    angle += dt * 0.06; // rotation lente 360°
-    bgCam.rotation.y = angle;
-
-    lampFlicker -= dt;
-    if(lampFlicker <= 0){
-      lamps.forEach(l => l.intensity = 1.3 + Math.random()*0.5);
-      lampFlicker = 0.15 + Math.random()*0.6;
-    }
-    bgRenderer.render(bgScene, bgCam);
-  }
-  animateBg();
-})();
-
 (function(){
   // ---------- SETUP ----------
   const canvas = document.getElementById('renderCanvas');
@@ -325,8 +246,15 @@
 
   let yaw = 0, pitch = 0;
   const startScreen = document.getElementById('startScreen');
-  startScreen.addEventListener('click', () => {
+  document.getElementById('btnPlay').addEventListener('click', (e) => {
+    e.stopPropagation();
     canvas.requestPointerLock();
+  });
+  document.getElementById('btnSettings').addEventListener('click', (e) => {
+    e.stopPropagation();
+    pickupMsg.textContent = 'Paramètres — bientôt disponible';
+    pickupMsg.style.opacity = 1;
+    setTimeout(()=>pickupMsg.style.opacity=0, 1600);
   });
   document.addEventListener('pointerlockchange', () => {
     if(document.pointerLockElement === canvas){
