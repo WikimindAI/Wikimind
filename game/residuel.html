@@ -135,6 +135,22 @@
   }
   #introTip.show{opacity:1;}
 
+  #nightClock{
+    position:absolute;top:22px;right:26px;
+    font-family:'Press Start 2P',monospace;font-size:16px;color:#e8c565;
+    background:rgba(0,0,0,0.55);padding:8px 16px;border:1px solid #2c271e;
+    z-index:8;opacity:0;transition:opacity 0.6s;letter-spacing:2px;
+    text-shadow:2px 2px 0 #000;
+  }
+  #nightClock.show{opacity:1;}
+  #roomLabel{
+    position:absolute;top:22px;left:22px;
+    font-size:11px;letter-spacing:1px;color:#9a9384;
+    background:rgba(0,0,0,0.5);padding:6px 14px;border:1px solid #2c271e;
+    z-index:8;opacity:0;transition:opacity 0.4s;pointer-events:none;
+  }
+  #roomLabel.show{opacity:1;}
+
   /* ---------- SETTINGS PANEL ---------- */
   #settingsPanel{
     position:fixed;inset:0;background:rgba(0,0,0,0.86);
@@ -228,11 +244,18 @@
   <canvas id="torchOverlay"></canvas>
   <div id="crosshair"></div>
   <div id="introTip">ZQSD / WASD — souris pour regarder</div>
+  <div id="nightClock">22:00</div>
+  <div id="roomLabel"></div>
 </div>
 
 <div id="fadeLayer"></div>
 
-<script src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
+<script>
+  if (typeof THREE === 'undefined') {
+    document.write('<scr' + 'ipt src="https://unpkg.com/three@0.157.0/build/three.min.js"><\/scr' + 'ipt>');
+  }
+</script>
 <script>
   if (typeof THREE === 'undefined') {
     document.write('<scr' + 'ipt src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r157/three.min.js"><\/scr' + 'ipt>');
@@ -362,6 +385,28 @@ torchImg.onload = drawTorchOverlay;
 
 /* ================= THREE.JS GAME ================= */
 let renderer, scene, camera, clock;
+
+/* ================= COLLISIONS (hitboxes AABB en XZ) ================= */
+let colliders = [];
+function resetColliders(){ colliders = []; }
+function pushCollider(x, z, w, d){
+  colliders.push({ minX: x - w/2, maxX: x + w/2, minZ: z - d/2, maxZ: z + d/2 });
+}
+const PLAYER_RADIUS = 0.35;
+function isBlocked(x, z){
+  for(let i=0;i<colliders.length;i++){
+    const c = colliders[i];
+    if(x + PLAYER_RADIUS > c.minX && x - PLAYER_RADIUS < c.maxX &&
+       z + PLAYER_RADIUS > c.minZ && z - PLAYER_RADIUS < c.maxZ) return true;
+  }
+  return false;
+}
+function moveWithCollision(px, pz, mv){
+  let nx = px, nz = pz;
+  if(!isBlocked(px + mv.x, pz)) nx = px + mv.x;
+  if(!isBlocked(nx, pz + mv.z)) nz = pz + mv.z;
+  return {x:nx, z:nz};
+}
 let mode = 'taxi';
 let flashlight, flashTarget;
 let buildings = [];
@@ -371,7 +416,7 @@ let keys = {};
 let yaw = 0, pitch = 0;
 let playerRig;
 let pointerLocked = false;
-let exteriorState = 'start'; // start, heard_noise, check_behind, chased, escaped, caught
+let exteriorState = 'walking'; // walking, entering
 let typeInterval = null;
 let isTyping = false;
 let currentFullText = "";
@@ -478,6 +523,7 @@ function makeBuilding(x,z,w,h,d,colorSeed){
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.set(x, h/2, z);
   scene.add(mesh);
+  pushCollider(x, z, w, d);
 
   // Corniche sombre en haut du bâtiment (détail silhouette)
   const ledge = new THREE.Mesh(
@@ -669,6 +715,7 @@ function buildExteriorScene(){
   mode = 'exterior';
   while(scene.children.length){ scene.remove(scene.children[0]); }
   buildings = []; streetlights = [];
+  resetColliders();
   
   scene.fog = new THREE.FogExp2(0x030407, qualityPresets[GFX.quality].fog + 0.01);
   scene.add(new THREE.HemisphereLight(0x2c3554, 0x040406, 1.4));
@@ -686,12 +733,14 @@ function buildExteriorScene(){
   const museum = new THREE.Mesh(new THREE.BoxGeometry(16,8,8), museumMat);
   museum.position.set(0, 5.125, -12.6);
   scene.add(museum);
+  pushCollider(0, -12.6, 16, 8);
 
   // Colonnes
   for(let i=-6;i<=6;i+=4){
     const col = new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,6.6,12), new THREE.MeshStandardMaterial({color:0xc9c3b5}));
     col.position.set(i, 4.425, -8.6);
     scene.add(col);
+    pushCollider(i, -8.6, 0.7, 0.7);
   }
 
   // Tapis Rouge & Marches
@@ -769,17 +818,19 @@ function buildExteriorScene(){
   parkedTaxi.position.set(5, 0, 4);
   parkedTaxi.rotation.y = Math.PI / 6;
   scene.add(parkedTaxi);
+  pushCollider(5, 4, 3.2, 4.6);
 
-  // Le Stalker (Chauffeur)
-  window.evilDriver = new THREE.Group();
+  // Chauffeur (silhouette statique près de son taxi, purement décorative)
+  const driverFigure = new THREE.Group();
   const dBody = new THREE.Mesh(new THREE.CapsuleGeometry(0.35, 1.1, 4, 8), new THREE.MeshStandardMaterial({color:0x2a2f3a}));
   dBody.position.y = 0.9;
-  window.evilDriver.add(dBody);
+  driverFigure.add(dBody);
   const dHead = new THREE.Mesh(new THREE.SphereGeometry(0.25,8,8), new THREE.MeshStandardMaterial({color:0xc9a583}));
   dHead.position.y = 1.75;
-  window.evilDriver.add(dHead);
-  window.evilDriver.position.set(4, 0, 4); // À côté du taxi
-  scene.add(window.evilDriver);
+  driverFigure.add(dHead);
+  driverFigure.position.set(4, 0, 4);
+  scene.add(driverFigure);
+  pushCollider(4, 4, 0.7, 0.7);
 
   flashlight = new THREE.SpotLight(0xfff2c8, 3.2*GFX.torchPower, 14, Math.PI/7, 0.5, 1.2);
   flashlight.position.set(0,0,0);
@@ -794,19 +845,19 @@ function buildExteriorScene(){
   playerRig = { x:0, y:1.6, z:6 };
   camera.position.set(playerRig.x, playerRig.y, playerRig.z);
   yaw = Math.PI; pitch = 0;
-  exteriorState = 'start';
+  exteriorState = 'walking';
 }
 
 function requestPointerLock(){
   const canvas = document.getElementById('gameCanvas');
   canvas.addEventListener('click', ()=>{
-    if(mode==='exterior') canvas.requestPointerLock();
+    if(mode==='exterior' || mode==='museum') canvas.requestPointerLock();
   });
   document.addEventListener('pointerlockchange', ()=>{
     pointerLocked = document.pointerLockElement === canvas;
   });
   document.addEventListener('mousemove', e=>{
-    if(!pointerLocked || mode!=='exterior') return;
+    if(!pointerLocked || (mode!=='exterior' && mode!=='museum')) return;
     yaw -= e.movementX * 0.0022 * GFX.sensitivity;
     pitch -= e.movementY * 0.0022 * GFX.sensitivity;
     pitch = Math.max(-1.1, Math.min(1.1, pitch));
@@ -814,7 +865,7 @@ function requestPointerLock(){
 }
 
 function updateExteriorMovement(dt){
-  if(exteriorState === 'caught' || exteriorState === 'escaped') return;
+  if(exteriorState === 'entering') return;
 
   const speed = 3.8 * dt;
   const forward = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw));
@@ -824,79 +875,411 @@ function updateExteriorMovement(dt){
   if(keys['KeyS']||keys['ArrowDown']) mv.sub(forward);
   if(keys['KeyD']||keys['ArrowRight']) mv.add(right);
   if(keys['KeyA']||keys['ArrowLeft']) mv.sub(right);
-  if(mv.lengthSq()>0){ mv.normalize().multiplyScalar(speed); playerRig.x += mv.x; playerRig.z += mv.z; }
+  if(mv.lengthSq()>0) mv.normalize().multiplyScalar(speed);
+
+  const moved = moveWithCollision(playerRig.x, playerRig.z, mv);
+  playerRig.x = moved.x; playerRig.z = moved.z;
 
   const bob = Math.sin(clock.elapsedTime*8) * (mv.lengthSq()>0 ? 0.04 : 0);
   camera.position.set(playerRig.x, playerRig.y+bob, playerRig.z);
   camera.rotation.set(pitch, yaw, 0, 'YXZ');
 
-  // Stalker Logic
-  if(!window.evilDriver) return;
-
-  const pPos = new THREE.Vector3(playerRig.x, 0, playerRig.z);
-  const dPos = window.evilDriver.position;
-
-  if(exteriorState === 'start') {
-    // Il nous suit doucement
-    if(dPos.distanceTo(pPos) > 4.5) {
-        const dir = new THREE.Vector3().subVectors(pPos, dPos).normalize();
-        window.evilDriver.position.addScaledVector(dir, 1.8 * dt);
-    }
-
-    if(playerRig.z < 1) { // On s'approche du musée
-        exteriorState = 'heard_noise';
-        dialogueQueue = [["MOI", "J'ai entendu des pas rapides derrière moi..."]];
-        onDialogueEnd = () => {
-            exteriorState = 'check_behind';
-            // On le téléporte pour s'assurer qu'il soit vu et menaçant quand on se retourne
-            window.evilDriver.position.set(playerRig.x + (Math.random()>0.5?1:-1), 0, playerRig.z + 4);
-        };
-        showDialogueLine();
-    }
-  }
-  else if(exteriorState === 'check_behind') {
-    const lookDir = new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
-    if(lookDir.z > 0.4) { // On s'est retourné
-        exteriorState = 'chased';
-    }
-  }
-  else if(exteriorState === 'chased') {
-    // Il court vers nous
-    const dir = new THREE.Vector3().subVectors(pPos, dPos).normalize();
-    window.evilDriver.position.addScaledVector(dir, 4.3 * dt);
-
-    if(dPos.distanceTo(pPos) < 1.2) {
-        exteriorState = 'caught';
-        fadeOut(300).then(() => {
-            document.getElementById('dialogueBox').style.display = 'none';
-            const msg = document.getElementById('settingsMsg');
-            msg.textContent = 'IL VOUS A EU...';
-            msg.style.opacity = 1;
-            msg.style.color = '#ff0000';
-            msg.style.fontSize = '24px';
-            msg.style.bottom = '50vh';
-            setTimeout(()=>location.reload(), 3000);
-        });
-    }
-    else if(playerRig.z < -7.0) { // On est arrivé aux portes
-        exteriorState = 'escaped';
-        enterMuseumSafe();
-    }
+  // Arrivée aux portes du musée
+  if(playerRig.z < -7.0 && Math.abs(playerRig.x) < 3){
+    exteriorState = 'entering';
+    enterMuseumSafe();
   }
 }
 
 async function enterMuseumSafe() {
-  await fadeOut(200);
+  await fadeOut(600);
   document.getElementById('dialogueBox').classList.remove('show');
   dialogueActive = false;
-  setTimeout(() => {
-      const msg = document.getElementById('settingsMsg');
-      msg.textContent = 'PORTES VERROUILLÉES. VOUS ÊTES EN SÉCURITÉ.';
-      msg.style.opacity = 1;
-      msg.style.color = '#ffffff';
-      msg.style.bottom = '50vh';
-      msg.style.fontSize = '18px';
-  }, 500);
+  document.getElementById('introTip').classList.remove('show');
+  buildMuseumInterior();
+  await fadeIn(1200);
+  startNight();
+}
+
+/* ================= MUSÉE — INTÉRIEUR ================= */
+let museumRooms = [];
+let roomLabelEl, nightClockEl;
+let nightActive = false;
+let nightElapsed = 0;
+const NIGHT_DURATION = 300; // 5 minutes réelles par nuit
+let nightNumber = 1;
+let nextEventAt = 0;
+
+function makeCanvasArt(kind, seed){
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 320;
+  const ctx = c.getContext('2d');
+  const rand = (s)=>{ let x = Math.sin(s*9999)*10000; return x-Math.floor(x); };
+  ctx.fillStyle = '#1a140c'; ctx.fillRect(0,0,256,320);
+  ctx.fillStyle = '#e8c565'; ctx.fillRect(10,10,236,300);
+  const bg = ['#2a2f3a','#3a2518','#1c2f2a','#2f1c2a'][Math.floor(rand(seed)*4)];
+  ctx.fillStyle = bg; ctx.fillRect(20,20,216,280);
+  ctx.globalAlpha = 0.5;
+  for(let i=0;i<6;i++){
+    ctx.fillStyle = `hsl(${Math.floor(rand(seed+i)*360)},30%,${20+rand(seed+i*2)*20}%)`;
+    const w = 30+rand(seed+i*3)*80, h = 30+rand(seed+i*4)*100;
+    ctx.fillRect(20+rand(seed+i*5)*(196-w), 20+rand(seed+i*6)*(280-h), w, h);
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = 'rgba(220,210,190,0.65)';
+  ctx.beginPath();
+  ctx.ellipse(128, 130, 32, 42, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillRect(96, 170, 64, 100);
+  return new THREE.CanvasTexture(c);
+}
+
+function makePlaque(sc, x,y,z, ry, text){
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 128;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#f2e3b0'; ctx.fillRect(0,0,512,128);
+  ctx.fillStyle = '#1a1a1c';
+  ctx.font = 'bold 34px "Courier New", monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(text, 256, 64);
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.MeshStandardMaterial({map:tex, roughness:0.6});
+  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.75), mat);
+  plaque.position.set(x,y,z);
+  plaque.rotation.y = ry;
+  sc.add(plaque);
+}
+
+function buildRoomShell(cx, cz, w, d, h, floorColor, doorSide){
+  const wallMat = new THREE.MeshStandardMaterial({color:0x1c1a16, roughness:0.85});
+  const floorMat = new THREE.MeshStandardMaterial({color:floorColor, roughness:0.7});
+  const ceilMat = new THREE.MeshStandardMaterial({color:0x0e0c0a, roughness:0.9});
+  const doorGap = 2.4; // largeur de l'ouverture
+
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(w,d), floorMat);
+  floor.rotation.x = -Math.PI/2;
+  floor.position.set(cx, 0, cz);
+  scene.add(floor);
+
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(w,d), ceilMat);
+  ceil.rotation.x = Math.PI/2;
+  ceil.position.set(cx, h, cz);
+  scene.add(ceil);
+
+  // Mur nord (arrière, cz - d/2) — avec ouverture si doorSide === 'back'
+  if(doorSide === 'back'){
+    const segW = (w - doorGap)/2;
+    const wL = new THREE.Mesh(new THREE.BoxGeometry(segW, h, 0.3), wallMat);
+    wL.position.set(cx - w/2 + segW/2, h/2, cz - d/2); scene.add(wL);
+    const wR = new THREE.Mesh(new THREE.BoxGeometry(segW, h, 0.3), wallMat);
+    wR.position.set(cx + w/2 - segW/2, h/2, cz - d/2); scene.add(wR);
+    pushCollider(cx - w/2 + segW/2, cz - d/2, segW, 0.3);
+    pushCollider(cx + w/2 - segW/2, cz - d/2, segW, 0.3);
+  } else {
+    const wallBack = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.3), wallMat);
+    wallBack.position.set(cx, h/2, cz - d/2);
+    scene.add(wallBack);
+    pushCollider(cx, cz - d/2, w, 0.3);
+  }
+
+  // Mur sud (avant, cz + d/2) — avec ouverture si doorSide === 'front'
+  if(doorSide === 'front'){
+    const segD = (w - doorGap)/2;
+    const wL = new THREE.Mesh(new THREE.BoxGeometry(segD, h, 0.3), wallMat);
+    wL.position.set(cx - w/2 + segD/2, h/2, cz + d/2); scene.add(wL);
+    const wR = new THREE.Mesh(new THREE.BoxGeometry(segD, h, 0.3), wallMat);
+    wR.position.set(cx + w/2 - segD/2, h/2, cz + d/2); scene.add(wR);
+    pushCollider(cx - w/2 + segD/2, cz + d/2, segD, 0.3);
+    pushCollider(cx + w/2 - segD/2, cz + d/2, segD, 0.3);
+  } else {
+    const wallFront = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.3), wallMat);
+    wallFront.position.set(cx, h/2, cz + d/2);
+    scene.add(wallFront);
+    pushCollider(cx, cz + d/2, w, 0.3);
+  }
+
+  // Mur ouest (gauche, cx - w/2) — avec ouverture si doorSide === 'left'
+  if(doorSide === 'left'){
+    const segD = (d - doorGap)/2;
+    const wA = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, segD), wallMat);
+    wA.position.set(cx - w/2, h/2, cz - d/2 + segD/2); scene.add(wA);
+    const wB = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, segD), wallMat);
+    wB.position.set(cx - w/2, h/2, cz + d/2 - segD/2); scene.add(wB);
+    pushCollider(cx - w/2, cz - d/2 + segD/2, 0.3, segD);
+    pushCollider(cx - w/2, cz + d/2 - segD/2, 0.3, segD);
+  } else {
+    const wallLeft = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, d), wallMat);
+    wallLeft.position.set(cx - w/2, h/2, cz);
+    scene.add(wallLeft);
+    pushCollider(cx - w/2, cz, 0.3, d);
+  }
+
+  // Mur est (droite, cx + w/2) — avec ouverture si doorSide === 'right'
+  if(doorSide === 'right'){
+    const segD = (d - doorGap)/2;
+    const wA = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, segD), wallMat);
+    wA.position.set(cx + w/2, h/2, cz - d/2 + segD/2); scene.add(wA);
+    const wB = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, segD), wallMat);
+    wB.position.set(cx + w/2, h/2, cz + d/2 - segD/2); scene.add(wB);
+    pushCollider(cx + w/2, cz - d/2 + segD/2, 0.3, segD);
+    pushCollider(cx + w/2, cz + d/2 - segD/2, 0.3, segD);
+  } else {
+    const wallRight = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, d), wallMat);
+    wallRight.position.set(cx + w/2, h/2, cz);
+    scene.add(wallRight);
+    pushCollider(cx + w/2, cz, 0.3, d);
+  }
+
+  const roomLight = new THREE.PointLight(0xffe6c0, 0.9, Math.max(w,d)*1.4, 2);
+  roomLight.position.set(cx, h-0.6, cz);
+  scene.add(roomLight);
+}
+
+function buildPaintingRoom(cx, cz){
+  const w=12, d=10, h=5;
+  buildRoomShell(cx, cz, w, d, h, 0x3a2418, 'right');
+  const positions = [
+    [cx-4.85, 2.5, cz-3, Math.PI/2], [cx-4.85, 2.5, cz+3, Math.PI/2],
+    [cx+4.85, 2.5, cz-3, -Math.PI/2], [cx+4.85, 2.5, cz+3, -Math.PI/2]
+  ];
+  positions.forEach((p,i)=>{
+    const tex = makeCanvasArt('painting', i+1);
+    const mat = new THREE.MeshStandardMaterial({map:tex, roughness:0.5});
+    const frame = new THREE.Mesh(new THREE.PlaneGeometry(1.6,2.0), mat);
+    frame.position.set(p[0],p[1],p[2]);
+    frame.rotation.y = p[3];
+    scene.add(frame);
+    museumRooms.push(frame);
+  });
+  makePlaque(scene, cx, 0.9, cz+d/2-0.2, Math.PI, "GALERIE DE PEINTURES");
+  return {name:'Galerie de peintures', cx, cz, w, d};
+}
+
+function buildSculptureRoom(cx, cz){
+  const w=12, d=10, h=5.5;
+  buildRoomShell(cx, cz, w, d, h, 0x2a2a2c, 'left');
+  const pedMat = new THREE.MeshStandardMaterial({color:0xdedad0, roughness:0.5});
+  const bustMat = new THREE.MeshStandardMaterial({color:0xc9c3b5, roughness:0.4});
+  const spots = [[-3,-2.5],[3,-2.5],[-3,2.5],[3,2.5]];
+  spots.forEach(([ox,oz])=>{
+    const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.55,1.1,10), pedMat);
+    ped.position.set(cx+ox, 0.55, cz+oz);
+    scene.add(ped);
+    pushCollider(cx+ox, cz+oz, 1.1, 1.1);
+    const bust = new THREE.Mesh(new THREE.DodecahedronGeometry(0.5, 0), bustMat);
+    bust.position.set(cx+ox, 1.5, cz+oz);
+    bust.rotation.y = Math.random()*Math.PI;
+    scene.add(bust);
+    museumRooms.push(bust);
+  });
+  makePlaque(scene, cx, 0.9, cz+d/2-0.2, Math.PI, "SALLE DES SCULPTURES");
+  return {name:'Salle des sculptures', cx, cz, w, d};
+}
+
+function buildGoldRoom(cx, cz){
+  const w=10, d=9, h=5;
+  buildRoomShell(cx, cz, w, d, h, 0x2e2410, 'right');
+  const glassMat = new THREE.MeshStandardMaterial({color:0x88a0aa, transparent:true, opacity:0.18, roughness:0.1, metalness:0.1});
+  const goldMat = new THREE.MeshStandardMaterial({color:0xd4af37, roughness:0.25, metalness:0.85, emissive:0x3a2a05, emissiveIntensity:0.3});
+  const cases = [[-2.5,-1.5],[2.5,-1.5],[0,2]];
+  cases.forEach(([ox,oz])=>{
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.4,0.9,1.4), new THREE.MeshStandardMaterial({color:0x1c1712, roughness:0.7}));
+    base.position.set(cx+ox, 0.45, cz+oz);
+    scene.add(base);
+    pushCollider(cx+ox, cz+oz, 1.5, 1.5);
+    for(let i=0;i<5;i++){
+      const coin = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,0.05,14), goldMat);
+      coin.position.set(cx+ox+(Math.random()-0.5)*0.4, 0.93+i*0.055, cz+oz+(Math.random()-0.5)*0.4);
+      coin.rotation.x = Math.PI/2;
+      coin.rotation.z = Math.random()*Math.PI;
+      scene.add(coin);
+      museumRooms.push(coin);
+    }
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(1.5,1.0,1.5), glassMat);
+    glass.position.set(cx+ox, 1.45, cz+oz);
+    scene.add(glass);
+  });
+  makePlaque(scene, cx, 0.9, cz+d/2-0.2, Math.PI, "TRESOR & PIECES D'OR");
+  return {name:"Salle des pièces d'or", cx, cz, w, d};
+}
+
+function buildJewelryRoom(cx, cz){
+  const w=10, d=9, h=5;
+  buildRoomShell(cx, cz, w, d, h, 0x241428, 'left');
+  const glassMat = new THREE.MeshStandardMaterial({color:0x88a0aa, transparent:true, opacity:0.16, roughness:0.1});
+  const gemColors = [0xff3b6e, 0x3bb0ff, 0x6dff8a, 0xffd23b, 0xd23bff];
+  const cases = [[-2.5,-1.5],[2.5,-1.5],[0,2]];
+  cases.forEach(([ox,oz],ci)=>{
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,0.9,16), new THREE.MeshStandardMaterial({color:0x181018, roughness:0.6}));
+    base.position.set(cx+ox, 0.45, cz+oz);
+    scene.add(base);
+    pushCollider(cx+ox, cz+oz, 1.3, 1.3);
+    const gemMat = new THREE.MeshStandardMaterial({
+      color: gemColors[ci%gemColors.length],
+      emissive: gemColors[ci%gemColors.length], emissiveIntensity:0.5,
+      roughness:0.15, metalness:0.2
+    });
+    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.28,0), gemMat);
+    gem.position.set(cx+ox, 1.05, cz+oz);
+    scene.add(gem);
+    museumRooms.push(gem);
+    const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.65,0.65,1.0,16), glassMat);
+    glass.position.set(cx+ox, 1.4, cz+oz);
+    scene.add(glass);
+    const gLight = new THREE.PointLight(gemColors[ci%gemColors.length], 0.4, 2.5, 2);
+    gLight.position.set(cx+ox, 1.2, cz+oz);
+    scene.add(gLight);
+  });
+  makePlaque(scene, cx, 0.9, cz+d/2-0.2, Math.PI, "COLLECTION DE BIJOUX");
+  return {name:'Collection de bijoux', cx, cz, w, d};
+}
+
+function buildMuseumInterior(){
+  mode = 'museum';
+  while(scene.children.length){ scene.remove(scene.children[0]); }
+  buildings = []; streetlights = []; museumRooms = [];
+  resetColliders();
+
+  scene.fog = new THREE.FogExp2(0x08070a, 0.012);
+  scene.add(new THREE.HemisphereLight(0x3a3040, 0x080608, 1.2));
+  scene.add(new THREE.AmbientLight(0x33302c, 0.55));
+
+  buildRoomShell(0, 0, 8, 8, 6, 0x4a2a1a, 'back');
+  makePlaque(scene, 0, 0.9, 3.8, Math.PI, "ACCUEIL");
+
+  const corridorMat = new THREE.MeshStandardMaterial({color:0x18140f, roughness:0.8});
+  const corridorFloor = new THREE.Mesh(new THREE.PlaneGeometry(5, 34), corridorMat);
+  corridorFloor.rotation.x = -Math.PI/2;
+  corridorFloor.position.set(0, 0.001, -21);
+  scene.add(corridorFloor);
+  for(let i=0;i<6;i++){
+    const l = new THREE.PointLight(0xffe6c0, 0.7, 8, 2);
+    l.position.set(0, 4.4, -i*6-4);
+    scene.add(l);
+  }
+
+  const rooms = [];
+  rooms.push(buildPaintingRoom(-9, -10));
+  rooms.push(buildSculptureRoom(9, -10));
+  rooms.push(buildGoldRoom(-8, -26));
+  rooms.push(buildJewelryRoom(8, -26));
+  window.museumRoomList = rooms;
+
+  flashlight = new THREE.SpotLight(0xfff2c8, 3.0*GFX.torchPower, 12, Math.PI/7, 0.5, 1.2);
+  flashlight.position.set(0,0,0);
+  flashTarget = new THREE.Object3D();
+  scene.add(flashlight, flashTarget);
+  flashlight.target = flashTarget;
+  camera.add(flashlight);
+  camera.add(flashTarget);
+  flashTarget.position.set(0,0,-1);
+  scene.add(camera);
+
+  playerRig = { x:0, y:1.65, z:3 };
+  camera.position.set(playerRig.x, playerRig.y, playerRig.z);
+  yaw = Math.PI; pitch = 0;
+
+  roomLabelEl = document.getElementById('roomLabel');
+  nightClockEl = document.getElementById('nightClock');
+  document.getElementById('torchOverlay').classList.add('show');
+  document.getElementById('crosshair').classList.add('show');
+  roomLabelEl.classList.add('show');
+}
+
+function updateMuseumMovement(dt){
+  const speed = 3.2 * dt;
+  const forward = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw));
+  const right = new THREE.Vector3(Math.sin(yaw+Math.PI/2), 0, Math.cos(yaw+Math.PI/2));
+  let mv = new THREE.Vector3();
+  if(keys['KeyW']||keys['ArrowUp']) mv.add(forward);
+  if(keys['KeyS']||keys['ArrowDown']) mv.sub(forward);
+  if(keys['KeyD']||keys['ArrowRight']) mv.add(right);
+  if(keys['KeyA']||keys['ArrowLeft']) mv.sub(right);
+  if(mv.lengthSq()>0) mv.normalize().multiplyScalar(speed);
+
+  const moved = moveWithCollision(playerRig.x, playerRig.z, mv);
+  playerRig.x = Math.max(-15, Math.min(15, moved.x));
+  playerRig.z = Math.max(-31, Math.min(4, moved.z));
+
+  const bob = Math.sin(clock.elapsedTime*7.5) * (mv.lengthSq()>0 ? 0.035 : 0);
+  camera.position.set(playerRig.x, playerRig.y+bob, playerRig.z);
+  camera.rotation.set(pitch, yaw, 0, 'YXZ');
+
+  if(window.museumRoomList){
+    const here = window.museumRoomList.find(r =>
+      Math.abs(playerRig.x - r.cx) < r.w/2 && Math.abs(playerRig.z - r.cz) < r.d/2
+    );
+    const label = here ? here.name.toUpperCase() : "COULOIR PRINCIPAL";
+    if(roomLabelEl.textContent !== label) roomLabelEl.textContent = label;
+  }
+}
+
+/* ================= CYCLE DE NUIT (5 minutes réelles) ================= */
+const nightEvents = [
+  "…un bruit de pas, quelque part au-dessus.",
+  "Une porte grince, alors qu'il n'y a pas de vent ici.",
+  "Vous êtes sûr d'avoir déjà visité cette salle.",
+  "Le silence semble... écouter.",
+  "Un tableau a changé de place. Ou pas.",
+  "Quelque chose respire, très loin dans le couloir.",
+  "Vous avez la sensation d'être observé."
+];
+
+function showEventToast(text){
+  const msg = document.getElementById('settingsMsg');
+  msg.textContent = text;
+  msg.style.color = '#d0c0a0';
+  msg.style.fontSize = '13px';
+  msg.style.bottom = '10vh';
+  msg.style.opacity = 1;
+  setTimeout(()=> msg.style.opacity = 0, 3200);
+}
+
+function formatNightClock(elapsedRatio){
+  const totalMinutes = elapsedRatio * 8 * 60;
+  let h = 22 + Math.floor(totalMinutes/60);
+  const m = Math.floor(totalMinutes%60);
+  if(h >= 24) h -= 24;
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+}
+
+function startNight(){
+  nightActive = true;
+  nightElapsed = 0;
+  nextEventAt = 14 + Math.random()*20;
+  nightClockEl.classList.add('show');
+  nightClockEl.textContent = formatNightClock(0);
+  showEventToast(`NUIT ${nightNumber} — Faites votre ronde jusqu'à l'aube.`);
+}
+
+function updateNight(dt){
+  if(!nightActive) return;
+  nightElapsed += dt;
+  const ratio = Math.min(1, nightElapsed / NIGHT_DURATION);
+  nightClockEl.textContent = formatNightClock(ratio);
+
+  if(nightElapsed >= nextEventAt && nightElapsed < NIGHT_DURATION - 5){
+    showEventToast(nightEvents[Math.floor(Math.random()*nightEvents.length)]);
+    nextEventAt = nightElapsed + 25 + Math.random()*35;
+  }
+
+  if(ratio >= 1){
+    endNight();
+  }
+}
+
+async function endNight(){
+  nightActive = false;
+  nightClockEl.classList.remove('show');
+  await fadeOut(1200);
+  const msg = document.getElementById('settingsMsg');
+  msg.textContent = `L'AUBE SE LÈVE. VOUS AVEZ SURVÉCU À LA NUIT ${nightNumber}.`;
+  msg.style.opacity = 1;
+  msg.style.color = '#ffffff';
+  msg.style.bottom = '50vh';
+  msg.style.fontSize = '18px';
+  nightNumber++;
 }
 
 function animate(){
@@ -904,6 +1287,10 @@ function animate(){
   const dt = Math.min(clock.getDelta(), 0.05);
   if(mode==='taxi') updateTaxiRide(dt);
   if(mode==='exterior' && !dialogueActive) updateExteriorMovement(dt);
+  if(mode==='museum' && !dialogueActive){
+    updateMuseumMovement(dt);
+    updateNight(dt);
+  }
 
   // Scintillement lampadaires (léger, façon néon fatigué)
   const t = clock.elapsedTime;
