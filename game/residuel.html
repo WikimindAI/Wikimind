@@ -2,39 +2,23 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>RÉSIDUEL - Prototype</title>
+<title>RÉSIDUEL</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=EB+Garamond:ital@1&display=swap');
-  html,body{margin:0;padding:0;overflow:hidden;background:#000;font-family:'Courier New',monospace;}
-  #renderCanvas{width:100vw;height:100vh;display:block;image-rendering:pixelated;}
-  #crosshair{
-    position:fixed;top:50%;left:50%;width:4px;height:4px;
-    background:rgba(255,255,255,0.6);border-radius:50%;
-    transform:translate(-50%,-50%);pointer-events:none;z-index:10;
-  }
-  #hud{
-    position:fixed;bottom:20px;left:20px;color:#8a8a8a;font-size:13px;
-    letter-spacing:1px;text-shadow:0 0 4px #000;pointer-events:none;z-index:10;
-  }
-  #objective{
-    position:fixed;top:20px;left:20px;color:#b0a090;font-size:13px;
-    letter-spacing:1px;text-shadow:0 0 4px #000;pointer-events:none;z-index:10;
-    max-width:300px;
-  }
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+  html,body{margin:0;padding:0;overflow:hidden;background:#000;font-family:'Courier New',monospace;height:100%;}
   #startScreen{
     position:fixed;inset:0;background:#000;color:#999;display:flex;
-    flex-direction:column;align-items:center;justify-content:center;z-index:100;
+    align-items:center;justify-content:center;
     text-align:center;overflow:hidden;
   }
   #bgVideo{
     position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
     filter:saturate(0.85) contrast(1.05) brightness(0.8);
-    image-rendering:pixelated;
   }
   #startOverlay{
     position:relative;z-index:2;background:radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.6) 100%);
     width:100%;height:100%;display:flex;flex-direction:column;
-    align-items:center;justify-content:flex-end;padding-bottom:9vh;box-sizing:border-box;
+    align-items:center;justify-content:center;box-sizing:border-box;
   }
   #startScreen h1{
     font-family:'Press Start 2P',monospace;
@@ -57,8 +41,8 @@
     color:#d8d2c6;background:#14110d;
     padding:14px 34px;
     border:4px solid #3a3226;
-    box-shadow:0 0 0 2px #0a0806, inset 0 0 0 2px #05040300;
-    cursor:pointer;image-rendering:pixelated;
+    box-shadow:0 0 0 2px #0a0806;
+    cursor:pointer;
     transition:transform 0.08s ease, color 0.15s, border-color 0.15s;
     min-width:220px;
   }
@@ -68,22 +52,20 @@
     transform:translateY(-2px);
   }
   .pixelBtn:active{transform:translateY(1px);}
+  #wikimindLogo{
+    position:absolute;top:24px;left:50%;transform:translateX(-50%);
+    width:64px;height:auto;z-index:3;
+    filter:drop-shadow(0 0 6px rgba(0,0,0,0.9));
+    pointer-events:none;
+  }
   #startScreen .signature{
     position:absolute;bottom:16px;right:20px;font-size:11px;color:#555;
-    letter-spacing:2px;text-shadow:0 0 6px #000;
+    letter-spacing:2px;text-shadow:0 0 6px #000;z-index:3;
   }
-  #vignette{
-    position:fixed;inset:0;pointer-events:none;z-index:9;
-    background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.75) 100%);
-  }
-  #pickupMsg{
-    position:fixed;top:60%;left:50%;transform:translate(-50%,-50%);
+  #settingsMsg{
+    position:absolute;bottom:8vh;left:50%;transform:translateX(-50%);
     color:#d0c0a0;font-size:12px;letter-spacing:1px;opacity:0;
-    transition:opacity 0.3s;z-index:10;pointer-events:none;
-  }
-  #interactPrompt{
-    position:fixed;top:55%;left:50%;transform:translate(-50%,-50%);
-    color:#999;font-size:11px;opacity:0;transition:opacity 0.2s;z-index:10;pointer-events:none;
+    transition:opacity 0.3s;z-index:3;pointer-events:none;
   }
 </style>
 </head>
@@ -92,6 +74,7 @@
   <video id="bgVideo" autoplay muted loop playsinline>
     <source src="vid.mp4" type="video/mp4">
   </video>
+  <img id="wikimindLogo" src="../wikimind.png" alt="Wikimind">
   <div id="startOverlay">
     <h1>RÉSID<span class="gold">U</span>EL</h1>
     <div id="menuButtons">
@@ -100,312 +83,19 @@
     </div>
   </div>
   <div class="signature">by Wikimind</div>
+  <div id="settingsMsg"></div>
 </div>
-<canvas id="renderCanvas"></canvas>
-<div id="crosshair"></div>
-<div id="vignette"></div>
-<div id="hud">Objets trouvés : <span id="itemCount">0</span> / 4</div>
-<div id="objective">Trouve les objets rituels dispersés dans le manoir.</div>
-<div id="interactPrompt">[E] Ramasser</div>
-<div id="pickupMsg"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-(function(){
-  // ---------- SETUP ----------
-  const canvas = document.getElementById('renderCanvas');
-  const INTERNAL_W = 320, INTERNAL_H = 180; // résolution interne basse -> look PS1
-
-  const renderer = new THREE.WebGLRenderer({canvas, antialias:false});
-  renderer.setSize(INTERNAL_W, INTERNAL_H, false);
-  renderer.setPixelRatio(1);
-  canvas.style.width = '100vw';
-  canvas.style.height = '100vh';
-
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000000);
-  scene.fog = new THREE.FogExp2(0x000000, 0.09);
-
-  const camera = new THREE.PerspectiveCamera(70, INTERNAL_W/INTERNAL_H, 0.05, 40);
-  camera.position.set(0, 1.6, 5);
-
-  // ---------- PS1 VERTEX JITTER MATERIAL HELPER ----------
-  // On simule l'effet d'affine texture-mapping/jitter en snappant les positions de vertex
-  // dans le vertex shader (comme la vraie PS1). On patche via onBeforeCompile.
-  function ps1ify(material){
-    material.onBeforeCompile = (shader) => {
-      shader.vertexShader = shader.vertexShader.replace(
-        '#include <project_vertex>',
-        `
-        vec4 mvPosition = vec4( transformed, 1.0 );
-        mvPosition = modelViewMatrix * mvPosition;
-        gl_Position = projectionMatrix * mvPosition;
-        gl_Position.xyz = gl_Position.xyz / gl_Position.w * 40.0;
-        gl_Position.xyz = floor(gl_Position.xyz) / 40.0;
-        gl_Position.w = 1.0;
-        `
-      );
-    };
-    return material;
-  }
-
-  // ---------- LIGHTING ----------
-  const ambient = new THREE.AmbientLight(0x1a1a22, 0.35);
-  scene.add(ambient);
-
-  const flashlight = new THREE.SpotLight(0xfff2d0, 1.6, 12, Math.PI/7, 0.5, 1.8);
-  flashlight.castShadow = false;
-  camera.add(flashlight);
-  flashlight.position.set(0,0,0);
-  flashlight.target.position.set(0,0,-1);
-  camera.add(flashlight.target);
-  scene.add(camera);
-
-  // flicker
-  let flickerTimer = 0;
-
-  // ---------- MATERIALS ----------
-  const floorMat = ps1ify(new THREE.MeshLambertMaterial({color:0x2b2620}));
-  const wallMat  = ps1ify(new THREE.MeshLambertMaterial({color:0x3a332c}));
-  const ceilMat  = ps1ify(new THREE.MeshLambertMaterial({color:0x14110e}));
-  const propMat  = ps1ify(new THREE.MeshLambertMaterial({color:0x4a3f30}));
-  const itemMat  = ps1ify(new THREE.MeshLambertMaterial({color:0x8a6a2a, emissive:0x2a1a05}));
-  const entityMat= ps1ify(new THREE.MeshLambertMaterial({color:0x050505}));
-
-  // ---------- ROOM BUILDER ----------
-  const ROOM_W = 10, ROOM_D = 14, ROOM_H = 3.2;
-  const collidables = []; // {min,max} AABB for simple collision
-
-  function addBox(w,h,d,x,y,z,mat,collide=true){
-    const geo = new THREE.BoxGeometry(w,h,d);
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.set(x,y,z);
-    scene.add(mesh);
-    if(collide){
-      collidables.push({
-        min:new THREE.Vector3(x-w/2,y-h/2,z-d/2),
-        max:new THREE.Vector3(x+w/2,y+h/2,z+d/2)
-      });
-    }
-    return mesh;
-  }
-
-  // floor / ceiling
-  addBox(ROOM_W,0.2,ROOM_D,0,-0.1,0,floorMat,false);
-  addBox(ROOM_W,0.2,ROOM_D,0,ROOM_H,0,ceilMat,false);
-  // walls (leave gaps for corridor at z-)
-  addBox(0.3,ROOM_H,ROOM_D,-ROOM_W/2,ROOM_H/2,0,wallMat);
-  addBox(0.3,ROOM_H,ROOM_D, ROOM_W/2,ROOM_H/2,0,wallMat);
-  addBox(ROOM_W,ROOM_H,0.3,0,ROOM_H/2,-ROOM_D/2,wallMat);
-  addBox(ROOM_W,ROOM_H,0.3,0,ROOM_H/2, ROOM_D/2,wallMat);
-
-  // clutter props for atmosphere
-  addBox(1.2,1.2,0.6, -3.5, 0.6, -5, propMat);
-  addBox(0.8,2.0,0.4, 3.5, 1.0, -4, propMat);
-  addBox(2.0,0.9,0.9, -2, 0.45, 4, propMat);
-  addBox(0.6,1.8,0.6, 4, 0.9, 3, propMat);
-  addBox(3.0,0.1,1.2, 0, 0.9, 0, propMat); // table
-  addBox(3.0,0.9,0.1, 0, 0.45, -0.6, propMat, false); // table leg visual (rough)
-
-  // ---------- ITEMS (ritual objects) ----------
-  const items = [];
-  function spawnItem(x,z){
-    const geo = new THREE.OctahedronGeometry(0.18,0);
-    const mesh = new THREE.Mesh(geo, itemMat);
-    mesh.position.set(x, 0.9, z);
-    scene.add(mesh);
-    items.push(mesh);
-  }
-  spawnItem(-3.2, -4.6);
-  spawnItem(3.3, -3.7);
-  spawnItem(-1.6, 4.1);
-  spawnItem(1.4, 0.95);
-
-  let itemsFound = 0;
-  const itemCountEl = document.getElementById('itemCount');
-  const pickupMsg = document.getElementById('pickupMsg');
-  const interactPrompt = document.getElementById('interactPrompt');
-
-  // ---------- ENTITY (stalker) ----------
-  const entity = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.3,0.4,1.9,6),
-    entityMat
-  );
-  entity.position.set(0, 0.95, -6);
-  entity.visible = false;
-  scene.add(entity);
-
-  let dangerLevel = 0; // rises when player lingers, entity approaches at high danger
-  let entityActive = false;
-  let entityChasing = false;
-
-  // ---------- CONTROLS ----------
-  const keys = {};
-  document.addEventListener('keydown', e => keys[e.code]=true);
-  document.addEventListener('keyup', e => keys[e.code]=false);
-
-  let yaw = 0, pitch = 0;
-  const startScreen = document.getElementById('startScreen');
-  document.getElementById('btnPlay').addEventListener('click', (e) => {
-    e.stopPropagation();
-    canvas.requestPointerLock();
+  document.getElementById('btnPlay').addEventListener('click', () => {
+    // Pas encore fonctionnel — à brancher sur le lancement du jeu.
   });
-  document.getElementById('btnSettings').addEventListener('click', (e) => {
-    e.stopPropagation();
-    pickupMsg.textContent = 'Paramètres — bientôt disponible';
-    pickupMsg.style.opacity = 1;
-    setTimeout(()=>pickupMsg.style.opacity=0, 1600);
+  document.getElementById('btnSettings').addEventListener('click', () => {
+    const msg = document.getElementById('settingsMsg');
+    msg.textContent = 'Paramètres — bientôt disponible';
+    msg.style.opacity = 1;
+    setTimeout(() => msg.style.opacity = 0, 1600);
   });
-  document.addEventListener('pointerlockchange', () => {
-    if(document.pointerLockElement === canvas){
-      startScreen.style.display = 'none';
-    }
-  });
-  document.addEventListener('mousemove', e => {
-    if(document.pointerLockElement !== canvas) return;
-    yaw -= e.movementX * 0.0022;
-    pitch -= e.movementY * 0.0022;
-    pitch = Math.max(-1.2, Math.min(1.2, pitch));
-  });
-
-  // ---------- COLLISION ----------
-  const PLAYER_RADIUS = 0.35;
-  function collides(pos){
-    for(const box of collidables){
-      if(pos.x + PLAYER_RADIUS > box.min.x && pos.x - PLAYER_RADIUS < box.max.x &&
-         pos.z + PLAYER_RADIUS > box.min.z && pos.z - PLAYER_RADIUS < box.max.z &&
-         pos.y > box.min.y - 1.6 && pos.y < box.max.y + 0.5){
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // ---------- INTERACT ----------
-  let nearestItem = null;
-  document.addEventListener('keydown', e => {
-    if(e.code === 'KeyE' && nearestItem){
-      scene.remove(nearestItem);
-      items.splice(items.indexOf(nearestItem),1);
-      itemsFound++;
-      itemCountEl.textContent = itemsFound;
-      nearestItem = null;
-      pickupMsg.textContent = 'Objet rituel récupéré...';
-      pickupMsg.style.opacity = 1;
-      setTimeout(()=>pickupMsg.style.opacity=0, 1800);
-      dangerLevel = Math.min(dangerLevel + 15, 100);
-      if(itemsFound >= 4){
-        setTimeout(()=>{
-          pickupMsg.textContent = "Les 4 objets sont réunis. La porte s'ouvre...";
-          pickupMsg.style.opacity = 1;
-        }, 2000);
-      }
-    }
-  });
-
-  // ---------- CLOCK / LOOP ----------
-  const clock = new THREE.Clock();
-  const moveVec = new THREE.Vector3();
-
-  function updatePlayer(dt){
-    camera.rotation.set(0,0,0);
-    camera.rotation.order = 'YXZ';
-    camera.rotation.y = yaw;
-    camera.rotation.x = pitch;
-
-    const speed = (keys['ShiftLeft'] ? 3.2 : 2.0) * dt;
-    moveVec.set(0,0,0);
-    if(keys['KeyW']||keys['ArrowUp']) moveVec.z -= 1;
-    if(keys['KeyS']||keys['ArrowDown']) moveVec.z += 1;
-    if(keys['KeyA']||keys['ArrowLeft']) moveVec.x -= 1;
-    if(keys['KeyD']||keys['ArrowRight']) moveVec.x += 1;
-
-    if(moveVec.lengthSq() > 0){
-      moveVec.normalize();
-      const forward = new THREE.Vector3(Math.sin(yaw), 0, Math.cos(yaw));
-      const right = new THREE.Vector3(Math.sin(yaw+Math.PI/2), 0, Math.cos(yaw+Math.PI/2));
-      const delta = new THREE.Vector3();
-      delta.addScaledVector(forward, -moveVec.z * speed);
-      delta.addScaledVector(right, moveVec.x * speed);
-
-      const testPos = camera.position.clone();
-      testPos.x += delta.x;
-      if(!collides(testPos)) camera.position.x = testPos.x;
-      testPos.copy(camera.position);
-      testPos.z += delta.z;
-      if(!collides(testPos)) camera.position.z = testPos.z;
-    }
-  }
-
-  function updateNearestItem(){
-    let best = null, bestDist = 1.3;
-    for(const it of items){
-      const d = it.position.distanceTo(camera.position);
-      if(d < bestDist){ best = it; bestDist = d; }
-    }
-    nearestItem = best;
-    interactPrompt.style.opacity = nearestItem ? 1 : 0;
-  }
-
-  function updateEntity(dt, elapsed){
-    // danger rises slowly over time to create tension, entity becomes visible/active late game
-    dangerLevel = Math.min(dangerLevel + dt*1.2, 100);
-
-    if(dangerLevel > 55 && !entityActive){
-      entityActive = true;
-      entity.visible = true;
-    }
-
-    if(entityActive){
-      if(dangerLevel > 80) entityChasing = true;
-
-      const target = entityChasing ? camera.position : entity.position;
-      if(entityChasing){
-        const dir = new THREE.Vector3().subVectors(camera.position, entity.position);
-        dir.y = 0;
-        const dist = dir.length();
-        if(dist > 0.01){
-          dir.normalize();
-          entity.position.addScaledVector(dir, dt * 1.4);
-        }
-      } else {
-        // subtle idle sway to feel "alive" in peripheral vision
-        entity.position.x = -1 + Math.sin(elapsed*0.3)*0.5;
-        entity.position.z = -6 + Math.cos(elapsed*0.2)*0.5;
-      }
-      entity.lookAt(camera.position.x, entity.position.y, camera.position.z);
-    }
-  }
-
-  function updateFlicker(dt){
-    flickerTimer -= dt;
-    if(flickerTimer <= 0){
-      flashlight.intensity = 1.2 + Math.random()*0.6;
-      flickerTimer = 0.05 + Math.random()*0.4;
-    }
-  }
-
-  function animate(){
-    requestAnimationFrame(animate);
-    const dt = Math.min(clock.getDelta(), 0.05);
-    const elapsed = clock.elapsedTime;
-
-    if(document.pointerLockElement === canvas){
-      updatePlayer(dt);
-      updateNearestItem();
-      updateEntity(dt, elapsed);
-    }
-    updateFlicker(dt);
-
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
-    canvas.style.width = '100vw';
-    canvas.style.height = '100vh';
-  });
-})();
 </script>
 </body>
 </html>
