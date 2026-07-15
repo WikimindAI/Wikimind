@@ -234,6 +234,11 @@
 
 <script src="https://unpkg.com/three@0.157.0/build/three.min.js"></script>
 <script>
+  if (typeof THREE === 'undefined') {
+    document.write('<scr' + 'ipt src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r157/three.min.js"><\/scr' + 'ipt>');
+  }
+</script>
+<script>
 /* ================= MENU ================= */
 /* ================= PARAMÈTRES (fonctionnels) ================= */
 const GFX = {
@@ -316,6 +321,14 @@ function fadeIn(duration){
 }
 
 document.getElementById('btnPlay').addEventListener('click', async () => {
+  if (typeof THREE === 'undefined') {
+    const msg = document.getElementById('settingsMsg');
+    msg.textContent = 'Erreur : moteur 3D non chargé (vérifie ta connexion internet)';
+    msg.style.opacity = 1;
+    msg.style.color = '#ff5555';
+    setTimeout(() => msg.style.opacity = 0, 3500);
+    return;
+  }
   await fadeOut(900);
   document.getElementById('startScreen').style.display = 'none';
   document.getElementById('gameContainer').style.display = 'block';
