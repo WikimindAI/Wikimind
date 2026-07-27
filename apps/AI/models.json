@@ -1,5 +1,5 @@
 {
-  "version": "5.5",
+  "version": "5.6",
   "defaultModel": "wm-small-5.5",
   "apiKeys": {
     "mistral": "5lnrIIlTIjlETLxr4Xqv0lkZdk8tPigj",
@@ -17,11 +17,11 @@
     "google_p1": "AQ.Ab8RN6LTojKwlg",
     "google_p2": "GFj1Bhs5QmzQNvu6y",
     "google_p3": "tFHll5tQzfFNgJp2gQQ",
-    "chutes": "cpk_fb1ec26b36824a7b92fb7d4c8dfce372.a365615d6e1354f5a2d09db59f89cffe.n5mkCZHv2FxEmJ01ynI6uJZb60iSZSs4"
+    "tavily": "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"
   },
   "modelExpiry": {
     "removeDate": "2026-09-12T00:00:00Z",
-    "note": "Tous les modèles ayant 'expiresAfterRemoveDate: true' sont automatiquement masqués après cette date."
+    "note": "Tous les modèles ayant 'expiresAfterRemoveDate: true' sont automatiquement masqués après cette date. wm-flash-5.5 (gemini-2.5-flash) sera retiré par Google le 16/10/2026, à surveiller."
   },
   "aiTokens": {
     "videoCost": 500,
@@ -49,7 +49,7 @@
       "contextWindow": 131072,
       "logo": "groqlogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-flash-5.2",
@@ -66,7 +66,7 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-flash-5.3",
@@ -83,7 +83,7 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-flash-5.4",
@@ -100,7 +100,7 @@
       "contextWindow": 131072,
       "logo": "groqlogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-flash-5.5",
@@ -120,7 +120,7 @@
         "google"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "watch"
     },
     {
       "id": "wm-flash-5.6",
@@ -137,17 +137,17 @@
       "contextWindow": 8192,
       "logo": "groqlogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-flash-5.7",
       "displayName": "Flash 5.7",
-      "apiModel": "gemini-2.0-flash",
+      "apiModel": "gemini-2.5-flash-lite",
       "tier": "flash",
       "category": "text",
-      "description": "Gemini 2.0 Flash · rapide, multimodal natif",
+      "description": "Gemini 2.5 Flash-Lite · ultra-rapide (remplace 2.0 Flash, retiré le 01/06/2026)",
       "provider": "google",
-      "apiEndpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent",
+      "apiEndpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:streamGenerateContent",
       "supportsVision": true,
       "supportsStreaming": true,
       "maxTokens": 8192,
@@ -157,7 +157,7 @@
         "google"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-flash-5.8",
@@ -177,7 +177,7 @@
         "openrouter"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-flash-5.9",
@@ -194,7 +194,7 @@
       "contextWindow": 64000,
       "logo": "cerebraslogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-image-flux",
@@ -216,7 +216,7 @@
         "blackforestlabs"
       ],
       "isMainPick": true,
-      "status": "unknown"
+      "status": "ok (10 crédits achetés)"
     },
     {
       "id": "wm-image-zimage",
@@ -238,7 +238,7 @@
         "alibaba"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (10 crédits achetés)"
     },
     {
       "id": "wm-image-klein",
@@ -260,7 +260,7 @@
         "blackforestlabs"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (10 crédits achetés)"
     },
     {
       "id": "wm-small-5.2",
@@ -277,17 +277,17 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-small-5.3",
       "displayName": "Small 5.3",
-      "apiModel": "gemini-2.0-flash-lite",
+      "apiModel": "gemini-2.5-flash-lite",
       "tier": "small",
       "category": "text",
-      "description": "Gemini 2.0 Flash-Lite · ultra-léger, gratuit",
+      "description": "Gemini 2.5 Flash-Lite · ultra-léger, gratuit (remplace 2.0 Flash-Lite, retiré le 01/06/2026)",
       "provider": "google",
-      "apiEndpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:streamGenerateContent",
+      "apiEndpoint": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:streamGenerateContent",
       "supportsVision": true,
       "supportsStreaming": true,
       "maxTokens": 8192,
@@ -297,7 +297,7 @@
         "google"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-small-5.4",
@@ -318,7 +318,7 @@
         "nvidia"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-small-5.5",
@@ -335,7 +335,7 @@
       "contextWindow": 32768,
       "logo": "mistrallogo.png",
       "isMainPick": true,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-small-5.6",
@@ -352,7 +352,7 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-small-5.7",
@@ -369,7 +369,7 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-small-5.8",
@@ -389,7 +389,7 @@
         "google"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-4.7",
@@ -410,7 +410,7 @@
         "google"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-4.8",
@@ -430,7 +430,7 @@
         "openrouter"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-4.9",
@@ -454,7 +454,7 @@
         "unit": "USD/1M tokens"
       },
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (crédit $5)"
     },
     {
       "id": "wm-medium-5.0",
@@ -471,7 +471,7 @@
       "contextWindow": 131072,
       "logo": "groqlogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-5.1",
@@ -491,7 +491,7 @@
         "openrouter"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-5.2",
@@ -515,7 +515,7 @@
         "unit": "USD/1M tokens"
       },
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (crédit $5)"
     },
     {
       "id": "wm-medium-5.3",
@@ -532,7 +532,7 @@
       "contextWindow": 131072,
       "logo": "groqlogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-5.4",
@@ -553,7 +553,7 @@
         "nvidia"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-5.5",
@@ -570,7 +570,7 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": true,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-5.6",
@@ -590,15 +590,15 @@
         "openrouter"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-5.7",
       "displayName": "Medium 5.7",
-      "apiModel": "command-r-plus-08-2024",
+      "apiModel": "command-r-08-2024",
       "tier": "medium",
       "category": "text",
-      "description": "Command R+ 104B · multilingue, RAG, tool use",
+      "description": "Command R 08-2024 · multilingue, RAG, tool use (remplace R+ 08-2024, retiré)",
       "provider": "cohere",
       "apiEndpoint": "https://api.cohere.com/v2/chat",
       "supportsVision": false,
@@ -607,7 +607,7 @@
       "contextWindow": 128000,
       "logo": "coherelogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-5.8",
@@ -624,7 +624,7 @@
       "contextWindow": 131072,
       "logo": "groqlogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-5.9",
@@ -648,7 +648,7 @@
         "unit": "USD/1M tokens"
       },
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (crédit $5)"
     },
     {
       "id": "wm-medium-6.0",
@@ -665,7 +665,7 @@
       "contextWindow": 131072,
       "logo": "groqlogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-6.1",
@@ -682,7 +682,7 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-6.2",
@@ -699,7 +699,7 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-6.3",
@@ -716,7 +716,7 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-medium-6.4",
@@ -737,7 +737,7 @@
         "moonshotai"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-image-gpt",
@@ -760,7 +760,7 @@
         "openai"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (10 crédits achetés)"
     },
     {
       "id": "wm-image-gpt-large",
@@ -783,7 +783,7 @@
         "openai"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (10 crédits achetés)"
     },
     {
       "id": "wm-large-4.6",
@@ -804,7 +804,7 @@
         "google"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-4.7",
@@ -824,7 +824,7 @@
         "openrouter"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-4.8",
@@ -841,7 +841,7 @@
       "contextWindow": 256000,
       "logo": "coherelogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-4.9",
@@ -858,7 +858,7 @@
       "contextWindow": 65536,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-5.0",
@@ -879,7 +879,7 @@
         "nvidia"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-5.1",
@@ -903,7 +903,7 @@
         "unit": "USD/1M tokens"
       },
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (crédit $5)"
     },
     {
       "id": "wm-large-5.2",
@@ -920,7 +920,7 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-5.3",
@@ -937,7 +937,7 @@
       "contextWindow": 131072,
       "logo": "cerebraslogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-5.4",
@@ -961,7 +961,7 @@
         "unit": "USD/1M tokens"
       },
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (crédit $5)"
     },
     {
       "id": "wm-large-5.5",
@@ -978,7 +978,7 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": true,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-5.6",
@@ -995,7 +995,7 @@
       "contextWindow": 128000,
       "logo": "coherelogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-5.7",
@@ -1019,7 +1019,7 @@
         "unit": "USD/1M tokens"
       },
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (crédit $5)"
     },
     {
       "id": "wm-large-5.8",
@@ -1043,7 +1043,7 @@
         "unit": "USD/1M tokens"
       },
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (crédit $5)"
     },
     {
       "id": "wm-large-5.9",
@@ -1061,7 +1061,7 @@
       "isCodeModel": true,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-6.0",
@@ -1079,7 +1079,7 @@
       "isCodeModel": true,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-6.1",
@@ -1103,7 +1103,7 @@
         "unit": "USD/1M tokens"
       },
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (crédit $5)"
     },
     {
       "id": "wm-large-6.2",
@@ -1120,7 +1120,7 @@
       "contextWindow": 131072,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-6.3",
@@ -1138,7 +1138,7 @@
       "isCodeModel": true,
       "logo": "mistrallogo.png",
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-6.4",
@@ -1158,7 +1158,7 @@
         "google"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-large-6.5",
@@ -1179,7 +1179,7 @@
         "nvidia"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok"
     },
     {
       "id": "wm-byok",
@@ -1201,7 +1201,7 @@
         "pollinations"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (10 crédits achetés)"
     },
     {
       "id": "wm-image-kontext",
@@ -1226,7 +1226,7 @@
         "blackforestlabs"
       ],
       "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (10 crédits achetés)"
     },
     {
       "id": "wm-video-ltx2",
@@ -1257,267 +1257,7 @@
         "outputFormat": "mp4"
       },
       "isMainPick": false,
-      "status": "unknown"
-    },
-    {
-      "id": "wm-chutes-1",
-      "displayName": "Chutes Nemo",
-      "apiModel": "unsloth/Mistral-Nemo-Instruct-2407",
-      "tier": "flash",
-      "category": "text",
-      "description": "Mistral Nemo via Chutes · léger et rapide",
-      "provider": "chutes",
-      "apiEndpoint": "https://llm.chutes.ai/v1/chat/completions",
-      "supportsVision": false,
-      "supportsStreaming": true,
-      "maxTokens": 8192,
-      "contextWindow": 131072,
-      "logo": "chuteslogo.png",
-      "isPaid": true,
-      "pricing": {
-        "input": 0.0245,
-        "output": 0.0978,
-        "unit": "USD/1M tokens"
-      },
-      "sourceProviders": [
-        "chutes"
-      ],
-      "isMainPick": false,
-      "status": "unknown"
-    },
-    {
-      "id": "wm-chutes-2",
-      "displayName": "Chutes Gemma 4 31B",
-      "apiModel": "google/gemma-4-31B-turbo",
-      "tier": "flash",
-      "category": "text",
-      "description": "Gemma 4 31B via Chutes · vision, rapide",
-      "provider": "chutes",
-      "apiEndpoint": "https://llm.chutes.ai/v1/chat/completions",
-      "supportsVision": true,
-      "supportsStreaming": true,
-      "maxTokens": 65536,
-      "contextWindow": 131072,
-      "logo": "chuteslogo.png",
-      "isPaid": true,
-      "pricing": {
-        "input": 0.12,
-        "output": 0.37,
-        "unit": "USD/1M tokens"
-      },
-      "sourceProviders": [
-        "chutes"
-      ],
-      "isMainPick": false,
-      "status": "unknown"
-    },
-    {
-      "id": "wm-chutes-3",
-      "displayName": "Chutes Qwen3 32B",
-      "apiModel": "Qwen/Qwen3-32B",
-      "tier": "small",
-      "category": "text",
-      "description": "Qwen3 32B via Chutes · reasoning, tool use",
-      "provider": "chutes",
-      "apiEndpoint": "https://llm.chutes.ai/v1/chat/completions",
-      "supportsVision": false,
-      "supportsStreaming": true,
-      "maxTokens": 40960,
-      "contextWindow": 40960,
-      "logo": "chuteslogo.png",
-      "isPaid": true,
-      "pricing": {
-        "input": 0.104,
-        "output": 0.416,
-        "unit": "USD/1M tokens"
-      },
-      "sourceProviders": [
-        "chutes"
-      ],
-      "isMainPick": false,
-      "status": "unknown"
-    },
-    {
-      "id": "wm-chutes-4",
-      "displayName": "Chutes MiniMax M2.5",
-      "apiModel": "MiniMaxAI/MiniMax-M2.5",
-      "tier": "small",
-      "category": "text",
-      "description": "MiniMax M2.5 via Chutes · reasoning avancé",
-      "provider": "chutes",
-      "apiEndpoint": "https://llm.chutes.ai/v1/chat/completions",
-      "supportsVision": false,
-      "supportsStreaming": true,
-      "maxTokens": 65536,
-      "contextWindow": 196608,
-      "logo": "chuteslogo.png",
-      "isPaid": true,
-      "pricing": {
-        "input": 0.15,
-        "output": 1.2,
-        "unit": "USD/1M tokens"
-      },
-      "sourceProviders": [
-        "chutes"
-      ],
-      "isMainPick": false,
-      "status": "unknown"
-    },
-    {
-      "id": "wm-chutes-5",
-      "displayName": "Chutes Qwen3.6 27B",
-      "apiModel": "Qwen/Qwen3.6-27B",
-      "tier": "small",
-      "category": "text",
-      "description": "Qwen3.6 27B via Chutes · vision, reasoning, 262k contexte",
-      "provider": "chutes",
-      "apiEndpoint": "https://llm.chutes.ai/v1/chat/completions",
-      "supportsVision": true,
-      "supportsStreaming": true,
-      "maxTokens": 65536,
-      "contextWindow": 262144,
-      "logo": "chuteslogo.png",
-      "isPaid": true,
-      "pricing": {
-        "input": 0.3,
-        "output": 2.0,
-        "unit": "USD/1M tokens"
-      },
-      "sourceProviders": [
-        "chutes"
-      ],
-      "isMainPick": false,
-      "status": "unknown"
-    },
-    {
-      "id": "wm-chutes-6",
-      "displayName": "Chutes Kimi K2.5",
-      "apiModel": "moonshotai/Kimi-K2.5",
-      "tier": "large",
-      "category": "text",
-      "description": "Kimi K2.5 via Chutes · vision + vidéo en entrée, 262k contexte",
-      "provider": "chutes",
-      "apiEndpoint": "https://llm.chutes.ai/v1/chat/completions",
-      "supportsVision": true,
-      "supportsStreaming": true,
-      "maxTokens": 65535,
-      "contextWindow": 262144,
-      "logo": "chuteslogo.png",
-      "isPaid": true,
-      "pricing": {
-        "input": 0.44,
-        "output": 2.0,
-        "unit": "USD/1M tokens"
-      },
-      "sourceProviders": [
-        "chutes"
-      ],
-      "isMainPick": false,
-      "status": "unknown"
-    },
-    {
-      "id": "wm-chutes-7",
-      "displayName": "Chutes GLM-5",
-      "apiModel": "zai-org/GLM-5",
-      "tier": "large",
-      "category": "text",
-      "description": "GLM-5 via Chutes · reasoning, 202k contexte",
-      "provider": "chutes",
-      "apiEndpoint": "https://llm.chutes.ai/v1/chat/completions",
-      "supportsVision": false,
-      "supportsStreaming": true,
-      "maxTokens": 65535,
-      "contextWindow": 202752,
-      "logo": "chuteslogo.png",
-      "isPaid": true,
-      "pricing": {
-        "input": 0.95,
-        "output": 2.55,
-        "unit": "USD/1M tokens"
-      },
-      "sourceProviders": [
-        "chutes"
-      ],
-      "isMainPick": false,
-      "status": "unknown"
-    },
-    {
-      "id": "wm-chutes-8",
-      "displayName": "Chutes DeepSeek V3.2",
-      "apiModel": "deepseek-ai/DeepSeek-V3.2",
-      "tier": "large",
-      "category": "text",
-      "description": "DeepSeek V3.2 via Chutes · reasoning, tool use",
-      "provider": "chutes",
-      "apiEndpoint": "https://llm.chutes.ai/v1/chat/completions",
-      "supportsVision": false,
-      "supportsStreaming": true,
-      "maxTokens": 65536,
-      "contextWindow": 131072,
-      "logo": "chuteslogo.png",
-      "isPaid": true,
-      "pricing": {
-        "input": 1.0,
-        "output": 1.0,
-        "unit": "USD/1M tokens"
-      },
-      "sourceProviders": [
-        "chutes"
-      ],
-      "isMainPick": false,
-      "status": "unknown"
-    },
-    {
-      "id": "wm-chutes-9",
-      "displayName": "Chutes Qwen3.5 397B",
-      "apiModel": "Qwen/Qwen3.5-397B-A17B",
-      "tier": "large",
-      "category": "text",
-      "description": "Qwen3.5 397B MoE via Chutes · vision, 262k contexte",
-      "provider": "chutes",
-      "apiEndpoint": "https://llm.chutes.ai/v1/chat/completions",
-      "supportsVision": true,
-      "supportsStreaming": true,
-      "maxTokens": 65536,
-      "contextWindow": 262144,
-      "logo": "chuteslogo.png",
-      "isPaid": true,
-      "pricing": {
-        "input": 0.45,
-        "output": 3.0,
-        "unit": "USD/1M tokens"
-      },
-      "sourceProviders": [
-        "chutes"
-      ],
-      "isMainPick": false,
-      "status": "unknown"
-    },
-    {
-      "id": "wm-chutes-10",
-      "displayName": "Chutes GLM-5.2",
-      "apiModel": "zai-org/GLM-5.2",
-      "tier": "large",
-      "category": "text",
-      "description": "GLM-5.2 via Chutes · reasoning, 1M contexte",
-      "provider": "chutes",
-      "apiEndpoint": "https://llm.chutes.ai/v1/chat/completions",
-      "supportsVision": false,
-      "supportsStreaming": true,
-      "maxTokens": 65535,
-      "contextWindow": 1048576,
-      "logo": "chuteslogo.png",
-      "isPaid": true,
-      "pricing": {
-        "input": 1.4,
-        "output": 4.4,
-        "unit": "USD/1M tokens"
-      },
-      "sourceProviders": [
-        "chutes"
-      ],
-      "isMainPick": false,
-      "status": "unknown"
+      "status": "ok (10 crédits achetés)"
     }
   ],
   "imageQuota": {
