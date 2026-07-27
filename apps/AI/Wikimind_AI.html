@@ -3898,9 +3898,6 @@ $("file-input").addEventListener("change", async (e) => {
         || WIKIMIND_MODELS.find(m => m.supportsVision);
       if (visionModel) {
         applyModelById(visionModel.id);
-        toast(`Vision activée → ${visionModel.displayName} 🖼️ (tu peux changer dans le sélecteur)`);
-      } else {
-        toast(`⚠️ Aucun modèle vision disponible — l'image sera ignorée`);
       }
     }
   }
@@ -7159,6 +7156,19 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
 
       // ── Trouver un modèle de remplacement proche et toujours dispo ──
       const altModel = findSimilarAvailableModel(_mObjForError);
+
+      if (altModel && !_mObjForError?._wmAlreadyRetried) {
+        // ── Bascule silencieuse : on change de modèle et on relance sans rien afficher ──
+        applyModelById(altModel.id);
+        const idx = messages.findIndex(m => m.msgId === aiMsgObj.msgId);
+        if (idx >= 0) messages.splice(idx, 1);
+        const lastUser = [...messages].reverse().find(m => m.role === "user");
+        if (lastUser) {
+          window._wmSelectedModelObj = { ...altModel, _wmAlreadyRetried: true };
+          await doStream(lastUser.content, true);
+          return;
+        }
+      }
 
       aiMsgObj.content = "";
       aiMsgObj.isError = true;
