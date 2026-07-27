@@ -1447,13 +1447,22 @@ body:not(.chat-empty-state) #welcome-screen {
 .thinking-dots span {
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--text3);
-  animation: tDot 1.2s ease-in-out infinite;
+  animation: tDot 1s ease-in-out infinite;
 }
-.thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
-.thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+.thinking-dots span:nth-child(2) { animation-delay: 0.15s; }
+.thinking-dots span:nth-child(3) { animation-delay: 0.3s; }
+.thinking-dots span:nth-child(4) { animation-delay: 0.45s; }
 @keyframes tDot {
-  0%, 100% { opacity: 0.2; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1); }
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.75) translateY(0); }
+  40% { opacity: 1; transform: scale(1.15) translateY(-2px); }
+}
+.thinking-step-label {
+  display: inline-block;
+  animation: thinkLabelIn 0.25s ease;
+}
+@keyframes thinkLabelIn {
+  from { opacity: 0; transform: translateY(3px); filter: blur(1.5px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 /* ========== DISCLAIMER ========== */
@@ -4041,7 +4050,7 @@ function updateSendBtn() {
 // WIKIMIND MODELS — chargés depuis models.json
 // =============================================
 let WIKIMIND_MODELS = [];
-let WM_API_KEYS = { mistral: "", groq: "", pollinations: "", cerebras: "", sambanova: "", cohere: "", google: "", openrouter: "", chutes: "" };
+let WM_API_KEYS = { mistral: "", groq: "", pollinations: "", cerebras: "", sambanova: "", cohere: "", google: "", openrouter: "", chutes: "", tavily: "" };
 // Rate limits par modèle image (images/heure)
 const IMAGE_RATE_LIMITS = {
   "flux":           222,  // ~0.4/0.0018 images Flux Schnell
@@ -4185,7 +4194,8 @@ async function loadModels() {
         cohere: data.apiKeys.cohere || "",
         google: gak,
         openrouter: ork,
-        chutes: data.apiKeys.chutes || ""
+        chutes: data.apiKeys.chutes || "",
+        tavily: data.apiKeys.tavily || ""
       };
     }
     // ── Si le modèle actuellement sélectionné a disparu (forfait insuffisant / expiré), fallback ──
@@ -5224,13 +5234,13 @@ function appendThinking(partnerInfo = null) {
         <div class="thinking-conn-icon" style="background:${conn.color}20;border:1px solid ${conn.color}30">
           <img src="${conn.icon}" alt="${conn.name}" width="14" height="14" style="object-fit:contain">
         </div>
-        <div class="thinking-dots"><span></span><span></span><span></span></div>
-        <span>Lecture de ${conn.name}...</span>
+        <div class="thinking-dots"><span></span><span></span><span></span><span></span></div>
+        <span class="thinking-step-label">Lecture de ${conn.name}...</span>
       </div>`;
     }
   }
   if (!thinkingHTML) {
-    thinkingHTML = `<div class="thinking-bubble"><div class="thinking-dots"><span></span><span></span><span></span></div><span>Wikimind réfléchit...</span></div>`;
+    thinkingHTML = `<div class="thinking-bubble"><div class="thinking-dots"><span></span><span></span><span></span><span></span></div><span class="thinking-step-label">Wikimind réfléchit...</span></div>`;
   }
 
   g.innerHTML = `<div class="msg-inner">${thinkingHTML}</div>`;
@@ -5238,6 +5248,21 @@ function appendThinking(partnerInfo = null) {
   scrollBottom();
   return g;
 }
+
+// Met à jour le texte de l'étape en cours dans l'indicateur "thinking"
+// (ex: "Recherche en cours...", "Analyse des sources...", "Rédaction...")
+// avec un petit fondu pour que ça ne saute pas brutalement.
+function setThinkingStep(text) {
+  const el = document.getElementById("thinking-group");
+  if (!el) return;
+  const label = el.querySelector(".thinking-step-label");
+  if (!label) return;
+  label.style.animation = "none";
+  void label.offsetWidth;
+  label.textContent = text;
+  label.style.animation = "";
+}
+window.setThinkingStep = setThinkingStep;
 
 function removeThinking() {
   const el = document.getElementById("thinking-group");
@@ -5684,7 +5709,80 @@ window._wmInjectAndSend = function(promptText) {
   sendMessage();
 };
 
+// =============================================
+// RECHERCHE WEB — TAVILY (actualité, contexte temps réel)
+// =============================================
+// Ne redéfinit rien si link.js (production) fournit déjà sa propre version.
+if (!window.wmEnrichMessage) {
+
+  // Formatte la date/heure actuelle (Europe/Paris) pour que le modèle sache
+  // toujours "on est le combien" et puisse juger si sa connaissance est à jour.
+  function _wmNowContext() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Paris' });
+    const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' });
+    return `Nous sommes le ${dateStr}, il est ${timeStr} (heure de Paris).`;
+  }
+  window._wmNowContext = _wmNowContext;
+
+  // Heuristique : la question porte-t-elle sur quelque chose de récent / changeant,
+  // donc potentiellement hors des connaissances du modèle ?
+  const _wmSearchTriggers = /\b(aujourd'?hui|hier|avant[\s-]hier|cette semaine|ce mois[\s-]ci|en ce moment|actuellement|derni[eè]re[s]?\s+(nouvelle|actualit|info)|actualit[ée]s?|r[ée]cemment|qui a gagn[ée]|r[ée]sultat[s]?\s+(du|de|d')|score[s]?\s+(du|de)|classement\s+actuel|cours\s+(du|de)\s+(bourse|l'action|bitcoin|dollar|euro)|m[ée]t[ée]o|combien\s+co[uû]te|prix\s+(actuel|du)|dernier\s+(album|film|match)|sorti[e]?\s+(cette\s+semaine|ce\s+mois|r[ée]cemment)|202[6-9]\b)/i;
+
+  function _wmShouldSearch(text) {
+    if (!text || text.length < 3) return false;
+    return _wmSearchTriggers.test(text);
+  }
+
+  async function _wmTavilySearch(query) {
+    const key = WM_API_KEYS.tavily;
+    if (!key) return null;
+    try {
+      const res = await fetch("https://api.tavily.com/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          api_key: key,
+          query: query,
+          search_depth: "basic",
+          include_answer: false,
+          max_results: 5
+        })
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.results || null;
+    } catch (err) {
+      console.warn("[Tavily] recherche échouée :", err);
+      return null;
+    }
+  }
+
+  window.wmEnrichMessage = async function(fullContent) {
+    const nowCtx = _wmNowContext();
+    let enrichedText = `[Contexte : ${nowCtx}]\n\n${fullContent}`;
+    let extraSources = [];
+
+    if (_wmShouldSearch(fullContent) && WM_API_KEYS.tavily) {
+      window.setThinkingStep?.("Recherche en cours...");
+      const results = await _wmTavilySearch(fullContent);
+      if (results && results.length > 0) {
+        window.setThinkingStep?.("Analyse des sources...");
+        const resultsBlock = results.map((r, i) =>
+          `[${i + 1}] ${r.title}\nURL: ${r.url}\n${(r.content || "").slice(0, 500)}`
+        ).join("\n\n");
+        enrichedText = `[Contexte : ${nowCtx}]\n\n--- RÉSULTATS DE RECHERCHE WEB ---\n${resultsBlock}\n--- FIN RÉSULTATS ---\nINSTRUCTIONS : Utilise ces résultats pour répondre avec des informations à jour. Cite tes sources avec leur numéro [1], [2] etc. Si les résultats ne répondent pas à la question, dis-le et réponds avec tes connaissances générales.\n\n${fullContent}`;
+        extraSources = results.map(r => ({ title: r.title, url: r.url }));
+        window.setThinkingStep?.("Wikimind réfléchit...");
+      }
+    }
+
+    return { enrichedText, extraSources };
+  };
+}
+
 async function sendMessage() {
+
   const text = chatInput.value.trim();
   if ((!text && attachedFiles.length === 0) || streaming) return;
 
@@ -6939,6 +7037,7 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
 
 
     const _systemPromptText = "Tu es Wikimind AI, l'assistant intelligent de la plateforme Wikimind. " +
+                    (window._wmNowContext ? window._wmNowContext() + " " : "") +
                     "Tu es concis, précis et utile. " +
                     "Pour les formules mathématiques, utilise la syntaxe LaTeX : $formule$ pour l'inline et $$formule$$ pour les blocs. " +
                     "Pour les graphiques interactifs, utilise EXACTEMENT cette syntaxe :\n" +
