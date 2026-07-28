@@ -229,6 +229,22 @@ html, body {
   color: var(--text);
   font-family: 'Geist', sans-serif;
   font-size: 16px;
+  position: relative;
+}
+
+/* ── Lueur radiale grise sur l'écran d'accueil (façon Gemini, en gris) ── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 45% at 50% 52%, rgba(160,160,170,0.16) 0%, rgba(120,120,130,0.06) 45%, transparent 72%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+body.chat-empty-state::before {
+  opacity: 1;
 }
 
 /* ========== SIDEBAR ========== */
@@ -5760,10 +5776,11 @@ if (!window.wmEnrichMessage) {
 
   window.wmEnrichMessage = async function(fullContent) {
     const nowCtx = _wmNowContext();
+    const needsSearch = _wmShouldSearch(fullContent);
     let enrichedText = `[Contexte : ${nowCtx}]\n\n${fullContent}`;
     let extraSources = [];
 
-    if (_wmShouldSearch(fullContent) && WM_API_KEYS.tavily) {
+    if (needsSearch && WM_API_KEYS.tavily) {
       window.setThinkingStep?.("Recherche en cours...");
       const results = await _wmTavilySearch(fullContent);
       if (results && results.length > 0) {
@@ -5774,12 +5791,19 @@ if (!window.wmEnrichMessage) {
         enrichedText = `[Contexte : ${nowCtx}]\n\n--- RÉSULTATS DE RECHERCHE WEB ---\n${resultsBlock}\n--- FIN RÉSULTATS ---\nINSTRUCTIONS : Utilise ces résultats pour répondre avec des informations à jour. Cite tes sources avec leur numéro [1], [2] etc. Si les résultats ne répondent pas à la question, dis-le et réponds avec tes connaissances générales.\n\n${fullContent}`;
         extraSources = results.map(r => ({ title: r.title, url: r.url }));
         window.setThinkingStep?.("Wikimind réfléchit...");
+      } else {
+        // Recherche tentée mais aucun résultat exploitable (clé invalide, quota, panne...)
+        enrichedText = `[Contexte : ${nowCtx}]\n\nATTENTION : la question ci-dessous porte sur une actualité récente, mais la recherche web n'a renvoyé aucun résultat exploitable (service indisponible ou quota atteint). N'INVENTE AUCUN FAIT, AUCUNE DATE, AUCUN ÉVÉNEMENT. Dis explicitement à l'utilisateur que tu n'as pas pu vérifier l'information en temps réel et que tu ne peux pas répondre de façon fiable à cette question précise.\n\n${fullContent}`;
       }
+    } else if (needsSearch && !WM_API_KEYS.tavily) {
+      // Question d'actualité détectée mais aucune clé de recherche configurée
+      enrichedText = `[Contexte : ${nowCtx}]\n\nATTENTION : la question ci-dessous porte sur une actualité récente ou un événement daté (aujourd'hui/hier/etc), mais AUCUN outil de recherche web n'est configuré actuellement. Tu n'as accès à aucune information vérifiée après ta date de connaissance. N'INVENTE JAMAIS de faits, de dates, de résultats, de noms d'événements ou de citations pour répondre à ce type de question. Dis clairement à l'utilisateur que tu ne peux pas vérifier cette information en temps réel et explique que la recherche web n'est pas encore activée.\n\n${fullContent}`;
     }
 
     return { enrichedText, extraSources };
   };
 }
+
 
 async function sendMessage() {
 
