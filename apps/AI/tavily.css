@@ -1,0 +1,60 @@
+/* ================================================================
+   TAVILY.CSS — Indicateurs visuels discrets pour la recherche web
+   ================================================================ */
+
+/* Petit badge "recherche effectuée" — discret, pas de texte, juste une icône */
+.wm-search-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(77, 143, 255, 0.12);
+  color: #4d8fff;
+  font-size: 9px;
+  margin-left: 6px;
+  vertical-align: middle;
+  animation: wmSearchBadgeIn 0.3s ease;
+  cursor: default;
+}
+@keyframes wmSearchBadgeIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Cartes de sources sous une réponse enrichie par la recherche web */
+.wm-sources-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.wm-source-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 220px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border, rgba(255,255,255,0.1));
+  background: var(--bg3, #141414);
+  color: var(--text2, #a0a0a0);
+  font-size: 0.72rem;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.15s ease;
+}
+.wm-source-card:hover {
+  color: var(--text, #fff);
+  border-color: var(--border2, rgba(255,255,255,0.2));
+  transform: translateY(-1px);
+}
+.wm-source-card .wm-source-favicon {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
