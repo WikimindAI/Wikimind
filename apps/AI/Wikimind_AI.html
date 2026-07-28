@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="sources.css">
 <link rel="stylesheet" href="statpopup.css">
 <link rel="stylesheet" href="link.css">
+<link rel="stylesheet" href="tavily.css">
 <link rel="stylesheet" href="videogen.css">
 <link rel="stylesheet" href="code.css">
 <style>
@@ -229,22 +230,6 @@ html, body {
   color: var(--text);
   font-family: 'Geist', sans-serif;
   font-size: 16px;
-  position: relative;
-}
-
-/* ── Lueur radiale grise sur l'écran d'accueil (façon Gemini, en gris) ── */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(ellipse 60% 45% at 50% 52%, rgba(160,160,170,0.16) 0%, rgba(120,120,130,0.06) 45%, transparent 72%);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-body.chat-empty-state::before {
-  opacity: 1;
 }
 
 /* ========== SIDEBAR ========== */
@@ -559,6 +544,25 @@ body.chat-empty-state::before {
   height: 100vh;
   height: 100dvh;
   max-height: 100dvh;
+  position: relative;
+}
+
+/* ── Lueur radiale grise sur l'écran d'accueil (façon Gemini, en gris) ── */
+#bg-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 55% 50% at 50% 55%, rgba(180,180,190,0.32) 0%, rgba(140,140,150,0.14) 40%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+body.chat-empty-state #bg-glow {
+  opacity: 1;
+}
+#topbar, #chat-wrap {
+  position: relative;
+  z-index: 1;
 }
 
 #topbar {
@@ -2849,6 +2853,7 @@ body.chat-empty-state #input-container {
 </div>
 
 <div id="app">
+<div id="bg-glow"></div>
   <div id="topbar">
     <button id="burger">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -4067,6 +4072,7 @@ function updateSendBtn() {
 // =============================================
 let WIKIMIND_MODELS = [];
 let WM_API_KEYS = { mistral: "", groq: "", pollinations: "", cerebras: "", sambanova: "", cohere: "", google: "", openrouter: "", chutes: "", tavily: "" };
+window.WM_API_KEYS = WM_API_KEYS; // exposé pour tavily.js (fichier externe)
 // Rate limits par modèle image (images/heure)
 const IMAGE_RATE_LIMITS = {
   "flux":           222,  // ~0.4/0.0018 images Flux Schnell
@@ -4213,6 +4219,7 @@ async function loadModels() {
         chutes: data.apiKeys.chutes || "",
         tavily: data.apiKeys.tavily || ""
       };
+      window.WM_API_KEYS = WM_API_KEYS; // resynchronise pour tavily.js
     }
     // ── Si le modèle actuellement sélectionné a disparu (forfait insuffisant / expiré), fallback ──
     const currentStillAvailable = WIKIMIND_MODELS.find(m => m.apiModel === selectedModel);
@@ -5724,85 +5731,6 @@ window._wmInjectAndSend = function(promptText) {
   input.dispatchEvent(new Event("input", { bubbles: true }));
   sendMessage();
 };
-
-// =============================================
-// RECHERCHE WEB — TAVILY (actualité, contexte temps réel)
-// =============================================
-// Ne redéfinit rien si link.js (production) fournit déjà sa propre version.
-if (!window.wmEnrichMessage) {
-
-  // Formatte la date/heure actuelle (Europe/Paris) pour que le modèle sache
-  // toujours "on est le combien" et puisse juger si sa connaissance est à jour.
-  function _wmNowContext() {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Europe/Paris' });
-    const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' });
-    return `Nous sommes le ${dateStr}, il est ${timeStr} (heure de Paris).`;
-  }
-  window._wmNowContext = _wmNowContext;
-
-  // Heuristique : la question porte-t-elle sur quelque chose de récent / changeant,
-  // donc potentiellement hors des connaissances du modèle ?
-  const _wmSearchTriggers = /\b(aujourd'?hui|hier|avant[\s-]hier|cette semaine|ce mois[\s-]ci|en ce moment|actuellement|derni[eè]re[s]?\s+(nouvelle|actualit|info)|actualit[ée]s?|r[ée]cemment|qui a gagn[ée]|r[ée]sultat[s]?\s+(du|de|d')|score[s]?\s+(du|de)|classement\s+actuel|cours\s+(du|de)\s+(bourse|l'action|bitcoin|dollar|euro)|m[ée]t[ée]o|combien\s+co[uû]te|prix\s+(actuel|du)|dernier\s+(album|film|match)|sorti[e]?\s+(cette\s+semaine|ce\s+mois|r[ée]cemment)|202[6-9]\b)/i;
-
-  function _wmShouldSearch(text) {
-    if (!text || text.length < 3) return false;
-    return _wmSearchTriggers.test(text);
-  }
-
-  async function _wmTavilySearch(query) {
-    const key = WM_API_KEYS.tavily;
-    if (!key) return null;
-    try {
-      const res = await fetch("https://api.tavily.com/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          api_key: key,
-          query: query,
-          search_depth: "basic",
-          include_answer: false,
-          max_results: 5
-        })
-      });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return data.results || null;
-    } catch (err) {
-      console.warn("[Tavily] recherche échouée :", err);
-      return null;
-    }
-  }
-
-  window.wmEnrichMessage = async function(fullContent) {
-    const nowCtx = _wmNowContext();
-    const needsSearch = _wmShouldSearch(fullContent);
-    let enrichedText = `[Contexte : ${nowCtx}]\n\n${fullContent}`;
-    let extraSources = [];
-
-    if (needsSearch && WM_API_KEYS.tavily) {
-      window.setThinkingStep?.("Recherche en cours...");
-      const results = await _wmTavilySearch(fullContent);
-      if (results && results.length > 0) {
-        window.setThinkingStep?.("Analyse des sources...");
-        const resultsBlock = results.map((r, i) =>
-          `[${i + 1}] ${r.title}\nURL: ${r.url}\n${(r.content || "").slice(0, 500)}`
-        ).join("\n\n");
-        enrichedText = `[Contexte : ${nowCtx}]\n\n--- RÉSULTATS DE RECHERCHE WEB ---\n${resultsBlock}\n--- FIN RÉSULTATS ---\nINSTRUCTIONS : Utilise ces résultats pour répondre avec des informations à jour. Cite tes sources avec leur numéro [1], [2] etc. Si les résultats ne répondent pas à la question, dis-le et réponds avec tes connaissances générales.\n\n${fullContent}`;
-        extraSources = results.map(r => ({ title: r.title, url: r.url }));
-        window.setThinkingStep?.("Wikimind réfléchit...");
-      } else {
-        // Recherche tentée mais aucun résultat exploitable (clé invalide, quota, panne...)
-        enrichedText = `[Contexte : ${nowCtx}]\n\nATTENTION : la question ci-dessous porte sur une actualité récente, mais la recherche web n'a renvoyé aucun résultat exploitable (service indisponible ou quota atteint). N'INVENTE AUCUN FAIT, AUCUNE DATE, AUCUN ÉVÉNEMENT. Dis explicitement à l'utilisateur que tu n'as pas pu vérifier l'information en temps réel et que tu ne peux pas répondre de façon fiable à cette question précise.\n\n${fullContent}`;
-      }
-    } else if (needsSearch && !WM_API_KEYS.tavily) {
-      // Question d'actualité détectée mais aucune clé de recherche configurée
-      enrichedText = `[Contexte : ${nowCtx}]\n\nATTENTION : la question ci-dessous porte sur une actualité récente ou un événement daté (aujourd'hui/hier/etc), mais AUCUN outil de recherche web n'est configuré actuellement. Tu n'as accès à aucune information vérifiée après ta date de connaissance. N'INVENTE JAMAIS de faits, de dates, de résultats, de noms d'événements ou de citations pour répondre à ce type de question. Dis clairement à l'utilisateur que tu ne peux pas vérifier cette information en temps réel et explique que la recherche web n'est pas encore activée.\n\n${fullContent}`;
-    }
-
-    return { enrichedText, extraSources };
-  };
-}
 
 
 async function sendMessage() {
@@ -9146,6 +9074,7 @@ window.addEventListener('DOMContentLoaded', () => {
 <script src="forfait.js" defer></script>
 
 <script src="videogen.js" defer></script>
+<script src="tavily.js" defer></script>
 <script src="moderation.js" defer></script>
 <script src="legal.js" defer></script>
 <script>
