@@ -71,6 +71,14 @@
     // --- Années récentes / futures (signal faible seul, fort combiné) ---
     { w: 2, re: /\ben\s+202[6-9]\b/i },
     { w: 1, re: /\b202[6-9]\b/i },
+
+    // --- Dates explicites précises : "20 août 2025", "15/03/2026", "en 2024" ---
+    // Toute date précise mentionnée mérite vérification (l'utilisateur demande
+    // souvent "que s'est-il passé le [date]" pour une date que le modèle ne connaît pas).
+    { w: 4, re: /\b\d{1,2}\s+(janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[uû]t|septembre|octobre|novembre|d[ée]cembre)\s+(19|20)\d{2}\b/i },
+    { w: 3, re: /\b\d{1,2}\/\d{1,2}\/(19|20)\d{2}\b/ },
+    { w: 1, re: /\ben\s+(19|20)\d{2}\b/i },
+    { w: 3, re: /\b(que\s+s'est[\s-]il\s+pass[ée]|qu'est[\s-]ce\s+qui\s+s'est\s+pass[ée]|il\s+s'est\s+pass[ée]\s+quoi)\b/i },
   ];
 
   // Contextes où un mot-clé peut apparaître sans qu'une recherche ait du sens
