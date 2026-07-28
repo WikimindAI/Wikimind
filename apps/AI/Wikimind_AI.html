@@ -7018,6 +7018,12 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
               if (m.visionContent && isLastUser) {
                 return { role, content: m.visionContent };
               }
+              // ── FIX : le dernier message utilisateur doit envoyer la version ENRICHIE
+              // (date/heure + résultats Tavily + instructions anti-hallucination), pas le
+              // texte brut stocké dans `messages` (qui sert seulement à l'affichage/historique).
+              if (isLastUser && role === "user" && userText) {
+                return { role, content: userText };
+              }
               return { role, content: m.content };
             });
 
