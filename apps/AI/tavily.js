@@ -129,6 +129,49 @@
   window._wmDetectSearchNeed = detectSearchNeed;
 
   // ---------------------------------------------------------------
+  // 2bis. CLASSIFICATEUR IA — décision fiable via un vrai appel API
+  //    (au lieu de se fier uniquement au scoring par mots-clés).
+  //    Utilise un modèle Groq ultra-rapide et gratuit comme "juge".
+  //    Si l'appel échoue (pas de clé, panne), on retombe sur le score heuristique.
+  // ---------------------------------------------------------------
+  async function llmClassifySearchNeed(text, nowCtx) {
+    const key = (window.WM_API_KEYS && window.WM_API_KEYS.groq) || "";
+    if (!key) return null; // pas de clé Groq → on utilisera le score heuristique
+
+    try {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+        body: JSON.stringify({
+          model: "llama-3.1-8b-instant",
+          max_tokens: 4,
+          temperature: 0,
+          messages: [
+            {
+              role: "system",
+              content: `${nowCtx} Tu es un classificateur binaire. Réponds UNIQUEMENT par le mot OUI ou le mot NON, sans ponctuation ni explication.
+Réponds OUI si répondre correctement à la question suivante nécessite une information récente, changeante, ou potentiellement postérieure à une date de coupure de connaissances : actualité, événement daté, résultat sportif, cours de bourse/crypto, météo, statut actuel d'une personne/organisation/poste, sortie récente d'un produit, ou toute question mentionnant une date précise (passée, récente ou future).
+Réponds NON si la question peut être répondue de façon fiable avec des connaissances générales stables et intemporelles (mathématiques, définitions, histoire ancienne, concepts, code, écriture créative, conseils personnels, etc.).`
+            },
+            { role: "user", content: text }
+          ]
+        })
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const answer = (data.choices?.[0]?.message?.content || "").trim().toUpperCase();
+      if (answer.startsWith("OUI")) return true;
+      if (answer.startsWith("NON")) return false;
+      return null; // réponse ambiguë → on ne bloque pas, fallback heuristique
+    } catch (err) {
+      console.warn("[Tavily] classificateur IA indisponible :", err);
+      return null;
+    }
+  }
+
+  window._wmLLMClassifySearchNeed = llmClassifySearchNeed;
+
+  // ---------------------------------------------------------------
   // 3. CACHE ANTI-GASPILLAGE — évite de reconsommer des crédits Tavily
   //    si (quasi) la même question revient dans un court laps de temps.
   // ---------------------------------------------------------------
@@ -206,7 +249,19 @@
     let enrichedText = `[Contexte : ${nowCtx}]\n\n${fullContent}`;
     let extraSources = [];
 
-    if (!detection.needed) {
+    // Le score heuristique donne une intuition rapide, mais la décision finale
+    // vient d'un vrai appel API à un modèle classificateur — beaucoup plus fiable
+    // qu'une simple liste de mots-clés, sauf si l'utilisateur a forcé la recherche.
+    let needsSearch = detection.needed;
+    if (!detection.forced) {
+      window.setThinkingStep?.("Analyse de la demande...");
+      const verdict = await llmClassifySearchNeed(fullContent, nowCtx);
+      if (verdict !== null) needsSearch = verdict;
+      // si verdict === null (Groq indisponible), on garde le score heuristique tel quel
+    }
+
+    if (!needsSearch) {
+      window.setThinkingStep?.("Wikimind réfléchit...");
       return { enrichedText, extraSources };
     }
 
