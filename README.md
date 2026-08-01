@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Space+Grotesk&weight=700&size=42&duration=2500&pause=1200&color=FFFFFF&center=true&vCenter=true&width=900&height=80&lines=WikiMind+AI;L'IA+au+service+de+votre+quotidien;Apprendre+%E2%80%A2+Cr%C3%A9er+%E2%80%A2+Innover" />
+<img src="https://readme-typing-svg.demolab.com?font=Space+Grotesk&weight=700&size=42&duration=2500&pause=1200&color=FFFFFF&center=true&vCenter=true&width=900&height=80&lines=Wikimind+AI;L'IA+au+service+de+votre+quotidien;Apprendre+%E2%80%A2+Cr%C3%A9er+%E2%80%A2+Innover" />
 
 <br>
 
@@ -12,11 +12,11 @@
 
 ---
 
-# 🧠 WikiMind
+# -- Wikimind --
 
 > Une suite complète d'outils intelligents pour apprendre, créer et s'organiser.
 
-WikiMind rassemble les meilleurs modèles d'intelligence artificielle dans une interface moderne, rapide et intuitive.
+Wikimind rassemble les meilleurs modèles d'intelligence artificielle dans une interface moderne, rapide et intuitive.
 
 Conçu pour les étudiants, créateurs, développeurs, entrepreneurs et curieux.
 
@@ -156,7 +156,7 @@ Conçu pour les étudiants, créateurs, développeurs, entrepreneurs et curieux.
 
 <div align="center">
 
-### WikiMind AI
+### Wikimind AI
 
 *Think smarter.*
 
