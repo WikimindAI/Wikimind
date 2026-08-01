@@ -1,0 +1,1059 @@
+<!-- START OF FILE WikiMind_study.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-29XYBNJ2CB"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-29XYBNJ2CB');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WikiMind Study</title>
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Markdown Parser & KaTeX -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+<style>
+    :root {
+        --bg: #ffffff;
+        --text: #111111;
+        --sidebar: #fcfcfc;
+        --border: #e5e7eb;
+        --accent: #000000;
+        --accent-text: #ffffff;
+        --glass: rgba(255, 255, 255, 0.8);
+        --timer-work: #111111;
+        --timer-break: #22c55e;
+        --timer-long: #3b82f6;
+    }
+
+    .dark-mode {
+        --bg: #0f0f0f;
+        --text: #eeeeee;
+        --sidebar: #161616;
+        --border: #252525;
+        --accent: #ffffff;
+        --accent-text: #000000;
+        --glass: rgba(15, 15, 15, 0.8);
+        --timer-work: #ffffff;
+        --timer-break: #22c55e;
+        --timer-long: #3b82f6;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg);
+        color: var(--text);
+        transition: background-color 0.3s, color 0.3s;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* --- ANIMATIONS --- */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0px); } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .animate-fade { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-scale { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    .animate-spin-slow { animation: spin 4s linear infinite; transform-origin: 50% 50%; }
+
+    /* --- COMPONENTS --- */
+    .card {
+        background: var(--sidebar);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        transition: all 0.3s ease;
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #888; }
+
+    /* Timer Circle */
+    .timer-svg circle {
+        transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
+    }
+
+    /* Avatar (service 100% gratuit — pas de système de forfait) */
+    .user-avatar { position:relative; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--accent); color:var(--accent-text); font-weight:800; font-size:14px; overflow:hidden; border:1px solid var(--border); transition:transform .2s; }
+    .user-avatar:hover { transform:scale(1.06); }
+    .user-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; display:none; }
+    .user-avatar img.loaded { display:block; }
+    .user-avatar img.loaded + span { display:none; }
+
+    /* Chat Widget */
+    #ai-widget {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    #chat-window {
+        width: 420px;
+        height: 600px;
+        max-width: 90vw;
+        max-height: 75vh;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    }
+    
+    #chat-window.open { display: flex; animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    .chat-bubble {
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        max-width: 85%;
+        margin-bottom: 8px;
+        word-wrap: break-word;
+    }
+    .chat-bubble.user { background: var(--border); color: var(--text); align-self: flex-end; border-bottom-right-radius: 2px; }
+    .chat-bubble.ai { background: var(--accent); color: var(--accent-text); align-self: flex-start; border-bottom-left-radius: 2px; }
+    
+    /* Katex formatting in AI bubbles */
+    .chat-bubble.ai p { margin-bottom: 0.5em; }
+    .chat-bubble.ai p:last-child { margin-bottom: 0; }
+    .chat-bubble.ai strong { color: inherit; font-weight: 700; }
+
+    /* Settings Modal */
+    .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.4); 
+        backdrop-filter: blur(4px); z-index: 100;
+        display: none; justify-content: center; align-items: center;
+    }
+    .modal-overlay.open { display: flex; animation: fadeIn 0.2s; }
+    
+    /* Task Item */
+    .task-item {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 16px; border-bottom: 1px solid var(--border);
+        transition: background 0.2s, opacity 0.2s;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-item:hover { background: rgba(0,0,0,0.02); }
+    .dark-mode .task-item:hover { background: rgba(255,255,255,0.05); }
+
+    .task-item.completed { opacity: 0.5; }
+    .task-item.completed .task-name { text-decoration: line-through; }
+    .task-item.completed .check-btn { background-color: #22c55e; color: white; border-color: #22c55e; }
+
+    /* Loader */
+    .typing-dot {
+        width: 6px; height: 6px; background: currentColor; border-radius: 50%;
+        display: inline-block; animation: typing 1.4s infinite ease-in-out both;
+    }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+    /* Custom Checkbox */
+    .toggle-checkbox { appearance: none; display: none; }
+    .toggle-label {
+        width: 40px; height: 24px; background: #e5e7eb; border-radius: 99px; position: relative; cursor: pointer; transition: 0.3s;
+    }
+    .toggle-label:after {
+        content: ''; width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .toggle-checkbox:checked + .toggle-label { background: var(--accent); }
+    .toggle-checkbox:checked + .toggle-label:after { transform: translateX(16px); }
+    .dark-mode .toggle-label { background: #333; }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+        #ai-widget { right: 1rem; bottom: 1rem; left: 1rem; align-items: flex-end; }
+        #chat-window { width: 100%; max-width: 100%; height: 65vh; margin-bottom: 0.5rem; }
+        main { overflow-y: auto; display: flex; flex-direction: column; }
+    }
+</style>
+</head>
+<body>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" class="modal-overlay" onclick="closeSettings(event)">
+    <div class="card w-full max-w-md p-6 m-4 overflow-y-auto max-h-[90vh]" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold uppercase tracking-tight">Paramètres</h3>
+            <button onclick="closeSettingsBtn()" class="text-gray-400 hover:text-red-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="space-y-6">
+            <div>
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Apparence</h4>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">Mode Sombre</span>
+                        <button onclick="toggleTheme()" class="w-12 h-6 rounded-full bg-gray-200 relative transition-colors duration-200 focus:outline-none dark:bg-gray-700">
+                            <div id="theme-toggle-dot" class="w-4 h-4 rounded-full bg-white absolute top-1 left-1 transition-transform duration-200 shadow-sm"></div>
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">Afficher l'heure</span>
+                        <input type="checkbox" id="check-clock" class="toggle-checkbox" onchange="saveSettings()">
+                        <label for="check-clock" class="toggle-label"></label>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">Temps révision total</span>
+                        <input type="checkbox" id="check-total" class="toggle-checkbox" onchange="saveSettings()">
+                        <label for="check-total" class="toggle-label"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 dark:border-gray-800"></div>
+
+            <div>
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Audio & Musique d'ambiance</h4>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-sm">Sons (Timer)</span>
+                        <input type="checkbox" id="check-sound" class="toggle-checkbox" onchange="saveSettings()">
+                        <label for="check-sound" class="toggle-label"></label>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="font-medium text-sm block">Musique d'ambiance locale</label>
+                        <select id="select-music" class="w-full p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent text-sm focus:border-black dark:focus:border-white outline-none" onchange="saveSettings()">
+                            <option value="none">Aucune</option>
+                            <option value="rain">Pluie Intense</option>
+                            <option value="forest">Forêt & Nature</option>
+                            <option value="fire">Cheminée Crépitante</option>
+                            <option value="lofi">Lofi Beats (Chill)</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="font-medium text-sm block">Volume Musique</label>
+                        <input type="range" id="range-volume" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" oninput="saveSettings()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 dark:border-gray-800"></div>
+
+            <div>
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Minuteur (minutes)</h4>
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold mb-1 text-gray-500">Travail</label>
+                        <input type="number" id="set-work" class="w-full p-2 rounded-lg border border-gray-200 bg-transparent font-bold text-center text-gray-900 dark:text-gray-100" value="25">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1 text-gray-500">Pause C.</label>
+                        <input type="number" id="set-short" class="w-full p-2 rounded-lg border border-gray-200 bg-transparent font-bold text-center text-gray-900 dark:text-gray-100" value="5">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-1 text-gray-500">Pause L.</label>
+                        <input type="number" id="set-long" class="w-full p-2 rounded-lg border border-gray-200 bg-transparent font-bold text-center text-gray-900 dark:text-gray-100" value="15">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-xs font-bold mb-1 text-gray-500">Cycles avant Pause Longue</label>
+                    <input type="number" id="set-cycles" class="w-full p-2 rounded-lg border border-gray-200 bg-transparent font-bold text-center text-gray-900 dark:text-gray-100" value="4">
+                </div>
+            </div>
+        </div>
+
+        <button onclick="saveSettings(); closeSettingsBtn()" class="w-full mt-6 bg-black text-white dark:bg-white dark:text-black py-3 rounded-xl font-bold text-sm uppercase tracking-widest hover:opacity-90 transition">Enregistrer & Fermer</button>
+    </div>
+</div>
+
+<!-- MAIN APP STRUCTURE -->
+<header class="p-6 flex justify-between items-center z-10">
+    <div class="flex items-center gap-4">
+        <a href="../index.html" class="w-10 h-10 rounded-xl flex items-center justify-center hover:scale-105 transition shadow-lg no-underline cursor-pointer overflow-hidden bg-black dark:bg-white">
+            <img src="../wikimind.png" alt="WikiMind" width="26" height="26" style="border-radius:6px" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'text-white dark:text-black font-black text-xl',textContent:'W'}))">
+        </a>
+        <div>
+            <h1 class="text-2xl font-black uppercase tracking-tighter italic">WikiMind <span class="text-gray-400 font-medium not-italic">Study</span></h1>
+            <p class="text-xs text-gray-400 tracking-wide font-medium">RÉVISER INTELLIGEMMENT.</p>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-4">
+        <!-- Live Clock -->
+        <div id="live-clock" class="hidden font-mono font-bold text-lg md:text-xl tracking-tight text-gray-500 dark:text-gray-400">00:00</div>
+
+        <!-- BOUTON CONNEXION / PROFIL — compte 100% optionnel, service entièrement gratuit -->
+        <a href="../index.html" id="auth-btn" class="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-zinc-800 text-xs font-bold uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-zinc-700 transition">
+            Connexion
+        </a>
+        <a href="../index.html" id="user-logged" class="hidden items-center gap-2 cursor-pointer">
+            <div id="nav-avatar-ring" class="user-avatar">
+                <img id="nav-avatar" src="" alt="Avatar" referrerpolicy="no-referrer">
+                <span id="nav-avatar-initial"></span>
+            </div>
+        </a>
+
+        <button onclick="openSettings()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        </button>
+    </div>
+</header>
+
+<main class="flex-grow p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto w-full h-full overflow-hidden">
+    
+    <!-- LEFT: TIMER -->
+    <div class="flex flex-col items-center justify-center h-full animate-fade relative">
+        <div class="relative w-72 h-72 md:w-96 md:h-96 flex items-center justify-center">
+            <!-- SVG Circle Progress -->
+            <svg class="timer-svg w-full h-full absolute inset-0 transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" stroke="var(--border)" stroke-width="2" fill="none" stroke-dasharray="10 10" class="animate-spin-slow" style="transform-origin: 50% 50%;"></circle>
+                <circle cx="50" cy="50" r="45" stroke="var(--border)" stroke-width="8" fill="none" opacity="0.2"></circle>
+                <circle id="progress-ring" cx="50" cy="50" r="45" stroke="var(--accent)" stroke-width="8" fill="none" stroke-dasharray="0 0" stroke-linecap="round"></circle>
+            </svg>
+            
+            <div class="text-center z-10 flex flex-col items-center">
+                <span id="timer-label" class="text-xs font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">Focus</span>
+                <div id="timer-display" class="text-6xl md:text-8xl font-black tracking-tighter tabular-nums leading-none">25:00</div>
+                <div class="mt-6 flex gap-4">
+                    <button onclick="timer.toggle()" id="btn-toggle" class="w-14 h-14 rounded-full bg-black text-white dark:bg-white dark:text-black flex items-center justify-center hover:scale-110 transition shadow-lg">
+                        <svg id="icon-play" class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <svg id="icon-pause" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
+                    <button onclick="timer.reset()" class="w-14 h-14 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 flex flex-col items-center gap-4 w-full px-8">
+            <div id="cycle-dots" class="flex gap-2 mb-2"></div>
+            
+            <!-- Music Player Widget -->
+            <div id="mini-music-player" class="hidden w-full max-w-sm flex items-center justify-between bg-gray-100 dark:bg-zinc-800 p-3 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 transition-all">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-black text-white dark:bg-white dark:text-black flex items-center justify-center relative overflow-hidden">
+                        <div id="music-vinyl-anim" class="absolute inset-0 border-2 border-dashed border-gray-500 rounded-full animate-spin-slow opacity-50"></div>
+                        <svg class="w-4 h-4 relative z-10" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                    </div>
+                    <div>
+                        <div id="music-name" class="text-sm font-bold text-gray-900 dark:text-gray-100">Musique Ambiance</div>
+                        <div class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Lecteur WikiMind</div>
+                    </div>
+                </div>
+                <button onclick="musicManager.togglePlay()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-zinc-700 transition">
+                    <svg id="music-btn-play" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="music-btn-pause" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: TASKS -->
+    <div class="card p-6 md:p-8 flex flex-col h-full overflow-hidden animate-fade" style="animation-delay: 0.1s;">
+        <div class="flex justify-between items-end mb-6">
+            <div>
+                <h2 class="text-xl font-bold uppercase tracking-tight">Mes Tâches</h2>
+                <p class="text-xs text-gray-400 mt-1">Géré par vous ou par WikiMind AI</p>
+            </div>
+            <button onclick="taskManager.promptAdd()" class="text-xs font-bold uppercase tracking-widest border border-gray-200 px-4 py-2 rounded-full hover:bg-black hover:text-white transition">+ Ajouter</button>
+        </div>
+
+        <div id="task-list" class="flex-grow overflow-y-auto space-y-0 relative">
+            <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-gray-300">
+                <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                <p class="text-sm font-medium">Aucune tâche prévue.</p>
+                <p class="text-xs mt-2">Demandez à l'IA d'organiser votre session.</p>
+            </div>
+        </div>
+        
+        <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 space-y-2">
+            <div class="flex justify-between items-center text-xs font-bold text-gray-400">
+                <span>PLANIFIÉ: <span id="total-time">0h 00m</span></span>
+                <span id="finish-time">Fin: --:--</span>
+            </div>
+            <div id="global-stats" class="hidden justify-between items-center text-xs font-bold text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-zinc-800 p-2 rounded-lg">
+                <span class="flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path stroke-linecap="round" d="M12 9v4l3 2M9 2h6M12 2v2"/></svg>
+                    TEMPS RÉVISÉ TOTAL:
+                </span>
+                <span id="global-revision-time">0h 00m</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- AI WIDGET (Double Interface) -->
+<div id="ai-widget">
+    <!-- Chat Window -->
+    <div id="chat-window" class="flex flex-col">
+        <!-- TABS -->
+        <div class="flex bg-gray-50 dark:bg-zinc-900 text-xs font-bold text-gray-400">
+            <button id="tab-tasks" onclick="switchChatTab('tasks')" class="flex-1 py-3 border-b-2 border-black dark:border-white text-black dark:text-white transition-colors inline-flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 7h6m-6 4h6"/></svg>
+                Organisateur
+            </button>
+            <button id="tab-tutor" onclick="switchChatTab('tutor')" class="flex-1 py-3 border-b-2 border-transparent hover:text-black dark:hover:text-white transition-colors inline-flex items-center justify-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.42A12.02 12.02 0 0121 12c0 2.5-4 8-9 8s-9-5.5-9-8a12.02 12.02 0 012.84-1.42L12 14z"/></svg>
+                Tuteur Avancé
+            </button>
+            <button onclick="toggleChat()" class="px-4 py-3 border-b-2 border-transparent hover:text-red-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        
+        <!-- MESSAGES CONTAINER -->
+        <div class="flex-grow overflow-y-auto p-4 flex flex-col bg-opacity-50 relative" id="scroll-container">
+            <!-- TASKS CHAT -->
+            <div id="chat-messages-tasks" class="flex flex-col w-full">
+                <div class="chat-bubble ai animate-fade">
+                    Bonjour ! Je suis l'Organisateur WikiMind.<br>Je peux créer des tâches, gérer ton programme de la journée et régler ton minuteur. Que fait-on ?
+                </div>
+            </div>
+            <!-- TUTOR CHAT -->
+            <div id="chat-messages-tutor" class="flex flex-col w-full hidden">
+                <div class="chat-bubble ai animate-fade">
+                    Salut ! Je suis ton Tuteur d'études avancé.<br>Bloqué sur un sujet de Bac ? Des équations incomprises ? Demande-moi de t'expliquer ou importe un fichier !
+                </div>
+            </div>
+        </div>
+
+        <!-- INPUT AREA -->
+        <div class="p-3 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-black">
+            <div class="flex items-center gap-2">
+                <!-- Bouton "Fichier" (Simulé pour l'interface Tuteur) -->
+                <button id="btn-upload" onclick="simulateFileUpload()" class="hidden p-2.5 rounded-xl bg-gray-100 dark:bg-zinc-800 text-gray-500 hover:text-black dark:hover:text-white transition" title="Joindre un document">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                </button>
+                <div class="relative flex-1">
+                    <input type="text" id="chat-input" placeholder="Ex: Ajoute Maths 30min..." class="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent text-sm focus:border-black dark:focus:border-white outline-none transition text-gray-900 dark:text-gray-100" onkeydown="handleChatKey(event)">
+                    <button onclick="sendMessage()" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 rounded-lg bg-black text-white dark:bg-white dark:text-black hover:opacity-80 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Button -->
+    <button onclick="toggleChat()" class="group flex items-center gap-3 bg-black text-white dark:bg-white dark:text-black px-5 py-3 rounded-full shadow-2xl hover:scale-105 transition animate-float">
+        <span class="text-sm font-bold uppercase tracking-wider hidden group-hover:block transition-all">WikiMind AI</span>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+    </button>
+</div>
+
+<!-- AUDIO ELEMENTS -->
+<audio id="bg-music" loop></audio>
+
+<!-- SCRIPT FIREBASE -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const authApp = initializeApp({
+        apiKey: "AIzaSyD6qIOtKSx0Sl1Ht_a6ppLiMdKZRCc75tA",
+        authDomain: "wikimind-3-comments.firebaseapp.com",
+        projectId: "wikimind-3-comments",
+        appId: "1:137479541640:web:4ed2510a9908055052e03d",
+        databaseURL: "https://wikimind-3-comments-default-rtdb.europe-west1.firebasedatabase.app"
+    }); 
+    const auth = getAuth(authApp);
+    const authDb = getDatabase(authApp);
+
+    // Service 100% gratuit et ouvert — aucun système de forfait/abonnement ici.
+    // Le compte n'est utile que pour synchroniser les données entre appareils.
+    function setNavAvatar(photoURL, initial) {
+        const img = document.getElementById('nav-avatar');
+        const initialEl = document.getElementById('nav-avatar-initial');
+        img.classList.remove('loaded');
+        initialEl.textContent = initial;
+        if (photoURL) {
+            img.onload = () => img.classList.add('loaded');
+            img.onerror = () => { img.classList.remove('loaded'); img.removeAttribute('src'); };
+            img.src = photoURL;
+        } else {
+            img.removeAttribute('src');
+        }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+        const authBtn = document.getElementById('auth-btn');
+        const userLogged = document.getElementById('user-logged');
+        if (user) {
+            authBtn.classList.add('hidden');
+            userLogged.classList.remove('hidden');
+            userLogged.classList.add('flex');
+
+            const name = user.displayName || (user.email ? user.email.split('@')[0] : 'U');
+            let photoUrl = user.photoURL || null;
+
+            // Avatar personnalisé stocké en base (prioritaire sur la photo du fournisseur)
+            try {
+                const snap = await get(child(ref(authDb), `users/${user.uid}/avatarBase64`));
+                if (snap.exists()) photoUrl = snap.val();
+            } catch(e) { /* pas d'avatar personnalisé, on garde photoURL */ }
+
+            setNavAvatar(photoUrl, name[0].toUpperCase());
+        } else {
+            authBtn.classList.remove('hidden');
+            userLogged.classList.add('hidden');
+            userLogged.classList.remove('flex');
+        }
+    });
+</script>
+
+<script>
+    /**
+     * WIKIMIND STUDY ENGINE
+     */
+
+    // [!] À REMPLACER : colle ta clé API Mistral ici avant mise en production.
+    // Ne jamais committer une vraie clé dans un dépôt public — ce fichier est
+    // exécuté côté navigateur, donc la clé y est visible par n'importe qui.
+    const API_KEY_MISTRAL = "REMPLACE_PAR_TA_CLE_API_MISTRAL";
+    let currentChatTab = 'tasks'; // 'tasks' or 'tutor'
+    
+    const STATE = {
+        settings: {
+            workTime: 25, shortBreak: 5, longBreak: 15, cyclesBeforeLong: 4,
+            theme: 'light', showClock: false, showTotalTime: false,
+            soundEnabled: true, musicTrack: 'none', musicVolume: 50
+        },
+        stats: { totalSeconds: 0 },
+        timer: {
+            time: 25 * 60, totalDuration: 25 * 60, active: false,
+            mode: 'work', cycleCount: 0, interval: null
+        },
+        tasks: [],
+        historyTasks: [],
+        historyTutor: []
+    };
+
+    const MUSIC_SOURCES = {
+        rain: "https://actions.google.com/sounds/v1/weather/rain_heavy_loud.ogg",
+        forest: "https://actions.google.com/sounds/v1/nature/forest_morning.ogg",
+        fire: "https://actions.google.com/sounds/v1/ambiences/fireplace.ogg",
+        lofi: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" // Royalty free lofi loop
+    };
+
+    // --- LOCAL STORAGE ---
+    function loadStorage() {
+        const saved = localStorage.getItem('wikimind_study_v4');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            STATE.settings = { ...STATE.settings, ...parsed.settings };
+            STATE.stats = { ...STATE.stats, ...parsed.stats };
+            STATE.tasks = parsed.tasks || [];
+            if (parsed.timerState) {
+                STATE.timer.time = parsed.timerState.time;
+                STATE.timer.totalDuration = parsed.timerState.totalDuration;
+                STATE.timer.mode = parsed.timerState.mode;
+                STATE.timer.cycleCount = parsed.timerState.cycleCount;
+            }
+        }
+        applyTheme(STATE.settings.theme);
+        applySettingsUI();
+    }
+
+    function saveStorage() {
+        localStorage.setItem('wikimind_study_v4', JSON.stringify({
+            settings: STATE.settings, stats: STATE.stats, tasks: STATE.tasks,
+            timerState: { time: STATE.timer.time, totalDuration: STATE.timer.totalDuration, mode: STATE.timer.mode, cycleCount: STATE.timer.cycleCount }
+        }));
+        updateGlobalStats();
+    }
+
+    // --- SETTINGS UI ---
+    function applySettingsUI() {
+        document.getElementById('check-clock').checked = STATE.settings.showClock;
+        document.getElementById('check-total').checked = STATE.settings.showTotalTime;
+        document.getElementById('check-sound').checked = STATE.settings.soundEnabled;
+        document.getElementById('select-music').value = STATE.settings.musicTrack;
+        document.getElementById('range-volume').value = STATE.settings.musicVolume;
+        
+        document.getElementById('live-clock').classList.toggle('hidden', !STATE.settings.showClock);
+        document.getElementById('global-stats').classList.toggle('hidden', !STATE.settings.showTotalTime);
+        
+        musicManager.setVolume(STATE.settings.musicVolume);
+        
+        const miniPlayer = document.getElementById('mini-music-player');
+        if (STATE.settings.musicTrack !== 'none') {
+            miniPlayer.classList.remove('hidden');
+            const names = {rain: 'Pluie Intense', forest: 'Forêt & Nature', fire: 'Cheminée Crépitante', lofi: 'Lofi Beats (Chill)'};
+            document.getElementById('music-name').innerText = names[STATE.settings.musicTrack];
+        } else {
+            miniPlayer.classList.add('hidden');
+        }
+    }
+
+    // --- THEME ---
+    function applyTheme(theme) {
+        const dot = document.getElementById('theme-toggle-dot');
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+            dot.style.transform = 'translateX(24px)';
+        } else {
+            document.body.classList.remove('dark-mode');
+            dot.style.transform = 'translateX(0)';
+        }
+    }
+
+    function toggleTheme() {
+        STATE.settings.theme = STATE.settings.theme === 'light' ? 'dark' : 'light';
+        applyTheme(STATE.settings.theme);
+        saveStorage();
+    }
+
+    // --- MUSIC MANAGER ---
+    const musicManager = {
+        audio: document.getElementById('bg-music'),
+        playing: false,
+        
+        load: function() {
+            if (STATE.settings.musicTrack !== 'none') {
+                if (this.audio.src !== MUSIC_SOURCES[STATE.settings.musicTrack]) {
+                    this.audio.src = MUSIC_SOURCES[STATE.settings.musicTrack];
+                }
+                this.audio.volume = STATE.settings.musicVolume / 100;
+            } else {
+                this.pause();
+                this.audio.src = "";
+            }
+        },
+        play: function() {
+            if (STATE.settings.musicTrack !== 'none' && this.audio.src) {
+                this.audio.play().catch(e => console.log("Audio play prevented"));
+                this.playing = true;
+                this.updateUI();
+            }
+        },
+        pause: function() {
+            this.audio.pause();
+            this.playing = false;
+            this.updateUI();
+        },
+        togglePlay: function() {
+            if(this.playing) this.pause(); else this.play();
+        },
+        setVolume: function(val) { this.audio.volume = val / 100; },
+        updateUI: function() {
+            const btnPlay = document.getElementById('music-btn-play');
+            const btnPause = document.getElementById('music-btn-pause');
+            const anim = document.getElementById('music-vinyl-anim');
+            if(this.playing) {
+                btnPlay.classList.add('hidden'); btnPause.classList.remove('hidden');
+                anim.style.animationPlayState = 'running';
+            } else {
+                btnPlay.classList.remove('hidden'); btnPause.classList.add('hidden');
+                anim.style.animationPlayState = 'paused';
+            }
+        }
+    };
+
+    // --- TIMER ENGINE ---
+    const timer = {
+        init: function() {
+            if (STATE.timer.totalDuration === 0) this.setDurationBasedOnMode();
+            this.updateDisplay(); this.renderDots(); musicManager.load();
+        },
+        toggle: function() { if (STATE.timer.active) this.pause(); else this.start(); },
+        start: function() {
+            if (STATE.timer.active) return;
+            if (STATE.timer.interval) clearInterval(STATE.timer.interval);
+            STATE.timer.active = true;
+            document.getElementById('icon-play').classList.add('hidden');
+            document.getElementById('icon-pause').classList.remove('hidden');
+            document.getElementById('progress-ring').style.opacity = '1';
+            
+            if (STATE.timer.mode === 'work') musicManager.play();
+
+            STATE.timer.interval = setInterval(() => {
+                STATE.timer.time--;
+                if (STATE.timer.mode === 'work') {
+                    STATE.stats.totalSeconds = (STATE.stats.totalSeconds || 0) + 1;
+                    if (STATE.stats.totalSeconds % 60 === 0) saveStorage();
+                }
+                if (STATE.timer.time <= 0) this.complete();
+                this.updateDisplay();
+            }, 1000);
+        },
+        pause: function() {
+            STATE.timer.active = false;
+            if (STATE.timer.interval) clearInterval(STATE.timer.interval);
+            STATE.timer.interval = null;
+            document.getElementById('icon-play').classList.remove('hidden');
+            document.getElementById('icon-pause').classList.add('hidden');
+            document.getElementById('progress-ring').style.opacity = '0.7';
+            musicManager.pause(); saveStorage();
+        },
+        reset: function() {
+            this.pause(); STATE.timer.mode = 'work'; this.setDurationBasedOnMode();
+            this.updateDisplay(); saveStorage();
+        },
+        setDurationBasedOnMode: function() {
+            let minutes = STATE.settings.workTime;
+            if (STATE.timer.mode === 'short') minutes = STATE.settings.shortBreak;
+            if (STATE.timer.mode === 'long') minutes = STATE.settings.longBreak;
+            STATE.timer.time = minutes * 60; STATE.timer.totalDuration = minutes * 60;
+        },
+        complete: function() {
+            this.pause(); this.playSound();
+            if (STATE.timer.mode === 'work') {
+                STATE.timer.cycleCount++;
+                if (STATE.timer.cycleCount >= STATE.settings.cyclesBeforeLong) {
+                    STATE.timer.mode = 'long'; STATE.timer.cycleCount = 0;
+                    Chat.addMessage("Travail terminé ! Prends une longue pause.", 'ai', 'tasks');
+                } else {
+                    STATE.timer.mode = 'short';
+                    Chat.addMessage("Travail terminé ! Petite pause.", 'ai', 'tasks');
+                }
+            } else {
+                STATE.timer.mode = 'work';
+                Chat.addMessage("Pause terminée ! Au travail.", 'ai', 'tasks');
+            }
+            this.setDurationBasedOnMode(); this.updateDisplay(); this.renderDots(); saveStorage();
+        },
+        updateDisplay: function() {
+            const minutes = Math.floor(STATE.timer.time / 60);
+            const seconds = STATE.timer.time % 60;
+            const text = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('timer-display').innerText = text;
+            document.title = `${text} - WikiMind Study`;
+
+            const label = document.getElementById('timer-label');
+            const ring = document.getElementById('progress-ring');
+            
+            if (STATE.timer.mode === 'work') { label.innerText = "FOCUS - TRAVAIL"; label.style.color = "var(--text)"; ring.style.stroke = "var(--text)"; } 
+            else if (STATE.timer.mode === 'short') { label.innerText = "PAUSE COURTE"; label.style.color = "#22c55e"; ring.style.stroke = "#22c55e"; } 
+            else { label.innerText = "PAUSE LONGUE"; label.style.color = "#3b82f6"; ring.style.stroke = "#3b82f6"; }
+
+            const radius = 45; const circumference = radius * 2 * Math.PI;
+            ring.style.strokeDasharray = `${circumference} ${circumference}`;
+            const percent = 1 - (STATE.timer.time / STATE.timer.totalDuration);
+            ring.style.strokeDashoffset = circumference - percent * circumference;
+            updateGlobalStats();
+        },
+        renderDots: function() {
+            const container = document.getElementById('cycle-dots');
+            container.innerHTML = '';
+            for (let i = 0; i < STATE.settings.cyclesBeforeLong; i++) {
+                const dot = document.createElement('div');
+                dot.className = `w-3 h-3 rounded-full transition-all duration-300 ${i < STATE.timer.cycleCount ? 'bg-black dark:bg-white' : 'bg-gray-200 dark:bg-gray-800'}`;
+                container.appendChild(dot);
+            }
+        },
+        playSound: function() {
+            if (!STATE.settings.soundEnabled) return;
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator(); const gain = ctx.createGain();
+            osc.type = 'sine'; osc.frequency.setValueAtTime(440, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+            osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.5);
+        }
+    };
+
+    function updateGlobalStats() {
+        if (!STATE.settings.showTotalTime) return;
+        const totalSec = STATE.stats.totalSeconds || 0;
+        const h = Math.floor(totalSec / 3600); const m = Math.floor((totalSec % 3600) / 60);
+        document.getElementById('global-revision-time').innerText = `${h}h ${String(m).padStart(2,'0')}m`;
+    }
+
+    setInterval(() => {
+        if(STATE.settings.showClock) {
+            document.getElementById('live-clock').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+    }, 1000);
+
+    // --- TASK MANAGER ---
+    const taskManager = {
+        render: function() {
+            const list = document.getElementById('task-list');
+            const empty = document.getElementById('empty-state');
+            const totalTimeEl = document.getElementById('total-time');
+            const finishTimeEl = document.getElementById('finish-time');
+
+            Array.from(list.children).forEach(c => { if (c.id !== 'empty-state') list.removeChild(c); });
+
+            if (STATE.tasks.length === 0) {
+                empty.style.display = 'flex'; totalTimeEl.innerText = "0h 00m"; finishTimeEl.innerText = "Fin: --:--";
+            } else {
+                empty.style.display = 'none'; let totalMin = 0;
+                STATE.tasks.forEach((task, index) => {
+                    totalMin += task.duration;
+                    const el = document.createElement('div');
+                    el.className = `task-item animate-fade ${task.completed ? 'completed' : ''}`;
+                    el.style.animationDelay = `${index * 0.05}s`;
+                    el.innerHTML = `
+                        <div class="flex items-center gap-3 w-full">
+                            <button onclick="taskManager.toggleComplete(${index})" class="check-btn w-5 h-5 rounded border border-gray-300 flex items-center justify-center text-transparent hover:text-black dark:hover:text-white transition flex-shrink-0">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                            </button>
+                            <div class="flex-grow">
+                                <div class="font-bold text-sm task-name truncate">${task.name}</div>
+                                <div class="text-xs text-gray-500">${task.duration} min</div>
+                            </div>
+                            <button onclick="taskManager.delete(${index})" class="text-gray-400 hover:text-red-500 p-2 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
+                    `;
+                    list.appendChild(el);
+                });
+                const h = Math.floor(totalMin / 60); const m = totalMin % 60;
+                totalTimeEl.innerText = `${h}h ${String(m).padStart(2,'0')}m`;
+                const now = new Date(); now.setMinutes(now.getMinutes() + totalMin);
+                finishTimeEl.innerText = `Fin: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            }
+            saveStorage();
+        },
+        add: function(name, duration) { STATE.tasks.push({ name, duration: parseInt(duration) || 25, completed: false }); this.render(); return true; },
+        toggleComplete: function(index) { STATE.tasks[index].completed = !STATE.tasks[index].completed; this.render(); },
+        delete: function(index) { if(confirm("Supprimer cette tâche ?")) { STATE.tasks.splice(index, 1); this.render(); } },
+        clear: function() { if(confirm("Tout supprimer ?")) { STATE.tasks = []; this.render(); } },
+        promptAdd: function() { const name = prompt("Nom de la tâche:"); if(name) { const dur = prompt("Durée en minutes:", 25); this.add(name, dur); } }
+    };
+
+    // --- AI ENGINE (Mistral Integration) ---
+    function switchChatTab(tab) {
+        currentChatTab = tab;
+        document.getElementById('tab-tasks').classList.replace(tab==='tasks'?'border-transparent':'border-black', tab==='tasks'?'border-black':'border-transparent');
+        document.getElementById('tab-tutor').classList.replace(tab==='tutor'?'border-transparent':'border-black', tab==='tutor'?'border-black':'border-transparent');
+        // Dark mode adaptation for active tab border
+        if(document.body.classList.contains('dark-mode')) {
+            document.getElementById('tab-tasks').classList.replace(tab==='tasks'?'border-transparent':'border-white', tab==='tasks'?'border-white':'border-transparent');
+            document.getElementById('tab-tutor').classList.replace(tab==='tutor'?'border-transparent':'border-white', tab==='tutor'?'border-white':'border-transparent');
+        }
+
+        document.getElementById('tab-tasks').classList.toggle('text-black', tab === 'tasks');
+        document.getElementById('tab-tutor').classList.toggle('text-black', tab === 'tutor');
+        if(document.body.classList.contains('dark-mode')) {
+            document.getElementById('tab-tasks').classList.toggle('text-white', tab === 'tasks');
+            document.getElementById('tab-tutor').classList.toggle('text-white', tab === 'tutor');
+        }
+
+        document.getElementById('chat-messages-tasks').classList.toggle('hidden', tab !== 'tasks');
+        document.getElementById('chat-messages-tutor').classList.toggle('hidden', tab !== 'tutor');
+        
+        // Show/hide file upload button
+        document.getElementById('btn-upload').classList.toggle('hidden', tab === 'tasks');
+        
+        document.getElementById('chat-input').placeholder = tab === 'tasks' ? "Ex: Ajoute Maths 30min..." : "Pose une question ou demande de l'aide...";
+        
+        setTimeout(() => { const c = document.getElementById('scroll-container'); c.scrollTop = c.scrollHeight; }, 50);
+    }
+
+    const Chat = {
+        addMessage: function(text, role, tab) {
+            const container = document.getElementById(`chat-messages-${tab}`);
+            const div = document.createElement('div');
+            div.className = `chat-bubble ${role} animate-scale`;
+            
+            if (role === 'ai' && tab === 'tutor') {
+                // Parse markdown, then render KaTeX
+                div.innerHTML = marked.parse(text);
+                renderMathInElement(div, {
+                  delimiters: [
+                      {left: '$$', right: '$$', display: true},
+                      {left: '$', right: '$', display: false},
+                      {left: '\\(', right: '\\)', display: false},
+                      {left: '\\[', right: '\\]', display: true}
+                  ],
+                  throwOnError : false
+                });
+            } else {
+                div.innerHTML = marked.parse(text);
+            }
+            
+            container.appendChild(div);
+            const scroll = document.getElementById('scroll-container');
+            scroll.scrollTop = scroll.scrollHeight;
+            
+            const history = tab === 'tasks' ? STATE.historyTasks : STATE.historyTutor;
+            history.push({ role: role === 'ai' ? 'assistant' : 'user', content: text });
+        },
+
+        showTyping: function(tab) {
+            const container = document.getElementById(`chat-messages-${tab}`);
+            const div = document.createElement('div');
+            div.id = `typing-indicator-${tab}`;
+            div.className = `chat-bubble ai animate-scale`;
+            div.innerHTML = `<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>`;
+            container.appendChild(div);
+            const scroll = document.getElementById('scroll-container');
+            scroll.scrollTop = scroll.scrollHeight;
+        },
+
+        removeTyping: function(tab) {
+            const el = document.getElementById(`typing-indicator-${tab}`);
+            if(el) el.remove();
+        },
+
+        handleTaskCommand: function(jsonString) {
+            try {
+                const cmd = JSON.parse(jsonString);
+                let responseText = "";
+                if (cmd.action === "add_task") { taskManager.add(cmd.name, cmd.duration); responseText = `Tâche ajoutée : **${cmd.name}** (${cmd.duration} min).`; } 
+                else if (cmd.action === "clear_tasks") { taskManager.clear(); responseText = "Toutes les tâches ont été supprimées."; } 
+                else if (cmd.action === "set_timer") { STATE.settings.workTime = parseInt(cmd.duration); if(STATE.timer.mode === 'work') { timer.setDurationBasedOnMode(); timer.updateDisplay(); } responseText = `Timer réglé sur ${cmd.duration} minutes.`; } 
+                else if (cmd.action === "schedule") { STATE.tasks = []; cmd.tasks.forEach(t => taskManager.add(t.name, t.duration)); responseText = "Programme de révision appliqué !"; } 
+                else { responseText = "Commande comprise mais non supportée."; }
+                return responseText;
+            } catch (e) { return null; }
+        },
+
+        send: async function(userText) {
+            const tab = currentChatTab;
+            this.addMessage(userText, 'user', tab);
+            this.showTyping(tab);
+
+            let systemPrompt = "";
+            let historyToUse = [];
+
+            if (tab === 'tasks') {
+                const context = `Heure: ${new Date().toLocaleTimeString()} | Timer: ${STATE.timer.mode}, ${Math.floor(STATE.timer.time/60)}m restants | Tâches: ${JSON.stringify(STATE.tasks)}`;
+                systemPrompt = `Tu es l'Organisateur WikiMind. Aide l'étudiant à gérer ses tâches.
+CAPACITÉS D'ACTION (JSON) :
+Si l'utilisateur veut ajouter/modifier une tâche, réponds UNIQUEMENT avec un bloc de code JSON.
+Formats :
+1. Ajouter : \`\`\`json { "action": "add_task", "name": "Maths", "duration": 60 } \`\`\`
+2. Vider : \`\`\`json { "action": "clear_tasks" } \`\`\`
+3. Programme : \`\`\`json { "action": "schedule", "tasks": [{"name":"T1","duration":25}] } \`\`\`
+Sinon, réponds normalement en Markdown court.
+Contexte: ${context}`;
+                historyToUse = STATE.historyTasks.slice(-4);
+            } else {
+                systemPrompt = `Tu es le Tuteur Avancé WikiMind. Tu es un professeur d'excellence. 
+Ton but est d'expliquer des concepts complexes (Sujets de Bac, Maths, Physique, Philo, etc.) très clairement. 
+Utilise Markdown et formate TOUTES tes formules mathématiques avec KaTeX (utilise $$ pour les blocs et $ pour l'inline). 
+Sois encourageant, pédagogique, et donne des exemples.`;
+                historyToUse = STATE.historyTutor.slice(-6);
+            }
+
+            try {
+                const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY_MISTRAL}` },
+                    body: JSON.stringify({ 
+                        model: "mistral-small-latest",
+                        messages: [{ role: "system", content: systemPrompt }, ...historyToUse]
+                    })
+                });
+
+                const data = await res.json();
+                let reply = data.choices[0].message.content;
+                this.removeTyping(tab);
+
+                if (tab === 'tasks') {
+                    let jsonStr = "";
+                    const jsonBlock = reply.match(/```json\s*([\s\S]*?)\s*```/);
+                    if (jsonBlock) jsonStr = jsonBlock[1];
+                    else {
+                        const firstBrace = reply.indexOf('{'); const lastBrace = reply.lastIndexOf('}');
+                        if (firstBrace !== -1 && lastBrace !== -1) jsonStr = reply.substring(firstBrace, lastBrace + 1);
+                    }
+                    if (jsonStr) {
+                        const cmdRes = this.handleTaskCommand(jsonStr);
+                        if (cmdRes) this.addMessage(cmdRes, 'ai', tab);
+                        else this.addMessage(reply, 'ai', tab);
+                    } else {
+                        this.addMessage(reply, 'ai', tab);
+                    }
+                } else {
+                    this.addMessage(reply, 'ai', tab);
+                }
+            } catch (e) {
+                this.removeTyping(tab);
+                this.addMessage("Erreur de connexion à l'API Mistral.", 'ai', tab);
+            }
+        }
+    };
+
+    // --- UI BINDINGS ---
+    function toggleChat() {
+        const win = document.getElementById('chat-window');
+        if (win.style.display === 'flex') {
+            win.style.display = 'none'; win.classList.remove('open');
+        } else {
+            win.style.display = 'flex'; setTimeout(() => win.classList.add('open'), 10);
+            document.getElementById('chat-input').focus();
+        }
+    }
+
+    function handleChatKey(e) { if (e.key === 'Enter') sendMessage(); }
+    function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const val = input.value.trim();
+        if (val) { Chat.send(val); input.value = ""; }
+    }
+
+    // Faux bouton upload fichier (Tuteur)
+    function simulateFileUpload() {
+        Chat.addMessage("*Document.pdf* (Simulation d'importation réussie)", 'user', 'tutor');
+        setTimeout(() => {
+            Chat.addMessage("J'ai bien reçu ton document. Que veux-tu que je t'explique ou que j'analyse à l'intérieur ?", 'ai', 'tutor');
+        }, 1000);
+    }
+
+    function openSettings() { document.getElementById('settings-modal').classList.add('open'); }
+    function closeSettingsBtn() { document.getElementById('settings-modal').classList.remove('open'); }
+    function closeSettings(e) { if(e.target.id === 'settings-modal') closeSettingsBtn(); }
+    
+    function saveSettings() {
+        STATE.settings.workTime = parseInt(document.getElementById('set-work').value);
+        STATE.settings.shortBreak = parseInt(document.getElementById('set-short').value);
+        STATE.settings.longBreak = parseInt(document.getElementById('set-long').value);
+        STATE.settings.cyclesBeforeLong = parseInt(document.getElementById('set-cycles').value);
+        
+        STATE.settings.showClock = document.getElementById('check-clock').checked;
+        STATE.settings.showTotalTime = document.getElementById('check-total').checked;
+        STATE.settings.soundEnabled = document.getElementById('check-sound').checked;
+        STATE.settings.musicTrack = document.getElementById('select-music').value;
+        STATE.settings.musicVolume = parseInt(document.getElementById('range-volume').value);
+
+        saveStorage(); applySettingsUI();
+        
+        musicManager.load();
+        if(STATE.timer.active && STATE.timer.mode === 'work') musicManager.play();
+        else musicManager.pause();
+        
+        timer.setDurationBasedOnMode(); timer.updateDisplay(); timer.renderDots();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        loadStorage();
+        document.getElementById('set-work').value = STATE.settings.workTime;
+        document.getElementById('set-short').value = STATE.settings.shortBreak;
+        document.getElementById('set-long').value = STATE.settings.longBreak;
+        document.getElementById('set-cycles').value = STATE.settings.cyclesBeforeLong;
+        timer.init(); taskManager.render();
+    });
+
+</script>
+</body>
+</html>
