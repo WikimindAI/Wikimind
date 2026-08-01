@@ -68,11 +68,14 @@
     .btn-nav-signup:hover { opacity: .85; transform: translateY(-1px); }
     #nav-user-info { display: none; align-items: center; gap: 10px; }
     #nav-user-info.visible { display: flex; }
-    .nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.09); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.75); cursor: pointer; text-decoration: none; overflow: hidden; }
-    .nav-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; }
-    .nav-avatar img.loaded { display: block; }
-    .nav-avatar span { display: block; }
-    .nav-avatar img.loaded + span { display: none; }
+    /* ══ AVATAR (photo de profil) ══
+       Ancienne approche <img>+<span> avec toggle de classe CSS supprimée : trop
+       fragile (ordre des sélecteurs, timing onload/onerror). Nouvelle approche :
+       un seul élément, image posée en background-image en JS uniquement après
+       confirmation de chargement réussie (preload via new Image()). Tant que rien
+       n'est confirmé, on ne voit que l'initiale — jamais de bulle vide. */
+    .wm-avatar { border-radius: 50%; background-color: rgba(255,255,255,0.09); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .nav-avatar { width: 32px; height: 32px; border: 1px solid var(--border); font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.75); cursor: pointer; text-decoration: none; }
     .nav-username { font-size: 13px; font-weight: 500; color: var(--t2); }
     .btn-signout { font-size: 12px; font-weight: 500; color: var(--t3); background: none; border: none; cursor: pointer; padding: 5px 10px; border-radius: 6px; transition: color .15s; }
     .btn-signout:hover { color: var(--t2); }
@@ -565,10 +568,7 @@
 
     /* Hero identity */
     .profile-hero { display: flex; align-items: center; gap: 20px; margin-bottom: 28px; }
-    .profile-avatar-big { width: 68px; height: 68px; border-radius: 50%; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: rgba(255,255,255,0.55); overflow: hidden; position: relative; flex-shrink: 0; }
-    .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; position: absolute; inset: 0; }
-    .profile-avatar-big img.loaded { display: block; }
-    .profile-avatar-big img.loaded ~ span { display: none; }
+    .profile-avatar-big { width: 68px; height: 68px; border: 1.5px solid rgba(255,255,255,0.12); font-size: 24px; font-weight: 700; color: rgba(255,255,255,0.55); position: relative; flex-shrink: 0; }
     .profile-identity { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
     .profile-name { font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: -.025em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .profile-email { font-size: 12px; color: var(--t3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -640,8 +640,7 @@
   </div>
   <div id="nav-user-info">
     <span class="nav-username" id="nav-username-text"></span>
-    <a class="nav-avatar" id="nav-avatar-btn" href="#" onclick="openProfile(event)">
-      <img id="nav-avatar-img" src="" alt="" referrerpolicy="no-referrer">
+    <a class="wm-avatar nav-avatar" id="nav-avatar-btn" href="#" onclick="openProfile(event)">
       <span id="nav-avatar-initial"></span>
     </a>
     <button class="btn-signout" id="btn-signout">Deconnexion</button>
@@ -763,8 +762,7 @@
 
     <!-- Hero identity -->
     <div class="profile-hero">
-      <div class="profile-avatar-big" id="profile-avatar-big" title="Changer la photo de profil">
-        <img id="profile-avatar-img" src="" alt="" referrerpolicy="no-referrer">
+      <div class="wm-avatar profile-avatar-big" id="profile-avatar-big" title="Changer la photo de profil">
         <span id="profile-avatar-initial-big"></span>
         <div class="profile-avatar-edit-badge"><i class="fa-solid fa-pen"></i></div>
       </div>
@@ -2070,7 +2068,7 @@
     storageBucket: "wikimindata.firebasestorage.app",
     messagingSenderId: "520734288721",
     appId: "1:520734288721:web:12035317283a91396d4170",
-    databaseURL: "https://wikimindata-default-rtdb.firebaseio.com"
+    databaseURL: "https://wikimindata-default-rtdb.europe-west1.firebasedatabase.app"
   });
   const auth = getAuth(app);
   const db = getDatabase(app);
@@ -2124,30 +2122,34 @@
 
   function setAvatar(photoURL, initial) {
     // Nav avatar
-    const navImg = document.getElementById('nav-avatar-img');
+    const navBubble = document.getElementById('nav-avatar-btn');
     const navInitial = document.getElementById('nav-avatar-initial');
+    // Un seul compteur de "requête en cours" par bulle pour ignorer les réponses
+    // tardives si setAvatar est rappelée avant que le chargement précédent finisse.
+    navBubble._req = (navBubble._req || 0) + 1;
+    let navReq = navBubble._req;
     navInitial.textContent = initial;
+    navBubble.style.backgroundImage = '';
     if (photoURL) {
-      navImg.classList.remove('loaded');
-      navImg.onload = () => navImg.classList.add('loaded');
-      navImg.onerror = () => { navImg.classList.remove('loaded'); navImg.removeAttribute('src'); };
-      navImg.src = photoURL;
-    } else {
-      navImg.classList.remove('loaded');
-      navImg.removeAttribute('src');
+      const test = new Image();
+      test.referrerPolicy = 'no-referrer';
+      test.onload = () => { if (navBubble._req === navReq) navBubble.style.backgroundImage = `url("${photoURL}")`; };
+      test.onerror = () => { if (navBubble._req === navReq) navBubble.style.backgroundImage = ''; };
+      test.src = photoURL;
     }
     // Profile avatar
-    const profImg = document.getElementById('profile-avatar-img');
+    const profBubble = document.getElementById('profile-avatar-big');
     const profInitial = document.getElementById('profile-avatar-initial-big');
+    profBubble._req = (profBubble._req || 0) + 1;
+    let profReq = profBubble._req;
     profInitial.textContent = initial;
+    profBubble.style.backgroundImage = '';
     if (photoURL) {
-      profImg.classList.remove('loaded');
-      profImg.onload = () => profImg.classList.add('loaded');
-      profImg.onerror = () => { profImg.classList.remove('loaded'); profImg.removeAttribute('src'); };
-      profImg.src = photoURL;
-    } else {
-      profImg.classList.remove('loaded');
-      profImg.removeAttribute('src');
+      const test2 = new Image();
+      test2.referrerPolicy = 'no-referrer';
+      test2.onload = () => { if (profBubble._req === profReq) profBubble.style.backgroundImage = `url("${photoURL}")`; };
+      test2.onerror = () => { if (profBubble._req === profReq) profBubble.style.backgroundImage = ''; };
+      test2.src = photoURL;
     }
   }
 
@@ -2207,10 +2209,10 @@
       navUserInfo.classList.remove('visible');
       updateVerifyBanner(null);
       // Reset avatars
-      document.getElementById('nav-avatar-img').classList.remove('loaded');
-      document.getElementById('nav-avatar-img').src = '';
-      document.getElementById('profile-avatar-img').classList.remove('loaded');
-      document.getElementById('profile-avatar-img').src = '';
+      document.getElementById('nav-avatar-btn').style.backgroundImage = '';
+      document.getElementById('profile-avatar-big').style.backgroundImage = '';
+      document.getElementById('nav-avatar-initial').textContent = '';
+      document.getElementById('profile-avatar-initial-big').textContent = '';
       closeProfile();
     }
   });
@@ -2547,7 +2549,14 @@
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/Wikimind/wikimind/sw.js', { scope: '/Wikimind/' })
+    // Le scope maximum autorisé pour un script est son propre dossier, sauf si le
+    // serveur envoie l'en-tête "Service-Worker-Allowed" (impossible sur GitHub Pages).
+    // Le script vit dans /Wikimind/wikimind/sw.js → son scope ne peut donc pas dépasser
+    // /Wikimind/wikimind/. On enregistre avec ce scope réel pour supprimer la SecurityError.
+    // Pour que le Service Worker couvre TOUT le site (/Wikimind/), il faut déplacer
+    // physiquement sw.js à la racine du dépôt (/Wikimind/sw.js) et enregistrer
+    // 'sw.js' avec { scope: '/Wikimind/' } depuis là.
+    navigator.serviceWorker.register('wikimind/sw.js', { scope: 'wikimind/' })
       .then(reg => console.log('[WikiMind PWA] SW enregistré ✓', reg.scope))
       .catch(err => console.warn('[WikiMind PWA] SW échec :', err));
   });
