@@ -38,8 +38,9 @@
       --nav: 64px;
     }
 
-    html { scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--t1); font-family: var(--sans); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    html { scroll-behavior: smooth; overflow-x: hidden; width: 100%; }
+    body { background: var(--bg); color: var(--t1); font-family: var(--sans); overflow-x: hidden; width: 100%; -webkit-font-smoothing: antialiased; }
+    img, svg, video, canvas { max-width: 100%; }
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 
@@ -506,9 +507,13 @@
     .apps-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 40px; }
     .search-wrap { position: relative; }
     .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--t3); font-size: 12px; pointer-events: none; }
-    .search-input { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 9px 13px 9px 33px; color: #fff; font-size: 13px; font-family: var(--sans); outline: none; width: 220px; transition: border-color .15s; }
+    .search-input { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 9px 13px 9px 33px; color: #fff; font-size: 13px; font-family: var(--sans); outline: none; width: 220px; max-width: 100%; transition: border-color .15s; }
     .search-input:focus { border-color: rgba(255,255,255,0.22); }
     .search-input::placeholder { color: var(--t3); }
+    @media (max-width: 480px) {
+      .apps-section { padding: 60px 16px 80px; }
+      .search-wrap, .search-input { width: 100%; }
+    }
 
     .mgrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
     @media (max-width: 880px) { .mgrid { grid-template-columns: 1fr 1fr; } }
@@ -1650,73 +1655,73 @@
     <svg class="podium-svg" viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
       <defs>
         <linearGradient id="pgTop1" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.13)"/>
-          <stop offset="100%" stop-color="rgba(255,255,255,0.06)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.34)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.16)"/>
         </linearGradient>
         <linearGradient id="pgTop2" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.09)"/>
-          <stop offset="100%" stop-color="rgba(255,255,255,0.04)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.24)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.10)"/>
         </linearGradient>
         <linearGradient id="pgTop3" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.07)"/>
-          <stop offset="100%" stop-color="rgba(255,255,255,0.03)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.08)"/>
         </linearGradient>
         <linearGradient id="pgFront" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.06)"/>
-          <stop offset="100%" stop-color="rgba(255,255,255,0.02)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.05)"/>
         </linearGradient>
         <linearGradient id="pgSide" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.02)"/>
-          <stop offset="100%" stop-color="rgba(255,255,255,0.005)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.07)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.02)"/>
         </linearGradient>
         <linearGradient id="pgBase" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.05)"/>
-          <stop offset="100%" stop-color="rgba(255,255,255,0.015)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.12)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.04)"/>
         </linearGradient>
         <linearGradient id="pgRefl" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(255,255,255,0.025)"/>
+          <stop offset="0%" stop-color="rgba(255,255,255,0.06)"/>
           <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
         </linearGradient>
       </defs>
 
       <!-- BASE PLATFORM — front face -->
-      <rect x="30" y="228" width="840" height="44" fill="url(#pgBase)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+      <rect x="30" y="228" width="840" height="44" fill="url(#pgBase)" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>
       <!-- BASE top face -->
-      <polygon points="30,228 870,228 900,205 0,205" fill="url(#pgTop2)" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+      <polygon points="30,228 870,228 900,205 0,205" fill="url(#pgTop2)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
       <!-- BASE right side -->
-      <polygon points="870,228 900,205 900,272 870,272" fill="url(#pgSide)" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+      <polygon points="870,228 900,205 900,272 870,272" fill="url(#pgSide)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
 
       <!-- BLOCK #2 — medium (left) -->
       <!-- front -->
-      <rect x="60"  y="128" width="240" height="100" fill="url(#pgFront)" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+      <rect x="60"  y="128" width="240" height="100" fill="url(#pgFront)" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>
       <!-- top -->
-      <polygon points="60,128 300,128 330,105 90,105"  fill="url(#pgTop2)" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+      <polygon points="60,128 300,128 330,105 90,105"  fill="url(#pgTop2)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
       <!-- side -->
-      <polygon points="300,128 330,105 330,228 300,228" fill="url(#pgSide)" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+      <polygon points="300,128 330,105 330,228 300,228" fill="url(#pgSide)" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
       <!-- number -->
-      <text x="180" y="210" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="56" font-weight="800" fill="rgba(255,255,255,0.07)">2</text>
+      <text x="180" y="210" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="56" font-weight="800" fill="rgba(255,255,255,0.28)">2</text>
 
       <!-- BLOCK #1 — tallest (centre) -->
       <!-- front -->
-      <rect x="330" y="48"  width="270" height="180" fill="url(#pgFront)" stroke="rgba(255,255,255,0.11)" stroke-width="1"/>
+      <rect x="330" y="48"  width="270" height="180" fill="url(#pgFront)" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
       <!-- top — bright highlight edge -->
-      <polygon points="330,48  600,48  630,25 360,25"  fill="url(#pgTop1)" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
+      <polygon points="330,48  600,48  630,25 360,25"  fill="url(#pgTop1)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
       <!-- top highlight line -->
-      <line x1="330" y1="48" x2="600" y2="48" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+      <line x1="330" y1="48" x2="600" y2="48" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
       <!-- side -->
-      <polygon points="600,48  630,25  630,228 600,228" fill="url(#pgSide)" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+      <polygon points="600,48  630,25  630,228 600,228" fill="url(#pgSide)" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
       <!-- number -->
-      <text x="465" y="185" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="100" font-weight="800" fill="rgba(255,255,255,0.07)">1</text>
+      <text x="465" y="185" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="100" font-weight="800" fill="rgba(255,255,255,0.4)">1</text>
 
       <!-- BLOCK #3 — shortest (right) -->
       <!-- front -->
-      <rect x="620" y="168" width="220" height="60"  fill="url(#pgFront)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+      <rect x="620" y="168" width="220" height="60"  fill="url(#pgFront)" stroke="rgba(255,255,255,0.14)" stroke-width="1"/>
       <!-- top -->
-      <polygon points="620,168 840,168 870,145 650,145" fill="url(#pgTop3)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+      <polygon points="620,168 840,168 870,145 650,145" fill="url(#pgTop3)" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>
       <!-- side -->
-      <polygon points="840,168 870,145 870,228 840,228" fill="url(#pgSide)" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+      <polygon points="840,168 870,145 870,228 840,228" fill="url(#pgSide)" stroke="rgba(255,255,255,0.07)" stroke-width="0.5"/>
       <!-- number -->
-      <text x="730" y="216" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="38" font-weight="800" fill="rgba(255,255,255,0.07)">3</text>
+      <text x="730" y="216" text-anchor="middle" font-family="'Space Grotesk',sans-serif" font-size="38" font-weight="800" fill="rgba(255,255,255,0.24)">3</text>
 
       <!-- REFLECTION -->
       <rect x="30" y="272" width="840" height="28" fill="url(#pgRefl)"/>
@@ -2121,26 +2126,28 @@
     // Nav avatar
     const navImg = document.getElementById('nav-avatar-img');
     const navInitial = document.getElementById('nav-avatar-initial');
+    navInitial.textContent = initial;
     if (photoURL) {
       navImg.classList.remove('loaded');
       navImg.onload = () => navImg.classList.add('loaded');
-      navImg.onerror = () => { navImg.classList.remove('loaded'); navImg.removeAttribute('src'); navInitial.style.display = 'block'; };
+      navImg.onerror = () => { navImg.classList.remove('loaded'); navImg.removeAttribute('src'); };
       navImg.src = photoURL;
     } else {
+      navImg.classList.remove('loaded');
       navImg.removeAttribute('src');
-      navInitial.textContent = initial;
     }
     // Profile avatar
     const profImg = document.getElementById('profile-avatar-img');
     const profInitial = document.getElementById('profile-avatar-initial-big');
+    profInitial.textContent = initial;
     if (photoURL) {
       profImg.classList.remove('loaded');
       profImg.onload = () => profImg.classList.add('loaded');
-      profImg.onerror = () => { profImg.classList.remove('loaded'); profImg.removeAttribute('src'); profInitial.style.display = 'flex'; };
+      profImg.onerror = () => { profImg.classList.remove('loaded'); profImg.removeAttribute('src'); };
       profImg.src = photoURL;
     } else {
+      profImg.classList.remove('loaded');
       profImg.removeAttribute('src');
-      profInitial.textContent = initial;
     }
   }
 
