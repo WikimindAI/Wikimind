@@ -636,7 +636,7 @@
   <div id="nav-user-info">
     <span class="nav-username" id="nav-username-text"></span>
     <a class="nav-avatar" id="nav-avatar-btn" href="#" onclick="openProfile(event)">
-      <img id="nav-avatar-img" src="" alt="">
+      <img id="nav-avatar-img" src="" alt="" referrerpolicy="no-referrer">
       <span id="nav-avatar-initial"></span>
     </a>
     <button class="btn-signout" id="btn-signout">Deconnexion</button>
@@ -759,7 +759,7 @@
     <!-- Hero identity -->
     <div class="profile-hero">
       <div class="profile-avatar-big" id="profile-avatar-big" title="Changer la photo de profil">
-        <img id="profile-avatar-img" src="" alt="">
+        <img id="profile-avatar-img" src="" alt="" referrerpolicy="no-referrer">
         <span id="profile-avatar-initial-big"></span>
         <div class="profile-avatar-edit-badge"><i class="fa-solid fa-pen"></i></div>
       </div>
@@ -1204,7 +1204,7 @@
   <p class="hero-sub reveal d2">WikiMind est une suite complète d'outils intelligents pour apprendre, créer et s'organiser. Propulsé par les meilleurs modèles d'IA du marché.</p>
   <div class="hero-ctas reveal d3">
     <a href="#apps" class="btn-primary">Explorer les apps <i class="fa-solid fa-arrow-down" style="font-size:11px;"></i></a>
-    <a href="https://wikimindai.github.io/Wikimind/apps/AI/Wikimind_AI.html" class="btn-ghost" target="_blank">Ouvrir WikiMind AI <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;"></i></a>
+    <a href="apps/AI/Wikimind_AI.html" class="btn-ghost" target="_blank">Ouvrir WikiMind AI <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;"></i></a>
   </div>
   <button class="btn-pwa-hero reveal d4" id="btn-pwa-hero" style="display:none;" onclick="triggerPWAInstall()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
@@ -2122,20 +2122,24 @@
     const navImg = document.getElementById('nav-avatar-img');
     const navInitial = document.getElementById('nav-avatar-initial');
     if (photoURL) {
-      navImg.src = photoURL;
+      navImg.classList.remove('loaded');
       navImg.onload = () => navImg.classList.add('loaded');
-      navImg.onerror = () => { navImg.style.display = 'none'; navInitial.style.display = 'block'; };
+      navImg.onerror = () => { navImg.classList.remove('loaded'); navImg.removeAttribute('src'); navInitial.style.display = 'block'; };
+      navImg.src = photoURL;
     } else {
+      navImg.removeAttribute('src');
       navInitial.textContent = initial;
     }
     // Profile avatar
     const profImg = document.getElementById('profile-avatar-img');
     const profInitial = document.getElementById('profile-avatar-initial-big');
     if (photoURL) {
-      profImg.src = photoURL;
+      profImg.classList.remove('loaded');
       profImg.onload = () => profImg.classList.add('loaded');
-      profImg.onerror = () => { profImg.style.display = 'none'; profInitial.style.display = 'flex'; };
+      profImg.onerror = () => { profImg.classList.remove('loaded'); profImg.removeAttribute('src'); profInitial.style.display = 'flex'; };
+      profImg.src = photoURL;
     } else {
+      profImg.removeAttribute('src');
       profInitial.textContent = initial;
     }
   }
