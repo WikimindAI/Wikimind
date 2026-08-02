@@ -128,10 +128,10 @@ Conçu pour les étudiants, créateurs, développeurs, entrepreneurs et curieux.
 - [x] Authentification utilisateur
 - [x] Galerie IA
 - [x] Gestion des profils
-- [ ] Historique des conversations
+- [x] Historique des conversations
 - [ ] Marketplace d'outils
 - [ ] Abonnements Premium
-- [ ] Applications IA avancées
+- [x] Applications IA avancées
 - [ ] API publique
 
 ---
