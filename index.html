@@ -62,9 +62,9 @@
     .nav-link { font-size: 13px; font-weight: 500; color: var(--t2); background: none; border: none; cursor: pointer; padding: 6px 12px; border-radius: 8px; transition: color .15s, background .15s; text-decoration: none; }
     .nav-link:hover { color: #fff; background: rgba(255,255,255,0.06); }
     .nav-auth { display: flex; align-items: center; gap: 8px; }
-    .btn-nav-login { font-size: 13px; font-weight: 600; color: var(--t2); background: none; border: none; cursor: pointer; padding: 7px 14px; border-radius: 8px; transition: color .15s; }
+    .btn-nav-login { font-size: 13px; font-weight: 600; color: var(--t2); background: none; border: none; cursor: pointer; padding: 7px 14px; border-radius: 8px; transition: color .15s; text-decoration: none; display: inline-flex; align-items: center; }
     .btn-nav-login:hover { color: #fff; }
-    .btn-nav-signup { font-size: 13px; font-weight: 600; color: #000; background: #fff; border: none; cursor: pointer; padding: 7px 16px; border-radius: 8px; transition: opacity .15s, transform .15s; }
+    .btn-nav-signup { font-size: 13px; font-weight: 600; color: #000; background: #fff; border: none; cursor: pointer; padding: 7px 16px; border-radius: 8px; transition: opacity .15s, transform .15s; text-decoration: none; display: inline-flex; align-items: center; }
     .btn-nav-signup:hover { opacity: .85; transform: translateY(-1px); }
     #nav-user-info { display: none; align-items: center; gap: 10px; }
     #nav-user-info.visible { display: flex; }
@@ -635,8 +635,8 @@
     <a href="#apps" class="nav-link">Applications</a>
   </div>
   <div class="nav-auth" id="nav-auth-guest">
-    <button class="btn-nav-login" id="btn-open-login">Se connecter</button>
-    <button class="btn-nav-signup" id="btn-open-signup">Commencer</button>
+    <a class="btn-nav-login" id="btn-open-login" href="auth.html?mode=login">Se connecter</a>
+    <a class="btn-nav-signup" id="btn-open-signup" href="auth.html?mode=signup">Commencer</a>
   </div>
   <div id="nav-user-info">
     <span class="nav-username" id="nav-username-text"></span>
@@ -2079,8 +2079,7 @@
   const navAuthGuest = document.getElementById('nav-auth-guest');
   const navUserInfo = document.getElementById('nav-user-info');
 
-  document.getElementById('btn-open-login').onclick = () => { window.switchAuthTab('login'); authModal.classList.add('open'); };
-  document.getElementById('btn-open-signup').onclick = () => { window.switchAuthTab('signup'); authModal.classList.add('open'); };
+  // btn-open-login / btn-open-signup sont maintenant des liens directs vers auth.html
   document.getElementById('modal-close').onclick = () => authModal.classList.remove('open');
   authModal.addEventListener('click', e => { if (e.target === authModal) authModal.classList.remove('open'); });
 
