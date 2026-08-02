@@ -549,15 +549,52 @@ html, body {
 
 /* ── Lueur radiale grise sur l'écran d'accueil (façon Gemini, en gris) ── */
 #bg-glow {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background: radial-gradient(ellipse 55% 50% at 50% 55%, rgba(180,180,190,0.32) 0%, rgba(140,140,150,0.14) 40%, transparent 70%);
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transform-origin: 50% 100%;
+  transform: scale(1) translateY(0);
+  border-radius: 42% 58% 63% 37% / 45% 38% 62% 55%;
+  filter: blur(0px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.4,0,0.2,1), filter 0.7s ease;
+  animation: bgGlowMorph 16s ease-in-out infinite;
+}
+/* La forme n'est jamais un ellipse parfaite : elle respire lentement entre plusieurs blobs organiques */
+@keyframes bgGlowMorph {
+  0%   { border-radius: 42% 58% 63% 37% / 45% 38% 62% 55%; }
+  25%  { border-radius: 58% 42% 45% 55% / 55% 60% 40% 45%; }
+  50%  { border-radius: 50% 50% 38% 62% / 40% 55% 45% 60%; }
+  75%  { border-radius: 63% 37% 55% 45% / 58% 42% 55% 42%; }
+  100% { border-radius: 42% 58% 63% 37% / 45% 38% 62% 55%; }
 }
 body.chat-empty-state #bg-glow {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+/* En conversation : le blob glisse et rétrécit vers le bas pour devenir une lueur
+   ambiante juste derrière la barre, au lieu de simplement disparaître. */
+body:not(.chat-empty-state) #bg-glow {
+  opacity: 0.55;
+  transform: scale(0.22) translateY(6%);
+  filter: blur(6px);
+}
+/* Lueur persistante qui reste collée à la barre une fois en conversation */
+#input-zone { position: relative; }
+#input-zone::before {
+  content: "";
+  position: absolute;
+  inset: -36px -12px -12px;
+  z-index: -1;
+  border-radius: 40px;
+  background: radial-gradient(ellipse 70% 100% at 50% 100%, rgba(180,180,190,0.16) 0%, transparent 72%);
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+}
+body:not(.chat-empty-state) #input-zone::before {
   opacity: 1;
 }
 #topbar, #chat-wrap {
