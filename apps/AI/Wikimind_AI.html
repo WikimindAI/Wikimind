@@ -3102,7 +3102,7 @@ const db = getDatabase(app);
 // Elles sont stockées comme secrets sur le Cloudflare Worker proxy.
 // Toutes les requêtes IA passent désormais par WM_PROXY_URL.
 // -> Remplace la valeur ci-dessous par l'URL de TON Worker après déploiement.
-const WM_PROXY_URL = "https://TON-WORKER.TON-SOUS-DOMAINE.workers.dev";
+const WM_PROXY_URL = "https://wikimind-api.wikimind-ai.workers.dev";
 const KEY = ""; // conservé pour compat (plus utilisé)
 const _gk = "";
 const _snk = "";
@@ -4247,7 +4247,7 @@ async function loadModels() {
 
     // SÉCURITÉ : les clés ne sont plus dans models.json. On récupère juste
     // l'URL du proxy (peut être surchargée par models.json si besoin).
-    if (data.proxyUrl && data.proxyUrl !== "https://TON-WORKER.TON-SOUS-DOMAINE.workers.dev") {
+    if (data.proxyUrl && data.proxyUrl !== "https://wikimind-api.wikimind-ai.workers.dev") {
       window.WM_PROXY_URL = data.proxyUrl;
     }
     // ── Si le modèle actuellement sélectionné a disparu (forfait insuffisant / expiré), fallback ──
