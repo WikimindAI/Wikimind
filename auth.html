@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="fr" id="html-root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WikiMind — Compte</title>
+<link rel="icon" type="image/png" href="wikimind.png">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#ffffff; --panel:#fafafa; --line:#e9e9ea; --line-h:#d7d7d9;
+    --t1:#0a0a0a; --t2:#6b6b70; --t3:#a3a3a8;
+    --grey:#f2f2f3; --grey-h:#e7e7e9;
+    --sans:'Inter',sans-serif; --display:'Space Grotesk',sans-serif;
+    --r:12px; --rl:18px;
+  }
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--t1);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit}
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-thumb{background:var(--line-h);border-radius:6px}
+
+  .wrap{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+  @media (max-width:900px){.wrap{grid-template-columns:1fr}}
+
+  /* ── LEFT VISUAL PANEL ── */
+  .side{
+    position:relative;background:#0a0a0a;color:#fff;
+    display:flex;flex-direction:column;justify-content:space-between;padding:48px;
+    overflow:hidden;
+  }
+  @media (max-width:900px){.side{display:none}}
+  .side::before{
+    content:'';position:absolute;inset:0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 45%),
+      radial-gradient(circle at 80% 75%, rgba(255,255,255,0.06), transparent 40%);
+    pointer-events:none;
+  }
+  .side-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(circle at 50% 40%,#000 0%,transparent 70%)}
+  .side-logo{display:flex;align-items:center;gap:10px;position:relative;z-index:2}
+  .side-logo img{width:30px;height:30px;object-fit:contain;border-radius:7px}
+  .side-logo-text{font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:-.02em}
+  .side-logo-text span{color:rgba(255,255,255,0.35);font-weight:400}
+  .side-quote{position:relative;z-index:2;max-width:420px}
+  .side-quote-mark{font-family:var(--display);font-size:52px;font-weight:700;line-height:.6;color:rgba(255,255,255,0.18);margin-bottom:10px}
+  .side-quote-text{font-family:var(--display);font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.35;margin-bottom:18px}
+  .side-quote-sub{font-size:13.5px;color:rgba(255,255,255,0.45);line-height:1.6}
+  .side-foot{position:relative;z-index:2;font-size:12px;color:rgba(255,255,255,0.3)}
+
+  /* ── RIGHT FORM PANEL ── */
+  .main{display:flex;flex-direction:column;min-height:100vh}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:24px 32px}
+  .back-link{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--t2);text-decoration:none;transition:color .15s}
+  .back-link:hover{color:var(--t1)}
+  .lang-switch{position:relative}
+  .lang-btn{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--t1);background:var(--grey);border:1px solid var(--line);padding:7px 12px;border-radius:9px;cursor:pointer}
+  .lang-menu{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,0.08);padding:6px;min-width:170px;display:none;z-index:50;max-height:280px;overflow-y:auto}
+  .lang-menu.open{display:block}
+  .lang-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}
+  .lang-item:hover{background:var(--grey)}
+  .lang-item.active{background:var(--grey);font-weight:700}
+
+  .center{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
+  .card{width:100%;max-width:380px}
+
+  .step-progress{display:flex;gap:6px;margin-bottom:28px}
+  .step-progress-bar{flex:1;height:3px;border-radius:3px;background:var(--line)}
+  .step-progress-bar.done{background:var(--t1)}
+
+  .brand-mini{display:none}
+  @media (max-width:900px){
+    .brand-mini{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:22px}
+    .brand-mini img{width:24px;height:24px;object-fit:contain;border-radius:6px}
+    .brand-mini span{font-family:var(--display);font-weight:700;font-size:16px}
+  }
+
+  .title{font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:-.03em;margin-bottom:6px}
+  .subtitle{font-size:13.5px;color:var(--t2);margin-bottom:26px;line-height:1.5}
+
+  .tabs{display:flex;gap:3px;background:var(--grey);border-radius:11px;padding:3px;margin-bottom:22px;border:1px solid var(--line)}
+  .tab{flex:1;padding:9px;font-size:13px;font-weight:600;background:none;border:none;cursor:pointer;border-radius:8px;color:var(--t2);transition:all .16s;font-family:var(--sans)}
+  .tab.active{background:#fff;color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+
+  .btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;background:#fff;border:1px solid var(--line-h);border-radius:11px;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s;margin-bottom:18px}
+  .btn-google:hover{background:var(--grey);border-color:var(--t3)}
+  .btn-google img{width:17px;height:17px}
+
+  .divider{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .divider-line{flex:1;height:1px;background:var(--line)}
+  .divider-text{font-size:10.5px;font-weight:700;color:var(--t3);letter-spacing:.08em;text-transform:uppercase}
+
+  .field{margin-bottom:14px}
+  .field-label{display:block;font-size:12.5px;font-weight:600;color:var(--t1);margin-bottom:6px}
+  .field-input-wrap{position:relative}
+  .field-input{width:100%;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;font-size:13.5px;color:var(--t1);font-family:var(--sans);transition:border-color .15s,background .15s}
+  .field-input:focus{outline:none;border-color:var(--t1);background:#fff}
+  .field-input.has-toggle{padding-right:42px}
+  .field-input::placeholder{color:var(--t3)}
+  .field-toggle{position:absolute;right:4px;top:4px;bottom:4px;width:36px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--t3);cursor:pointer;border-radius:7px}
+  .field-toggle:hover{color:var(--t1);background:var(--grey)}
+  .field-hint{font-size:11px;color:var(--t3);margin-top:5px;min-height:14px}
+  .field-hint.err{color:#d92d20}
+  .field-hint.ok{color:#16a34a}
+  .field-row{display:flex;gap:10px}
+  .field-row .field{flex:1}
+
+  .row-between{display:flex;align-items:center;justify-content:flex-end;margin-bottom:16px;margin-top:-4px}
+  .link-btn{font-size:12px;font-weight:600;color:var(--t2);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+  .link-btn:hover{color:var(--t1)}
+
+  .btn-primary{width:100%;padding:13px;background:var(--t1);color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s,transform .15s}
+  .btn-primary:hover{opacity:.86}
+  .btn-primary:active{transform:scale(.985)}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed}
+  .btn-secondary{width:100%;padding:13px;background:var(--grey);color:var(--t1);border:1px solid var(--line);border-radius:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background .15s}
+  .btn-secondary:hover{background:var(--grey-h)}
+  .btn-row{display:flex;gap:10px}
+  .btn-row .btn-secondary{width:auto;padding:13px 18px}
+  .btn-row .btn-primary{flex:1}
+
+  .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+  .btn-secondary .spinner{border-color:rgba(0,0,0,0.2);border-top-color:var(--t1)}
+  .loading .spinner{display:inline-block}
+  .loading .btn-label{opacity:.7}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .error-box{font-size:12.5px;color:#d92d20;background:#fef2f2;border:1px solid #fecaca;padding:9px 12px;border-radius:9px;margin-bottom:14px;display:none;line-height:1.4}
+  .error-box.show{display:block}
+
+  .foot-note{font-size:11px;color:var(--t3);text-align:center;margin-top:20px;line-height:1.55}
+
+  .switch-line{text-align:center;font-size:13px;color:var(--t2);margin-top:22px}
+  .switch-line button{background:none;border:none;color:var(--t1);font-weight:700;cursor:pointer;font-size:13px;text-decoration:underline;text-underline-offset:2px;font-family:var(--sans)}
+
+  /* ── COUNTRY PICKER ── */
+  .country-search{position:relative;margin-bottom:14px}
+  .country-search i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px}
+  .country-search input{padding-left:36px}
+  .country-list{max-height:300px;overflow-y:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+  .country-item{display:flex;align-items:center;gap:11px;padding:11px 13px;cursor:pointer;border-bottom:1px solid var(--line);transition:background .12s}
+  .country-item:last-child{border-bottom:none}
+  .country-item:hover{background:var(--grey)}
+  .country-item.selected{background:#eef2ff}
+  .country-item img{width:22px;height:16px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,0.06);flex-shrink:0}
+  .country-item span{font-size:13.5px;font-weight:500}
+  .country-item .chk{margin-left:auto;color:var(--t1);opacity:0;font-size:13px}
+  .country-item.selected .chk{opacity:1}
+
+  /* ── LANGUAGE PICKER GRID ── */
+  .lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+  .lang-card{display:flex;align-items:center;gap:10px;padding:13px 14px;border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:border-color .15s,background .15s}
+  .lang-card:hover{border-color:var(--t3)}
+  .lang-card.selected{border-color:var(--t1);background:var(--grey);box-shadow:0 0 0 1px var(--t1) inset}
+  .lang-card-flag{width:22px;height:16px;object-fit:cover;border-radius:2px;flex-shrink:0}
+  .lang-card-name{font-size:13px;font-weight:600}
+
+  /* ── TOGGLE PREFS ── */
+  .pref-block{border:1px solid var(--line);border-radius:13px;padding:16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:14px}
+  .pref-block-text{flex:1}
+  .pref-block-title{font-size:13.5px;font-weight:600;margin-bottom:3px}
+  .pref-block-sub{font-size:12px;color:var(--t2);line-height:1.5}
+  .toggle{position:relative;width:42px;height:24px;background:var(--line-h);border-radius:99px;cursor:pointer;flex-shrink:0;transition:background .18s;border:none}
+  .toggle.on{background:var(--t1)}
+  .toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+  .toggle.on::after{transform:translateX(18px)}
+
+  .usage-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}
+  .usage-card{border:1px solid var(--line);border-radius:12px;padding:14px 12px;cursor:pointer;text-align:center;transition:border-color .15s,background .15s}
+  .usage-card:hover{border-color:var(--t3)}
+  .usage-card.selected{border-color:var(--t1);background:var(--grey)}
+  .usage-card i{font-size:16px;margin-bottom:7px;display:block;color:var(--t2)}
+  .usage-card.selected i{color:var(--t1)}
+  .usage-card span{font-size:12px;font-weight:600}
+
+  /* ── VERIFY EMAIL SCREEN ── */
+  .verify-icon{width:56px;height:56px;border-radius:16px;background:var(--grey);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 20px;color:var(--t1)}
+  .verify-email-addr{font-weight:700;color:var(--t1)}
+
+  .password-meter{display:flex;gap:4px;margin-top:8px;margin-bottom:2px}
+  .password-meter-seg{flex:1;height:3px;border-radius:3px;background:var(--line)}
+  .password-meter-seg.l1{background:#d92d20}
+  .password-meter-seg.l2{background:#f59e0b}
+  .password-meter-seg.l3{background:#16a34a}
+
+  .step{display:none}
+  .step.active{display:block}
+
+  .toast-host{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;align-items:center}
+  .toast{background:var(--t1);color:#fff;font-size:13px;font-weight:500;padding:11px 18px;border-radius:11px;box-shadow:0 8px 24px rgba(0,0,0,0.18);opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s}
+  .toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- LEFT -->
+  <div class="side">
+    <div class="side-grid"></div>
+    <a class="side-logo" href="index.html">
+      <img src="wikimind.png" alt="WikiMind">
+      <span class="side-logo-text">Wiki<span>Mind</span></span>
+    </a>
+    <div class="side-quote">
+      <div class="side-quote-mark">"</div>
+      <div class="side-quote-text" data-i18n="side_quote">Une intelligence artificielle qui s'adapte à vous, pas l'inverse.</div>
+      <div class="side-quote-sub" data-i18n="side_quote_sub">Outils IA, flashcards, code et automatisation — tout dans un seul espace privé et sécurisé.</div>
+    </div>
+    <div class="side-foot">© WikiMind — <span id="year"></span></div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="main">
+    <div class="topbar">
+      <a class="back-link" href="index.html"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="back_home">Retour à l'accueil</span></a>
+      <div class="lang-switch">
+        <button class="lang-btn" id="lang-btn"><img id="lang-btn-flag" src="" style="width:16px;height:12px;object-fit:cover;border-radius:2px" alt=""> <span id="lang-btn-label">FR</span> <i class="fa-solid fa-chevron-down" style="font-size:10px"></i></button>
+        <div class="lang-menu" id="lang-menu"></div>
+      </div>
+    </div>
+
+    <div class="center">
+      <div class="card">
+
+        <div class="brand-mini"><img src="wikimind.png" alt=""><span>WikiMind</span></div>
+
+        <!-- STEP 0 : LOGIN / SIGNUP -->
+        <div class="step active" id="step-auth">
+          <div class="title" id="auth-title" data-i18n="welcome_back">Bon retour</div>
+          <div class="subtitle" id="auth-subtitle" data-i18n="welcome_back_sub">Connectez-vous pour retrouver vos outils</div>
+
+          <button class="btn-google" id="btn-google">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="">
+            <span data-i18n="continue_google">Continuer avec Google</span>
+          </button>
+
+          <div class="divider"><div class="divider-line"></div><span class="divider-text" data-i18n="or">ou</span><div class="divider-line"></div></div>
+
+          <div class="tabs">
+            <button class="tab active" id="tab-login" data-i18n="tab_login">Connexion</button>
+            <button class="tab" id="tab-signup" data-i18n="tab_signup">Inscription</button>
+          </div>
+
+          <div class="error-box" id="auth-error"></div>
+
+          <!-- LOGIN FORM -->
+          <div id="form-login">
+            <div class="field">
+              <label class="field-label" data-i18n="email">Email</label>
+              <input class="field-input" type="email" id="login-email" autocomplete="email" data-i18n-ph="email_ph">
+            </div>
+            <div class="field">
+              <label class="field-label" data-i18n="password">Mot de passe</label>
+              <div class="field-input-wrap">
+                <input class="field-input has-toggle" type="password" id="login-password" autocomplete="current-password" data-i18n-ph="password_ph">
+                <button type="button" class="field-toggle" data-target="login-password"><i class="fa-solid fa-eye"></i></button>
+              </div>
+            </div>
+            <div class="row-between">
+              <button class="link-btn" id="btn-forgot" data-i18n="forgot_password">Mot de passe oublié</button>
+            </div>
+            <button class="btn-primary" id="btn-login">
+              <span class="spinner"></span><span class="btn-label" data-i18n="login_btn">Se connecter</span>
+            </button>
+          </div>
+
+          <!-- SIGNUP FORM (credentials only, quiz comes after) -->
+          <div id="form-signup" style="display:none">
+            <div class="field">
+              <label class="field-label" data-i18n="email">Email</label>
+              <input class="field-input" type="email" id="signup-email" autocomplete="email" data-i18n-ph="email_ph">
+              <p class="field-hint" id="signup-email-hint"></p>
+            </div>
+            <div class="field">
+              <label class="field-label" data-i18n="password">Mot de passe</label>
+              <div class="field-input-wrap">
+                <input class="field-input has-toggle" type="password" id="signup-password" autocomplete="new-password" data-i18n-ph="password_ph">
+                <button type="button" class="field-toggle" data-target="signup-password"><i class="fa-solid fa-eye"></i></button>
+              </div>
+              <div class="password-meter"><div class="password-meter-seg" id="pm1"></div><div class="password-meter-seg" id="pm2"></div><div class="password-meter-seg" id="pm3"></div></div>
+            </div>
+            <div class="field">
+              <label class="field-label" data-i18n="confirm_password">Confirmer le mot de passe</label>
+              <input class="field-input" type="password" id="signup-password2" autocomplete="new-password">
+            </div>
+            <button class="btn-primary" id="btn-signup" style="margin-top:6px">
+              <span class="spinner"></span><span class="btn-label" data-i18n="signup_btn">Continuer</span>
+            </button>
+          </div>
+
+          <p class="foot-note" data-i18n="terms_note">En continuant, vous acceptez les conditions d'utilisation et la politique de confidentialité de WikiMind.</p>
+        </div>
+
+        <!-- STEP 1 : IDENTITY -->
+        <div class="step" id="step-identity">
+          <div class="step-progress"><div class="step-progress-bar done"></div><div class="step-progress-bar"></div><div class="step-progress-bar"></div><div class="step-progress-bar"></div></div>
+          <div class="title" data-i18n="step_identity_title">Faisons connaissance</div>
+          <div class="subtitle" data-i18n="step_identity_sub">Ces informations personnalisent votre expérience WikiMind</div>
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label" data-i18n="firstname">Prénom</label>
+              <input class="field-input" type="text" id="q-firstname" data-i18n-ph="firstname_ph">
+            </div>
+            <div class="field">
+              <label class="field-label" data-i18n="lastname">Nom</label>
+              <input class="field-input" type="text" id="q-lastname" data-i18n-ph="lastname_ph">
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label" data-i18n="usage_title">Vous utiliserez WikiMind surtout pour</label>
+            <div class="usage-grid" id="usage-grid">
+              <div class="usage-card" data-val="study"><i class="fa-solid fa-graduation-cap"></i><span data-i18n="usage_study">Étudier</span></div>
+              <div class="usage-card" data-val="work"><i class="fa-solid fa-briefcase"></i><span data-i18n="usage_work">Travail</span></div>
+              <div class="usage-card" data-val="code"><i class="fa-solid fa-code"></i><span data-i18n="usage_code">Code</span></div>
+              <div class="usage-card" data-val="creative"><i class="fa-solid fa-pen-nib"></i><span data-i18n="usage_creative">Création</span></div>
+            </div>
+          </div>
+          <div class="error-box" id="identity-error"></div>
+          <button class="btn-primary" id="btn-identity-next"><span class="btn-label" data-i18n="next">Suivant</span></button>
+        </div>
+
+        <!-- STEP 2 : COUNTRY -->
+        <div class="step" id="step-country">
+          <div class="step-progress"><div class="step-progress-bar done"></div><div class="step-progress-bar done"></div><div class="step-progress-bar"></div><div class="step-progress-bar"></div></div>
+          <div class="title" data-i18n="step_country_title">D'où venez-vous</div>
+          <div class="subtitle" data-i18n="step_country_sub">Choisissez votre pays pour adapter le contenu</div>
+          <div class="country-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="field-input" type="text" id="country-search" data-i18n-ph="country_search_ph">
+          </div>
+          <div class="country-list" id="country-list"></div>
+          <div class="btn-row" style="margin-top:18px">
+            <button class="btn-secondary" id="btn-country-back"><i class="fa-solid fa-arrow-left"></i></button>
+            <button class="btn-primary" id="btn-country-next"><span class="btn-label" data-i18n="next">Suivant</span></button>
+          </div>
+        </div>
+
+        <!-- STEP 3 : LANGUAGE -->
+        <div class="step" id="step-lang">
+          <div class="step-progress"><div class="step-progress-bar done"></div><div class="step-progress-bar done"></div><div class="step-progress-bar done"></div><div class="step-progress-bar"></div></div>
+          <div class="title" data-i18n="step_lang_title">Votre langue</div>
+          <div class="subtitle" data-i18n="step_lang_sub">WikiMind s'affichera dans cette langue</div>
+          <div class="lang-grid" id="lang-grid-picker"></div>
+          <div class="btn-row" style="margin-top:8px">
+            <button class="btn-secondary" id="btn-lang-back"><i class="fa-solid fa-arrow-left"></i></button>
+            <button class="btn-primary" id="btn-lang-next"><span class="btn-label" data-i18n="next">Suivant</span></button>
+          </div>
+        </div>
+
+        <!-- STEP 4 : PREFS -->
+        <div class="step" id="step-prefs">
+          <div class="step-progress"><div class="step-progress-bar done"></div><div class="step-progress-bar done"></div><div class="step-progress-bar done"></div><div class="step-progress-bar done"></div></div>
+          <div class="title" data-i18n="step_prefs_title">Dernière étape</div>
+          <div class="subtitle" data-i18n="step_prefs_sub">Aidez-nous à mieux vous connaître</div>
+
+          <div class="pref-block">
+            <div class="pref-block-text">
+              <div class="pref-block-title" data-i18n="newsletter_title">Recevoir les actualités WikiMind</div>
+              <div class="pref-block-sub" data-i18n="newsletter_sub">Nouveautés, conseils et mises à jour par email, aucun spam</div>
+            </div>
+            <button class="toggle" id="toggle-newsletter"></button>
+          </div>
+
+          <div class="field">
+            <label class="field-label" data-i18n="usage_title" style="opacity:0;position:absolute">.</label>
+          </div>
+
+          <div class="field">
+            <label class="field-label" style="display:block" data-i18n="profession_ph">Votre profession (optionnel)</label>
+            <input class="field-input" type="text" id="q-profession" data-i18n-ph="profession_ph">
+          </div>
+
+          <div class="error-box" id="prefs-error"></div>
+          <div class="btn-row">
+            <button class="btn-secondary" id="btn-prefs-back"><i class="fa-solid fa-arrow-left"></i></button>
+            <button class="btn-primary" id="btn-prefs-finish"><span class="spinner"></span><span class="btn-label" data-i18n="finish">Terminer l'inscription</span></button>
+          </div>
+        </div>
+
+        <!-- STEP 5 : VERIFY EMAIL -->
+        <div class="step" id="step-verify">
+          <div class="verify-icon"><i class="fa-regular fa-envelope"></i></div>
+          <div class="title" style="text-align:center" data-i18n="verify_title">Vérifiez votre email</div>
+          <div class="subtitle" style="text-align:center" data-i18n="verify_sub">Un lien de confirmation a été envoyé à</div>
+          <div class="subtitle" style="text-align:center;margin-top:-16px"><span class="verify-email-addr" id="verify-email-addr"></span></div>
+
+          <button class="btn-primary" id="btn-verify-continue" style="margin-top:10px">
+            <span class="btn-label" data-i18n="verify_continue">J'ai vérifié, continuer</span>
+          </button>
+          <button class="btn-secondary" id="btn-verify-resend" style="margin-top:10px">
+            <span class="spinner"></span><span class="btn-label" data-i18n="verify_resend">Renvoyer l'email</span>
+          </button>
+          <p class="switch-line"><button id="btn-verify-skip" data-i18n="verify_skip">Continuer sans vérifier</button></p>
+        </div>
+
+        <!-- FORGOT PASSWORD -->
+        <div class="step" id="step-reset">
+          <div class="title" data-i18n="reset_title">Réinitialiser le mot de passe</div>
+          <div class="subtitle" data-i18n="reset_sub">Nous vous enverrons un lien par email</div>
+          <div class="field">
+            <label class="field-label" data-i18n="email">Email</label>
+            <input class="field-input" type="email" id="reset-email" data-i18n-ph="email_ph">
+          </div>
+          <div class="error-box" id="reset-error"></div>
+          <button class="btn-primary" id="btn-reset-send">
+            <span class="spinner"></span><span class="btn-label" data-i18n="reset_send">Envoyer le lien</span>
+          </button>
+          <p class="switch-line"><button id="btn-reset-back" data-i18n="login_link">Se connecter</button></p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-host" id="toast-host"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged,
+  GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, sendEmailVerification, reload, signOut
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAjtTCLwbhWJtfLrPhm7UwICaHEb5OBoJI",
+  authDomain: "wikimindata.firebaseapp.com",
+  projectId: "wikimindata",
+  storageBucket: "wikimindata.firebasestorage.app",
+  messagingSenderId: "520734288721",
+  appId: "1:520734288721:web:12035317283a91396d4170",
+  databaseURL: "https://wikimindata-default-rtdb.europe-west1.firebasedatabase.app"
+});
+const auth = getAuth(app);
+const db = getDatabase(app);
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ client_id: '520734288721-3smo9l1122dc2j4ifg6kt2maeb4rm9es.apps.googleusercontent.com' });
+
+/* ══════════ I18N ══════════ */
+const SUPPORTED_LANGS = ['fr','en','de','it','es','zh','ru','hi'];
+const LANG_NAMES = { fr:'Français', en:'English', de:'Deutsch', it:'Italiano', es:'Español', zh:'中文', ru:'Русский', hi:'हिन्दी' };
+const LANG_TO_COUNTRY = { fr:'fr', en:'gb', de:'de', it:'it', es:'es', zh:'cn', ru:'ru', hi:'in' };
+
+let TRANSLATIONS = {};
+let COUNTRIES = [];
+let currentLang = localStorage.getItem('wm_lang') || (navigator.language || 'fr').slice(0,2);
+if (!SUPPORTED_LANGS.includes(currentLang)) currentLang = 'fr';
+
+async function loadData() {
+  const [t, c] = await Promise.all([
+    fetch('country/langues.json').then(r => r.json()),
+    fetch('country/pays.json').then(r => r.json())
+  ]);
+  TRANSLATIONS = t;
+  COUNTRIES = c;
+}
+
+function tr(key) {
+  return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || (TRANSLATIONS.en && TRANSLATIONS.en[key]) || key;
+}
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = tr(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = tr(el.getAttribute('data-i18n-ph')); });
+  document.getElementById('html-root').lang = currentLang;
+  document.getElementById('lang-btn-label').textContent = currentLang.toUpperCase();
+  document.getElementById('lang-btn-flag').src = `https://flagcdn.com/w40/${LANG_TO_COUNTRY[currentLang]}.png`;
+  updateAuthTexts();
+}
+
+function buildLangMenu() {
+  const menu = document.getElementById('lang-menu');
+  menu.innerHTML = SUPPORTED_LANGS.map(l => `
+    <div class="lang-item ${l===currentLang?'active':''}" data-lang="${l}">
+      <img src="https://flagcdn.com/w40/${LANG_TO_COUNTRY[l]}.png" style="width:18px;height:13px;object-fit:cover;border-radius:2px" alt="">
+      <span>${LANG_NAMES[l]}</span>
+    </div>`).join('');
+  menu.querySelectorAll('.lang-item').forEach(it => {
+    it.onclick = () => {
+      currentLang = it.getAttribute('data-lang');
+      localStorage.setItem('wm_lang', currentLang);
+      applyI18n(); buildLangMenu(); buildLangGridPicker(); renderCountryList();
+      menu.classList.remove('open');
+    };
+  });
+}
+document.getElementById('lang-btn').onclick = () => document.getElementById('lang-menu').classList.toggle('open');
+document.addEventListener('click', e => {
+  if (!e.target.closest('.lang-switch')) document.getElementById('lang-menu').classList.remove('open');
+});
+
+/* ══════════ COUNTRY NAMES (Intl.DisplayNames — no heavy JSON needed) ══════════ */
+function countryName(code, lang) {
+  try {
+    const dn = new Intl.DisplayNames([lang], { type: 'region' });
+    return dn.of(code) || code;
+  } catch { return code; }
+}
+
+function renderCountryList(filter = '') {
+  const host = document.getElementById('country-list');
+  const f = filter.trim().toLowerCase();
+  const items = COUNTRIES
+    .map(c => ({ ...c, label: countryName(c.code, currentLang) }))
+    .filter(c => !f || c.label.toLowerCase().includes(f))
+    .sort((a,b) => a.label.localeCompare(b.label, currentLang));
+  host.innerHTML = items.map(c => `
+    <div class="country-item ${state.country===c.code?'selected':''}" data-code="${c.code}">
+      <img src="${c.flag}" alt="">
+      <span>${c.label}</span>
+      <i class="fa-solid fa-check chk"></i>
+    </div>`).join('');
+  host.querySelectorAll('.country-item').forEach(it => {
+    it.onclick = () => {
+      state.country = it.getAttribute('data-code');
+      renderCountryList(document.getElementById('country-search').value);
+    };
+  });
+}
+document.getElementById('country-search').addEventListener('input', e => renderCountryList(e.target.value));
+
+function buildLangGridPicker() {
+  const host = document.getElementById('lang-grid-picker');
+  host.innerHTML = SUPPORTED_LANGS.map(l => `
+    <div class="lang-card ${state.lang===l?'selected':''}" data-lang="${l}">
+      <img class="lang-card-flag" src="https://flagcdn.com/w40/${LANG_TO_COUNTRY[l]}.png" alt="">
+      <span class="lang-card-name">${LANG_NAMES[l]}</span>
+    </div>`).join('');
+  host.querySelectorAll('.lang-card').forEach(it => {
+    it.onclick = () => {
+      state.lang = it.getAttribute('data-lang');
+      buildLangGridPicker();
+    };
+  });
+}
+
+/* ══════════ STATE MACHINE ══════════ */
+const state = { mode:'login', firstname:'', lastname:'', usage:'', country:'', lang:currentLang, newsletter:false, profession:'', pendingUser:null };
+
+function showStep(id) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function updateAuthTexts() {
+  const t = state.mode === 'login';
+  document.getElementById('auth-title').textContent = tr(t?'welcome_back':'join');
+  document.getElementById('auth-subtitle').textContent = tr(t?'welcome_back_sub':'join_sub');
+}
+
+document.getElementById('tab-login').onclick = () => switchMode('login');
+document.getElementById('tab-signup').onclick = () => switchMode('signup');
+function switchMode(mode) {
+  state.mode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode==='login');
+  document.getElementById('tab-signup').classList.toggle('active', mode==='signup');
+  document.getElementById('form-login').style.display = mode==='login' ? '' : 'none';
+  document.getElementById('form-signup').style.display = mode==='signup' ? '' : 'none';
+  document.getElementById('auth-error').classList.remove('show');
+  updateAuthTexts();
+}
+
+/* password visibility */
+document.querySelectorAll('.field-toggle').forEach(btn => {
+  btn.onclick = () => {
+    const inp = document.getElementById(btn.getAttribute('data-target'));
+    const icon = btn.querySelector('i');
+    if (inp.type === 'password') { inp.type = 'text'; icon.className = 'fa-solid fa-eye-slash'; }
+    else { inp.type = 'password'; icon.className = 'fa-solid fa-eye'; }
+  };
+});
+
+/* password strength meter */
+document.getElementById('signup-password').addEventListener('input', e => {
+  const v = e.target.value;
+  let score = 0;
+  if (v.length >= 8) score++;
+  if (/[A-Z]/.test(v) && /[0-9]/.test(v)) score++;
+  if (/[^A-Za-z0-9]/.test(v) && v.length >= 10) score++;
+  const segs = ['pm1','pm2','pm3'].map(id => document.getElementById(id));
+  segs.forEach((s,i) => s.className = 'password-meter-seg' + (i < score ? ' l' + score : ''));
+});
+
+function setError(id, msg) {
+  const el = document.getElementById(id);
+  if (!msg) { el.classList.remove('show'); el.textContent = ''; return; }
+  el.textContent = msg; el.classList.add('show');
+}
+
+function setLoading(btnId, on) {
+  document.getElementById(btnId).classList.toggle('loading', on);
+  document.getElementById(btnId).disabled = on;
+}
+
+function toast(msg) {
+  const host = document.getElementById('toast-host');
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg;
+  host.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 3200);
+}
+
+function errMsg(code) {
+  return {
+    'auth/user-not-found': tr('err_wrong_credentials'),
+    'auth/wrong-password': tr('err_wrong_credentials'),
+    'auth/invalid-credential': tr('err_wrong_credentials'),
+    'auth/email-already-in-use': tr('err_email_in_use'),
+    'auth/invalid-email': tr('err_email'),
+    'auth/weak-password': tr('err_password_short'),
+    'auth/too-many-requests': tr('err_too_many'),
+  }[code] || tr('err_generic');
+}
+
+const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/* ══════════ LOGIN ══════════ */
+document.getElementById('btn-login').onclick = async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-password').value;
+  setError('auth-error', '');
+  if (!emailRe.test(email)) return setError('auth-error', tr('err_email'));
+  if (!pw) return setError('auth-error', tr('err_required'));
+  setLoading('btn-login', true);
+  try {
+    await signInWithEmailAndPassword(auth, email, pw);
+    toast(tr('login_btn'));
+    setTimeout(() => window.location.href = 'index.html', 600);
+  } catch (e) {
+    setError('auth-error', errMsg(e.code));
+  } finally { setLoading('btn-login', false); }
+};
+
+/* ══════════ GOOGLE ══════════ */
+document.getElementById('btn-google').onclick = async () => {
+  setError('auth-error', '');
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    const snap = await get(ref(db, `wikimind5/users/${user.uid}/profile`));
+    if (!snap.exists()) {
+      state.pendingUser = user;
+      state.firstname = (user.displayName || '').split(' ')[0] || '';
+      state.lastname = (user.displayName || '').split(' ').slice(1).join(' ') || '';
+      document.getElementById('q-firstname').value = state.firstname;
+      document.getElementById('q-lastname').value = state.lastname;
+      goToStep('identity');
+    } else {
+      window.location.href = 'index.html';
+    }
+  } catch (e) {
+    if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+      setError('auth-error', errMsg(e.code));
+    }
+  }
+};
+
+/* ══════════ SIGNUP (credentials) ══════════ */
+document.getElementById('signup-email').addEventListener('input', e => {
+  const v = e.target.value.trim();
+  const hint = document.getElementById('signup-email-hint');
+  if (!v) { hint.textContent=''; hint.className='field-hint'; return; }
+  if (emailRe.test(v)) { hint.textContent=''; hint.className='field-hint ok'; }
+  else { hint.textContent = tr('err_email'); hint.className='field-hint err'; }
+});
+
+document.getElementById('btn-signup').onclick = async () => {
+  const email = document.getElementById('signup-email').value.trim();
+  const pw = document.getElementById('signup-password').value;
+  const pw2 = document.getElementById('signup-password2').value;
+  setError('auth-error', '');
+  if (!emailRe.test(email)) return setError('auth-error', tr('err_email'));
+  if (pw.length < 8) return setError('auth-error', tr('err_password_short'));
+  if (pw !== pw2) return setError('auth-error', tr('err_password_match'));
+  setLoading('btn-signup', true);
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pw);
+    state.pendingUser = cred.user;
+    goToStep('identity');
+  } catch (e) {
+    setError('auth-error', errMsg(e.code));
+  } finally { setLoading('btn-signup', false); }
+};
+
+/* ══════════ STEP NAV ══════════ */
+function goToStep(name) {
+  const map = { identity:'step-identity', country:'step-country', lang:'step-lang', prefs:'step-prefs', verify:'step-verify', auth:'step-auth', reset:'step-reset' };
+  showStep(map[name]);
+  if (name === 'country') renderCountryList(document.getElementById('country-search').value);
+  if (name === 'lang') buildLangGridPicker();
+}
+
+/* usage cards */
+document.getElementById('usage-grid').querySelectorAll('.usage-card').forEach(card => {
+  card.onclick = () => {
+    document.querySelectorAll('.usage-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    state.usage = card.getAttribute('data-val');
+  };
+});
+
+document.getElementById('btn-identity-next').onclick = () => {
+  const fn = document.getElementById('q-firstname').value.trim();
+  const ln = document.getElementById('q-lastname').value.trim();
+  if (!fn) { setError('identity-error', tr('err_required')); return; }
+  setError('identity-error', '');
+  state.firstname = fn; state.lastname = ln;
+  goToStep('country');
+};
+
+document.getElementById('btn-country-back').onclick = () => goToStep('identity');
+document.getElementById('btn-country-next').onclick = () => goToStep('lang');
+
+document.getElementById('btn-lang-back').onclick = () => goToStep('country');
+document.getElementById('btn-lang-next').onclick = () => {
+  currentLang = state.lang;
+  localStorage.setItem('wm_lang', currentLang);
+  applyI18n(); buildLangMenu();
+  goToStep('prefs');
+};
+
+document.getElementById('toggle-newsletter').onclick = (e) => {
+  state.newsletter = !state.newsletter;
+  e.currentTarget.classList.toggle('on', state.newsletter);
+};
+
+document.getElementById('btn-prefs-back').onclick = () => goToStep('lang');
+
+document.getElementById('btn-prefs-finish').onclick = async () => {
+  if (!state.pendingUser) { setError('prefs-error', tr('err_generic')); return; }
+  state.profession = document.getElementById('q-profession').value.trim();
+  setLoading('btn-prefs-finish', true);
+  setError('prefs-error', '');
+  try {
+    const uid = state.pendingUser.uid;
+    const now = Date.now();
+    await set(ref(db, `wikimind5/users/${uid}/profile`), {
+      firstname: state.firstname,
+      lastname: state.lastname || '',
+      displayName: (state.firstname + ' ' + (state.lastname||'')).trim(),
+      email: state.pendingUser.email || '',
+      country: state.country || '',
+      language: state.lang,
+      usage: state.usage || '',
+      profession: state.profession || '',
+      createdAt: now
+    });
+    await set(ref(db, `forfaits/${uid}`), {
+      plan: 1,
+      updatedAt: now,
+      rateLimits: { wikimindCode: { msgsPerHour: 5 } }
+    });
+    if (state.newsletter) {
+      await set(ref(db, `wikimind5_newsletter_subscribers/${uid}`), {
+        email: state.pendingUser.email || '',
+        firstname: state.firstname,
+        country: state.country || '',
+        language: state.lang,
+        optInAt: now
+      });
+    }
+    if (state.pendingUser.providerData.some(p => p.providerId === 'password') && !state.pendingUser.emailVerified) {
+      await sendEmailVerification(state.pendingUser);
+      document.getElementById('verify-email-addr').textContent = state.pendingUser.email;
+      goToStep('verify');
+    } else {
+      window.location.href = 'index.html';
+    }
+  } catch (e) {
+    setError('prefs-error', tr('err_generic'));
+  } finally { setLoading('btn-prefs-finish', false); }
+};
+
+/* ══════════ VERIFY EMAIL ══════════ */
+document.getElementById('btn-verify-resend').onclick = async () => {
+  if (!state.pendingUser) return;
+  setLoading('btn-verify-resend', true);
+  try { await sendEmailVerification(state.pendingUser); toast(tr('verify_resent')); }
+  catch { toast(tr('err_generic')); }
+  finally { setLoading('btn-verify-resend', false); }
+};
+document.getElementById('btn-verify-continue').onclick = async () => {
+  if (state.pendingUser) { try { await reload(state.pendingUser); } catch {} }
+  window.location.href = 'index.html';
+};
+document.getElementById('btn-verify-skip').onclick = () => { window.location.href = 'index.html'; };
+
+/* ══════════ FORGOT PASSWORD ══════════ */
+document.getElementById('btn-forgot').onclick = () => {
+  document.getElementById('reset-email').value = document.getElementById('login-email').value;
+  setError('reset-error', '');
+  goToStep('reset');
+};
+document.getElementById('btn-reset-back').onclick = () => goToStep('auth');
+document.getElementById('btn-reset-send').onclick = async () => {
+  const email = document.getElementById('reset-email').value.trim();
+  if (!emailRe.test(email)) return setError('reset-error', tr('err_email'));
+  setLoading('btn-reset-send', true);
+  try {
+    await sendPasswordResetEmail(auth, email);
+    toast(tr('reset_sent'));
+    setTimeout(() => goToStep('auth'), 900);
+  } catch (e) {
+    setError('reset-error', errMsg(e.code));
+  } finally { setLoading('btn-reset-send', false); }
+};
+
+/* enter-to-submit */
+document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('btn-login').click(); });
+document.getElementById('signup-password2').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('btn-signup').click(); });
+
+/* redirect if already logged in (skip on top of quiz flow) */
+onAuthStateChanged(auth, user => {
+  if (user && !state.pendingUser && document.getElementById('step-auth').classList.contains('active')) {
+    get(ref(db, `wikimind5/users/${user.uid}/profile`)).then(snap => {
+      if (snap.exists()) window.location.href = 'index.html';
+    });
+  }
+});
+
+/* ══════════ INIT ══════════ */
+document.getElementById('year').textContent = new Date().getFullYear();
+(async function init() {
+  await loadData();
+  state.lang = currentLang;
+  applyI18n();
+  buildLangMenu();
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('mode') === 'signup') switchMode('signup');
+})();
+</script>
+</body>
+</html>
