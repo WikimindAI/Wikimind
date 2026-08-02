@@ -290,6 +290,7 @@
                 <button type="button" class="field-toggle" data-target="signup-password"><i class="fa-solid fa-eye"></i></button>
               </div>
               <div class="password-meter"><div class="password-meter-seg" id="pm1"></div><div class="password-meter-seg" id="pm2"></div><div class="password-meter-seg" id="pm3"></div></div>
+              <p class="field-hint" id="signup-password-crack"></p>
             </div>
             <div class="field">
               <label class="field-label" data-i18n="confirm_password">Confirmer le mot de passe</label>
@@ -583,7 +584,42 @@ document.querySelectorAll('.field-toggle').forEach(btn => {
   };
 });
 
-/* password strength meter */
+/* password strength meter + estimation du temps de bruteforce */
+function formatCrackTime(seconds) {
+  if (!isFinite(seconds) || seconds <= 0) return 'instantané';
+  const units = [
+    [60, 'seconde'], [60, 'minute'], [24, 'heure'], [30, 'jour'],
+    [12, 'mois'], [100, 'an'], [10, 'siècle'], [1000, 'millénaire']
+  ];
+  if (seconds < 1) return 'instantané';
+  let value = seconds, label = 'seconde';
+  for (const [div, name] of units) {
+    if (value < div) { label = name; break; }
+    value = value / div;
+    label = name;
+  }
+  // valeurs extrêmes (au-delà du dernier palier "millénaire")
+  if (value > 1e6) return 'des milliards d\'années';
+  const rounded = value < 10 ? value.toFixed(1) : Math.round(value);
+  const plural = (rounded > 1 && !String(rounded).endsWith('1')) ? (label === 'siècle' ? 'siècles' : label + 's') : label;
+  return `≈ ${rounded} ${plural}`;
+}
+
+function estimateCrackTime(pw) {
+  if (!pw) return { seconds: 0, text: '' };
+  let charset = 0;
+  if (/[a-z]/.test(pw)) charset += 26;
+  if (/[A-Z]/.test(pw)) charset += 26;
+  if (/[0-9]/.test(pw)) charset += 10;
+  if (/[^A-Za-z0-9]/.test(pw)) charset += 33;
+  if (charset === 0) charset = 1;
+  const combinations = Math.pow(charset, pw.length);
+  // hypothèse : attaque hors-ligne rapide, ~10 milliards d'essais/seconde, on cible la moitié de l'espace en moyenne
+  const guessesPerSecond = 1e10;
+  const seconds = (combinations / 2) / guessesPerSecond;
+  return { seconds, text: formatCrackTime(seconds) };
+}
+
 document.getElementById('signup-password').addEventListener('input', e => {
   const v = e.target.value;
   let score = 0;
@@ -592,6 +628,12 @@ document.getElementById('signup-password').addEventListener('input', e => {
   if (/[^A-Za-z0-9]/.test(v) && v.length >= 10) score++;
   const segs = ['pm1','pm2','pm3'].map(id => document.getElementById(id));
   segs.forEach((s,i) => s.className = 'password-meter-seg' + (i < score ? ' l' + score : ''));
+
+  const crackHint = document.getElementById('signup-password-crack');
+  if (!v) { crackHint.textContent = ''; crackHint.className = 'field-hint'; return; }
+  const { seconds, text } = estimateCrackTime(v);
+  crackHint.textContent = `Temps de bruteforce estimé : ${text}`;
+  crackHint.className = 'field-hint ' + (seconds < 3600 ? 'err' : (seconds < 3600*24*365*10 ? '' : 'ok'));
 });
 
 function setError(id, msg) {
