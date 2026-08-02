@@ -1463,7 +1463,7 @@ body:not(.chat-empty-state) #welcome-screen {
   color: var(--text3);
   font-size: 0.85rem;
 }
-/* ── Animation "triangle" : triangle qui tourne → ligne → vague → triangle (boucle) ── */
+/* ── Animation "banger" : 3 points qui rebondissent franchement en cascade ── */
 .thinking-dots {
   position: relative;
   width: 28px;
@@ -1474,55 +1474,31 @@ body:not(.chat-empty-state) #welcome-screen {
 }
 .thinking-dots .td-wrap {
   position: relative;
-  width: 20px;
+  width: 30px;
   height: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  animation: triSpin 4.2s ease-in-out infinite;
+  gap: 5px;
 }
 .thinking-dots .td {
-  width: 5px; height: 5px;
+  width: 6px; height: 6px;
   border-radius: 50%;
   background: var(--text3);
   flex-shrink: 0;
+  transform-origin: center bottom;
 }
-.thinking-dots .td1 { animation: td1move 4.2s ease-in-out infinite; }
-.thinking-dots .td2 { animation: td2move 4.2s ease-in-out infinite; }
-.thinking-dots .td3 { animation: td3move 4.2s ease-in-out infinite; }
+.thinking-dots .td1 { animation: tdBounce 0.9s cubic-bezier(.45,0,.55,1.4) infinite; animation-delay: 0s; }
+.thinking-dots .td2 { animation: tdBounce 0.9s cubic-bezier(.45,0,.55,1.4) infinite; animation-delay: 0.15s; }
+.thinking-dots .td3 { animation: tdBounce 0.9s cubic-bezier(.45,0,.55,1.4) infinite; animation-delay: 0.3s; }
 
-@keyframes triSpin {
-  0%          { transform: rotate(0deg); }
-  17%         { transform: rotate(360deg); }
-  80%         { transform: rotate(360deg); }
-  100%        { transform: rotate(360deg); }
-}
-/* Chaque point part de sa position en triangle, rejoint la ligne, fait sa vague
-   à tour de rôle (gauche → milieu → droite), puis revient former le triangle. */
-@keyframes td1move {
-  0%, 17%     { transform: translate(8px, -9px); }
-  27%         { transform: translate(0, 0); }
-  32%         { transform: translate(0, -7px); }
-  37%, 78%    { transform: translate(0, 0); }
-  100%        { transform: translate(8px, -9px); }
-}
-@keyframes td2move {
-  0%, 17%     { transform: translate(-7px, 5px); }
-  27%         { transform: translate(0, 0); }
-  41%         { transform: translate(0, -7px); }
-  46%, 78%    { transform: translate(0, 0); }
-  100%        { transform: translate(-7px, 5px); }
-}
-@keyframes td3move {
-  0%, 17%     { transform: translate(-1px, 5px); }
-  27%         { transform: translate(0, 0); }
-  50%         { transform: translate(0, -7px); }
-  55%, 78%    { transform: translate(0, 0); }
-  100%        { transform: translate(-1px, 5px); }
+@keyframes tdBounce {
+  0%, 60%, 100% { transform: translateY(0) scale(1); opacity: 0.55; }
+  30%           { transform: translateY(-9px) scale(1.15); opacity: 1; }
 }
 .thinking-step-label {
   display: inline-block;
+  font-style: italic;
   animation: thinkLabelIn 0.25s ease;
 }
 @keyframes thinkLabelIn {
@@ -3089,7 +3065,7 @@ const db = getDatabase(app);
 // Elles sont stockées comme secrets sur le Cloudflare Worker proxy.
 // Toutes les requêtes IA passent désormais par WM_PROXY_URL.
 // -> Remplace la valeur ci-dessous par l'URL de TON Worker après déploiement.
-const WM_PROXY_URL = "https://wikimind-api.wikimind-ai.workers.dev";
+const WM_PROXY_URL = "https://TON-WORKER.TON-SOUS-DOMAINE.workers.dev";
 const KEY = ""; // conservé pour compat (plus utilisé)
 const _gk = "";
 const _snk = "";
@@ -4234,7 +4210,7 @@ async function loadModels() {
 
     // SÉCURITÉ : les clés ne sont plus dans models.json. On récupère juste
     // l'URL du proxy (peut être surchargée par models.json si besoin).
-    if (data.proxyUrl && data.proxyUrl !== "https://wikimind-api.wikimind-ai.workers.dev") {
+    if (data.proxyUrl && data.proxyUrl !== "https://TON-WORKER.TON-SOUS-DOMAINE.workers.dev") {
       window.WM_PROXY_URL = data.proxyUrl;
     }
     // ── Si le modèle actuellement sélectionné a disparu (forfait insuffisant / expiré), fallback ──
@@ -5279,7 +5255,7 @@ function appendThinking(partnerInfo = null) {
     }
   }
   if (!thinkingHTML) {
-    thinkingHTML = `<div class="thinking-bubble"><div class="thinking-dots"><div class="td-wrap"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span></div></div><span class="thinking-step-label">Wikimind réfléchit...</span></div>`;
+    thinkingHTML = `<div class="thinking-bubble"><div class="thinking-dots"><div class="td-wrap"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span></div></div><span class="thinking-step-label">Réflexion en cours...</span></div>`;
   }
 
   g.innerHTML = `<div class="msg-inner">${thinkingHTML}</div>`;
@@ -6952,6 +6928,9 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
 
   messages.push(aiMsgObj);
   appendThinking();
+  // Petite pause volontaire pour laisser le temps de voir "Réflexion en cours..."
+  // (sinon avec le proxy + streaming rapide, la bulle disparaît trop vite).
+  await new Promise(r => setTimeout(r, 2500));
 
   // Construire contexte connecteurs (avec vraies données si disponibles)
   let systemExtra = "";
