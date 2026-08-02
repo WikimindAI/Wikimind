@@ -189,7 +189,9 @@
   .password-meter-seg.l3{background:#16a34a}
 
   .step{display:none}
-  .step.active{display:block}
+  .step.active{display:block;animation:stepIn .38s cubic-bezier(.22,1,.36,1)}
+  @keyframes stepIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .step-progress-bar{transition:background .35s}
 
   .toast-host{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:999;display:flex;flex-direction:column;gap:8px;align-items:center}
   .toast{background:var(--t1);color:#fff;font-size:13px;font-weight:500;padding:11px 18px;border-radius:11px;box-shadow:0 8px 24px rgba(0,0,0,0.18);opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s}
@@ -685,7 +687,13 @@ document.getElementById('btn-signup').onclick = async () => {
     state.pendingUser = cred.user;
     goToStep('identity');
   } catch (e) {
-    setError('auth-error', errMsg(e.code));
+    if (e.code === 'auth/email-already-in-use') {
+      switchMode('login');
+      document.getElementById('login-email').value = email;
+      setError('auth-error', tr('err_email_in_use'));
+    } else {
+      setError('auth-error', errMsg(e.code));
+    }
   } finally { setLoading('btn-signup', false); }
 };
 
@@ -752,19 +760,27 @@ document.getElementById('btn-prefs-finish').onclick = async () => {
       profession: state.profession || '',
       createdAt: now
     });
-    await set(ref(db, `forfaits/${uid}`), {
-      plan: 1,
-      updatedAt: now,
-      rateLimits: { wikimindCode: { msgsPerHour: 5 } }
-    });
+    // Ne pas écraser un forfait déjà existant (compte déjà créé avant ce questionnaire)
+    const forfaitSnap = await get(ref(db, `forfaits/${uid}`));
+    if (!forfaitSnap.exists()) {
+      try {
+        await set(ref(db, `forfaits/${uid}`), {
+          plan: 1,
+          updatedAt: now,
+          rateLimits: { wikimindCode: { msgsPerHour: 5 } }
+        });
+      } catch (e) { /* déjà géré côté admin, on ignore silencieusement */ }
+    }
     if (state.newsletter) {
-      await set(ref(db, `wikimind5_newsletter_subscribers/${uid}`), {
-        email: state.pendingUser.email || '',
-        firstname: state.firstname,
-        country: state.country || '',
-        language: state.lang,
-        optInAt: now
-      });
+      try {
+        await set(ref(db, `wikimind5_newsletter_subscribers/${uid}`), {
+          email: state.pendingUser.email || '',
+          firstname: state.firstname,
+          country: state.country || '',
+          language: state.lang,
+          optInAt: now
+        });
+      } catch (e) { /* n'empeche pas la suite de l'inscription */ }
     }
     if (state.pendingUser.providerData.some(p => p.providerId === 'password') && !state.pendingUser.emailVerified) {
       await sendEmailVerification(state.pendingUser);
