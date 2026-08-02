@@ -3085,18 +3085,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
-const KEY = "5lnrIIlTIjlETLxr4Xqv0lkZdk8tPigj";
-// Groq key — XOR-obfuscated, decoded at runtime (scanner-safe)
-const _gk = (()=>{
-  const _e="QlVMd2NMW3RPXX5ieHtxRR8aa3Jcd1NNf25OUkcVYXFkSWRkZX1NG29bEksVGmFIZE9WQkNzXR8=";
-  try{const b=atob(_e);return b.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(37+i%7))).join('');}catch{return"";}
-})();
-
-// SambaNova key — XOR-obfuscated, decoded at runtime (scanner-safe)
-const _snk = (()=>{
-  const _e="QBUSHxtIHhALQktNEgYRFENMBEtIQBcKTR4TH0AQQh4QHx9G";
-  try{const b=atob(_e);return b.split('').map((c,i)=>String.fromCharCode(c.charCodeAt(0)^(37+i%7))).join('');}catch{return"";}
-})();
+// SÉCURITÉ (02/08/2026) : les clés API ne vivent plus jamais dans le HTML.
+// Elles sont stockées comme secrets sur le Cloudflare Worker proxy.
+// Toutes les requêtes IA passent désormais par WM_PROXY_URL.
+// -> Remplace la valeur ci-dessous par l'URL de TON Worker après déploiement.
+const WM_PROXY_URL = "https://wikimind-api.wikimind-ai.workers.dev";
+const KEY = ""; // conservé pour compat (plus utilisé)
+const _gk = "";
+const _snk = "";
 
 // Expose Firebase handles for settings5.js (non-module script)
 window.auth = auth;
@@ -4117,7 +4113,8 @@ function updateSendBtn() {
 // =============================================
 let WIKIMIND_MODELS = [];
 let WM_API_KEYS = { mistral: "", groq: "", pollinations: "", cerebras: "", sambanova: "", cohere: "", google: "", openrouter: "", chutes: "", tavily: "" };
-window.WM_API_KEYS = WM_API_KEYS; // exposé pour tavily.js (fichier externe)
+window.WM_API_KEYS = WM_API_KEYS; // conservé pour compat, mais reste vide (plus de clés côté client)
+window.WM_PROXY_URL = WM_PROXY_URL; // exposé pour tavily.js : à faire pointer vers ${WM_PROXY_URL}/search
 // Rate limits par modèle image (images/heure)
 const IMAGE_RATE_LIMITS = {
   "flux":           222,  // ~0.4/0.0018 images Flux Schnell
@@ -4235,36 +4232,10 @@ async function loadModels() {
     const _uf = window._userForfait || 1;
     WIKIMIND_MODELS = WIKIMIND_MODELS.filter(m => !m.minForfait || _uf >= m.minForfait);
 
-    if (data.apiKeys) {
-      // Préférer la clé _gk (XOR-décodée en dur), sinon fallback models.json
-      const gk = _gk || data.apiKeys.groq || (
-        data.apiKeys.groq_p1 && data.apiKeys.groq_p2 && data.apiKeys.groq_p3
-          ? data.apiKeys.groq_p1 + data.apiKeys.groq_p2 + data.apiKeys.groq_p3
-          : ""
-      );
-      const ork = data.apiKeys.openrouter || (
-        data.apiKeys.openrouter_p1 && data.apiKeys.openrouter_p2 && data.apiKeys.openrouter_p3 && data.apiKeys.openrouter_p4
-          ? data.apiKeys.openrouter_p1 + data.apiKeys.openrouter_p2 + data.apiKeys.openrouter_p3 + data.apiKeys.openrouter_p4
-          : ""
-      );
-      const gak = data.apiKeys.google || (
-        data.apiKeys.google_p1 && data.apiKeys.google_p2 && data.apiKeys.google_p3
-          ? data.apiKeys.google_p1 + data.apiKeys.google_p2 + data.apiKeys.google_p3
-          : ""
-      );
-      WM_API_KEYS = { 
-        mistral: data.apiKeys.mistral || "", 
-        groq: gk,
-        pollinations: data.apiKeys.pollinations || "pk_w6wnuGBObh7FeHwp",
-        cerebras: data.apiKeys.cerebras || "",
-        sambanova: _snk || data.apiKeys.sambanova || "",
-        cohere: data.apiKeys.cohere || "",
-        google: gak,
-        openrouter: ork,
-        chutes: data.apiKeys.chutes || "",
-        tavily: data.apiKeys.tavily || ""
-      };
-      window.WM_API_KEYS = WM_API_KEYS; // resynchronise pour tavily.js
+    // SÉCURITÉ : les clés ne sont plus dans models.json. On récupère juste
+    // l'URL du proxy (peut être surchargée par models.json si besoin).
+    if (data.proxyUrl && data.proxyUrl !== "https://wikimind-api.wikimind-ai.workers.dev") {
+      window.WM_PROXY_URL = data.proxyUrl;
     }
     // ── Si le modèle actuellement sélectionné a disparu (forfait insuffisant / expiré), fallback ──
     const currentStillAvailable = WIKIMIND_MODELS.find(m => m.apiModel === selectedModel);
@@ -5605,21 +5576,21 @@ function appendAIMsg(msgObj, isStreaming = false) {
         try {
           const systemPrompt = `Tu es un traducteur professionnel. Traduis le texte fourni en ${targetLang}. Réponds UNIQUEMENT avec la traduction, sans explication ni commentaire. Conserve le formatage Markdown si présent.`;
           let translatedText = "";
+          const _proxy = window.WM_PROXY_URL || WM_PROXY_URL;
+          const _translateBody = { model: translateModel, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: sourceText }], max_tokens: 2048, temperature: 0.2 };
           if (translateProvider === "groq") {
-            const _groqKey = _gk || WM_API_KEYS.groq;
-            const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            const groqRes = await fetch(`${_proxy}/chat`, {
               method: "POST",
-              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${_groqKey}` },
-              body: JSON.stringify({ model: translateModel, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: sourceText }], max_tokens: 2048, temperature: 0.2 })
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ provider: "groq", endpoint: "https://api.groq.com/openai/v1/chat/completions", payload: { ..._translateBody, stream: false } })
             });
             const groqData = await groqRes.json();
             translatedText = groqData.choices?.[0]?.message?.content || "Erreur de traduction.";
           } else {
-            const _mistralKey = WM_API_KEYS.mistral || KEY;
-            const mistralRes = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            const mistralRes = await fetch(`${_proxy}/chat`, {
               method: "POST",
-              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${_mistralKey}` },
-              body: JSON.stringify({ model: translateModel, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: sourceText }], max_tokens: 2048, temperature: 0.2 })
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ provider: "mistral", endpoint: "https://api.mistral.ai/v1/chat/completions", payload: { ..._translateBody, stream: false } })
             });
             const mistralData = await mistralRes.json();
             translatedText = mistralData.choices?.[0]?.message?.content || "Erreur de traduction.";
@@ -6768,10 +6739,13 @@ async function generateImage(prompt, modelObj) {
 
   try {
     const seed  = Math.floor(Math.random() * 10000000);
-    const token = modelObj.isBYOK && window.WMBYOK?.getUserKey()
-      ? WMBYOK.getUserKey()
-      : (WM_API_KEYS && WM_API_KEYS.pollinations) || "pk_w6wnuGBObh7FeHwp";
-    const baseParams = `model=${modelObj.apiModel}&seed=${seed}&private=true&key=${token}`;
+    const _proxy = window.WM_PROXY_URL || WM_PROXY_URL;
+    // BYOK (l'utilisateur connecte son propre compte Pollinations) : dans ce cas
+    // uniquement, la clé vient du navigateur — c'est SA clé, pas la nôtre.
+    const byokToken = modelObj.isBYOK && window.WMBYOK?.getUserKey() ? WMBYOK.getUserKey() : null;
+    const baseParams = byokToken
+      ? `model=${modelObj.apiModel}&seed=${seed}&private=true&key=${byokToken}`
+      : `model=${modelObj.apiModel}&seed=${seed}`;
 
     // ── Kontext : édition d'image (upload → URL → &image=) ────────────
     let apiUrl;
@@ -6779,7 +6753,7 @@ async function generateImage(prompt, modelObj) {
       const imgFile = attachedFiles.find(f => f.isImage && f.content && f.content._isImage);
       if (imgFile) {
         appendThinking({ name: "Upload en cours…", logo: "pollinationai.png" });
-        // 1. Convertir base64 → Blob et uploader sur Pollinations
+        // 1. Convertir base64 → Blob et uploader (via le proxy si pas BYOK)
         const base64Data = imgFile.content.base64; // "data:image/...;base64,..."
         const [header, b64] = base64Data.split(",");
         const mime = header.match(/:(.*?);/)[1];
@@ -6792,11 +6766,14 @@ async function generateImage(prompt, modelObj) {
         const formData = new FormData();
         formData.append("file", imgBlob, `wikimind-edit.${ext}`);
 
-        const uploadResp = await fetch("https://gen.pollinations.ai/upload", {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${token}` },
-          body: formData
-        });
+        const uploadResp = await fetch(
+          byokToken ? "https://gen.pollinations.ai/upload" : `${_proxy}/upload`,
+          {
+            method: "POST",
+            headers: byokToken ? { "Authorization": `Bearer ${byokToken}` } : {},
+            body: formData
+          }
+        );
         if (!uploadResp.ok) {
           const errTxt = await uploadResp.text().catch(() => uploadResp.status);
           throw new Error(`Upload image échoué (${uploadResp.status}): ${errTxt}`);
@@ -6806,13 +6783,19 @@ async function generateImage(prompt, modelObj) {
         if (!remoteUrl) throw new Error("Upload OK mais URL manquante dans la réponse");
 
         // 2. Appel Kontext avec l'URL distante
-        apiUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(cleanPrompt)}?${baseParams}&image=${encodeURIComponent(remoteUrl)}`;
+        apiUrl = byokToken
+          ? `https://gen.pollinations.ai/image/${encodeURIComponent(cleanPrompt)}?${baseParams}&image=${encodeURIComponent(remoteUrl)}`
+          : `${_proxy}/image?prompt=${encodeURIComponent(cleanPrompt)}&${baseParams}&image=${encodeURIComponent(remoteUrl)}`;
       } else {
         // Kontext sans image jointe → génération normale
-        apiUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(finalPrompt)}?${baseParams}`;
+        apiUrl = byokToken
+          ? `https://gen.pollinations.ai/image/${encodeURIComponent(finalPrompt)}?${baseParams}`
+          : `${_proxy}/image?prompt=${encodeURIComponent(finalPrompt)}&${baseParams}`;
       }
     } else {
-      apiUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(finalPrompt)}?${baseParams}`;
+      apiUrl = byokToken
+        ? `https://gen.pollinations.ai/image/${encodeURIComponent(finalPrompt)}?${baseParams}`
+        : `${_proxy}/image?prompt=${encodeURIComponent(finalPrompt)}&${baseParams}`;
     }
 
     // fetch → blob → ObjectURL
@@ -6985,32 +6968,17 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
   }
 
   try {
-    // Récupérer le bon endpoint et la bonne clé selon le provider du modèle sélectionné
+    // SÉCURITÉ : plus aucune clé côté client. On envoie juste le provider
+    // et l'endpoint cible au Worker proxy, qui rajoute la vraie clé.
     const _mObj = window._wmSelectedModelObj || { provider:"mistral", apiEndpoint:"https://api.mistral.ai/v1/chat/completions" };
-    // SambaNova bloque les requêtes CORS directes depuis le navigateur ("Failed to fetch") :
-    // on passe par un proxy CORS public qui relaie la requête vers api.sambanova.ai
     const _isGoogle = _mObj.provider === "google";
-    const _apiEndpoint = _mObj.provider === "sambanova"
-      ? "https://corsproxy.io/?url=" + encodeURIComponent(_mObj.apiEndpoint || "https://api.sambanova.ai/v1/chat/completions")
-      : _isGoogle
-      // Google : l'endpoint encode déjà le modèle dans l'URL, on ajoute ?alt=sse pour le streaming
+    // Endpoint RÉEL du provider (le Worker s'en sert pour valider + relayer).
+    // Le SSE Google (?alt=sse) et le contournement CORS SambaNova sont gérés
+    // par le Worker lui-même désormais (plus besoin de corsproxy.io public).
+    const _realEndpoint = _isGoogle
       ? (_mObj.apiEndpoint || `https://generativelanguage.googleapis.com/v1beta/models/${_mObj.apiModel}:streamGenerateContent`) + "?alt=sse"
       : (_mObj.apiEndpoint || "https://api.mistral.ai/v1/chat/completions");
-    const _apiKey = _mObj.provider === "groq"
-      ? (_gk || WM_API_KEYS.groq || KEY)
-      : _mObj.provider === "cerebras"
-      ? (WM_API_KEYS.cerebras || "csk-y6n2np6j6y8r4j6yrmwp4yht39yf4f6c6jx4xv2e34vpdh55")
-      : _mObj.provider === "sambanova"
-      ? (_snk || WM_API_KEYS.sambanova)
-      : _mObj.provider === "cohere"
-      ? (WM_API_KEYS.cohere)
-      : _isGoogle
-      ? (WM_API_KEYS.google)
-      : _mObj.provider === "openrouter"
-      ? (WM_API_KEYS.openrouter)
-      : _mObj.provider === "chutes"
-      ? (WM_API_KEYS.chutes)
-      : (WM_API_KEYS.mistral || KEY);
+    const _apiEndpoint = (window.WM_PROXY_URL || WM_PROXY_URL) + "/chat";
 
     // Détecter si la dernière requête concerne une modification de fichier volumineux
     const isLargeFileEdit = (function() {
@@ -7072,20 +7040,11 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
               return { role, content: m.content };
             });
 
-    // ── Build request headers ──
+    // ── Headers : simple JSON vers notre proxy, plus de clé ici ──
     const _reqHeaders = { "Content-Type": "application/json" };
-    if (_isGoogle) {
-      _reqHeaders["X-goog-api-key"] = _apiKey;
-    } else if (_mObj.provider === "openrouter") {
-      _reqHeaders["Authorization"] = "Bearer " + _apiKey;
-      _reqHeaders["HTTP-Referer"] = "https://wikimind.fr";
-      _reqHeaders["X-Title"] = "Wikimind AI";
-    } else {
-      _reqHeaders["Authorization"] = "Bearer " + _apiKey;
-    }
 
-    // ── Build request body ──
-    let _reqBody;
+    // ── Build request body (payload envoyé tel quel au vrai provider par le Worker) ──
+    let _reqPayload;
     if (_isGoogle) {
       // Google Gemini API format
       const _googleContents = [];
@@ -7096,14 +7055,14 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
           ? m.content.map(p => p.type === "text" ? { text: p.text } : p.type === "image_url" ? { inlineData: { mimeType: "image/jpeg", data: p.image_url?.url?.split(",")[1] || "" } } : { text: "" })
           : [{ text: m.content || "" }]
       }));
-      _reqBody = JSON.stringify({
+      _reqPayload = {
         systemInstruction: { parts: [{ text: _systemPromptText }] },
         contents: _googleMsgs,
         generationConfig: { maxOutputTokens: _mObj.maxTokens || 8192 }
-      });
+      };
     } else {
       // Standard OpenAI-compatible format (Mistral, Groq, Cerebras, SambaNova, Cohere, OpenRouter)
-      _reqBody = JSON.stringify({
+      _reqPayload = {
         model: selectedModel,
         stream: true,
         ...(_mObj.provider === "sambanova" ? { stream_options: { include_usage: true } } : {}),
@@ -7111,14 +7070,19 @@ async function doStream(userText, isRegen, visionContent = null, extraSources = 
           { role: "system", content: _systemPromptText },
           ..._filteredMessages
         ]
-      });
+      };
     }
 
+    // ── Appel via le proxy : le Worker rajoute la vraie clé et relaie ──
     const res = await fetch(_apiEndpoint, {
       method: "POST",
       headers: _reqHeaders,
       signal: abortCtrl.signal,
-      body: _reqBody
+      body: JSON.stringify({
+        provider: _mObj.provider,
+        endpoint: _realEndpoint,
+        payload: _reqPayload
+      })
     });
 
     if (!res.ok) {
@@ -7374,11 +7338,6 @@ async function runRagExtraction(userText, aiText) {
     || _mObj;
   if (!extractModel) return;
 
-  const extractKey = extractModel.provider === 'groq' ? (_gk || WM_API_KEYS.groq)
-    : extractModel.provider === 'cerebras' ? WM_API_KEYS.cerebras
-    : extractModel.provider === 'chutes' ? WM_API_KEYS.chutes
-    : (WM_API_KEYS.mistral || KEY);
-
   // Contexte actuel pour éviter les doublons
   const existingMemory = personalization.memory.slice();
   const existingProfile = [
@@ -7405,18 +7364,23 @@ IA a répondu : "${aiText.slice(0, 300)}"
 Quelles nouvelles informations personnelles sur l'utilisateur peut-on extraire ?`;
 
   try {
-    const res = await fetch(extractModel.apiEndpoint, {
+    const _proxy = window.WM_PROXY_URL || WM_PROXY_URL;
+    const res = await fetch(`${_proxy}/chat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + extractKey },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: extractModel.apiModel,
-        max_tokens: 200,
-        temperature: 0.1,
-        stream: false,
-        messages: [
-          { role: "system", content: sysPrompt },
-          { role: "user", content: userPrompt }
-        ]
+        provider: extractModel.provider,
+        endpoint: extractModel.apiEndpoint,
+        payload: {
+          model: extractModel.apiModel,
+          max_tokens: 200,
+          temperature: 0.1,
+          stream: false,
+          messages: [
+            { role: "system", content: sysPrompt },
+            { role: "user", content: userPrompt }
+          ]
+        }
       })
     });
     if (!res.ok) return;
