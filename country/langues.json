@@ -69,7 +69,7 @@
     "reset_sent": "Email envoyé, vérifiez votre boîte de réception",
     "step_of": "Étape {n} sur {total}",
     "side_quote": "Une intelligence artificielle qui s'adapte à vous, pas l'inverse.",
-    "side_quote_sub": "Outils IA, flashcards, code et automatisation — tout dans un seul espace privé et sécurisé."
+    "side_quote_sub": "Plus de 20 outils IA réunis dans une seule application."
   },
   "en": {
     "meta_dir": "ltr",
@@ -141,7 +141,7 @@
     "reset_sent": "Email sent, check your inbox",
     "step_of": "Step {n} of {total}",
     "side_quote": "An artificial intelligence that adapts to you, not the other way around.",
-    "side_quote_sub": "AI tools, flashcards, code and automation — all in one private, secure space."
+    "side_quote_sub": "Over 20 AI tools in a single app."
   },
   "de": {
     "meta_dir": "ltr",
@@ -213,7 +213,7 @@
     "reset_sent": "E-Mail gesendet, prüfen Sie Ihr Postfach",
     "step_of": "Schritt {n} von {total}",
     "side_quote": "Eine künstliche Intelligenz, die sich Ihnen anpasst, nicht umgekehrt.",
-    "side_quote_sub": "KI-Tools, Karteikarten, Code und Automatisierung — alles an einem sicheren, privaten Ort."
+    "side_quote_sub": "Über 20 KI-Tools in einer einzigen App."
   },
   "it": {
     "meta_dir": "ltr",
@@ -285,7 +285,7 @@
     "reset_sent": "Email inviata, controlla la posta in arrivo",
     "step_of": "Passo {n} di {total}",
     "side_quote": "Un'intelligenza artificiale che si adatta a te, non il contrario.",
-    "side_quote_sub": "Strumenti IA, flashcard, codice e automazione — tutto in uno spazio privato e sicuro."
+    "side_quote_sub": "Oltre 20 strumenti di IA in un'unica app."
   },
   "es": {
     "meta_dir": "ltr",
@@ -357,7 +357,7 @@
     "reset_sent": "Correo enviado, revisa tu bandeja de entrada",
     "step_of": "Paso {n} de {total}",
     "side_quote": "Una inteligencia artificial que se adapta a ti, no al revés.",
-    "side_quote_sub": "Herramientas de IA, tarjetas de estudio, código y automatización, todo en un espacio privado y seguro."
+    "side_quote_sub": "Más de 20 herramientas de IA en una sola aplicación."
   },
   "zh": {
     "meta_dir": "ltr",
@@ -429,7 +429,7 @@
     "reset_sent": "邮件已发送，请查收",
     "step_of": "第 {n} 步，共 {total} 步",
     "side_quote": "一个适应你的人工智能，而不是相反。",
-    "side_quote_sub": "AI 工具、记忆卡片、代码与自动化——全部集中在一个私密安全的空间。"
+    "side_quote_sub": "一款应用集成超过 20 种 AI 工具。"
   },
   "ru": {
     "meta_dir": "ltr",
@@ -501,7 +501,7 @@
     "reset_sent": "Письмо отправлено, проверьте почту",
     "step_of": "Шаг {n} из {total}",
     "side_quote": "Искусственный интеллект, который подстраивается под вас, а не наоборот.",
-    "side_quote_sub": "ИИ-инструменты, карточки, код и автоматизация — всё в одном приватном и защищённом пространстве."
+    "side_quote_sub": "Более 20 инструментов на базе ИИ в одном приложении."
   },
   "hi": {
     "meta_dir": "ltr",
@@ -573,6 +573,6 @@
     "reset_sent": "ईमेल भेजा गया, अपना इनबॉक्स जांचें",
     "step_of": "चरण {n} / {total}",
     "side_quote": "एक ऐसा कृत्रिम बुद्धिमत्ता जो आपके अनुसार ढलता है, न कि इसका उल्टा।",
-    "side_quote_sub": "AI टूल्स, फ़्लैशकार्ड, कोड और ऑटोमेशन — सब कुछ एक निजी और सुरक्षित स्थान में।"
+    "side_quote_sub": "एक ही ऐप में 20 से ज़्यादा AI टूल्स।"
   }
 }
