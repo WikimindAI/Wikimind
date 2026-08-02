@@ -630,13 +630,20 @@
     <span class="nav-logo-text">WikiMind <span>AI</span></span>
   </a>
   <div class="nav-links">
-    <a href="#features" class="nav-link">Fonctionnalites</a>
-    <a href="#gallery" class="nav-link">Galerie IA</a>
-    <a href="#apps" class="nav-link">Applications</a>
+    <a href="#features" class="nav-link" data-i18n="nav_features">Fonctionnalites</a>
+    <a href="#gallery" class="nav-link" data-i18n="nav_gallery">Galerie IA</a>
+    <a href="#apps" class="nav-link" data-i18n="nav_apps">Applications</a>
+  </div>
+  <div class="nav-lang-switch" style="position:relative;margin-right:6px;">
+    <button id="site-lang-btn" style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:6px 10px;border-radius:8px;cursor:pointer;">
+      <img id="site-lang-flag" src="" style="width:15px;height:11px;object-fit:cover;border-radius:2px" alt="">
+      <span id="site-lang-label">FR</span>
+    </button>
+    <div id="site-lang-menu" style="position:absolute;top:calc(100% + 6px);right:0;background:#0c0c0e;border:1px solid rgba(255,255,255,0.1);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,0.4);padding:6px;min-width:170px;display:none;z-index:250;max-height:280px;overflow-y:auto;"></div>
   </div>
   <div class="nav-auth" id="nav-auth-guest">
-    <a class="btn-nav-login" id="btn-open-login" href="auth.html?mode=login">Se connecter</a>
-    <a class="btn-nav-signup" id="btn-open-signup" href="auth.html?mode=signup">Commencer</a>
+    <a class="btn-nav-login" id="btn-open-login" href="auth.html?mode=login" data-i18n="nav_login">Se connecter</a>
+    <a class="btn-nav-signup" id="btn-open-signup" href="auth.html?mode=signup" data-i18n="nav_start">Commencer</a>
   </div>
   <div id="nav-user-info">
     <span class="nav-username" id="nav-username-text"></span>
@@ -965,7 +972,7 @@
 
 <div class="hero">
   <div class="hero-glow"></div>
-  <h1 class="hero-title reveal" style="font-size: clamp(52px, 8vw, 96px);">L'IA au service de votre quotidien</h1>
+  <h1 class="hero-title reveal" style="font-size: clamp(52px, 8vw, 96px);" data-i18n="hero_title">L'IA au service de votre quotidien</h1>
   <div class="gallery-wrap" style="margin-top: 20px; margin-bottom: 10px;">
     <div class="gallery-track" id="hero-gallery-track">
       <div class="gallery-img"><img data-src="exemples/1.png" alt="" draggable="false" class="wm-cache-img"></div>
@@ -1204,25 +1211,25 @@
   </script>
   <p class="gallery-caption">Images générées par WikiMind AI</p>
 
-  <p class="hero-sub reveal d2">WikiMind est une suite complète d'outils intelligents pour apprendre, créer et s'organiser. Propulsé par les meilleurs modèles d'IA du marché.</p>
+  <p class="hero-sub reveal d2" data-i18n="hero_sub">WikiMind est une suite complète d'outils intelligents pour apprendre, créer et s'organiser. Propulsé par les meilleurs modèles d'IA du marché.</p>
   <div class="hero-ctas reveal d3">
-    <a href="#apps" class="btn-primary">Explorer les apps <i class="fa-solid fa-arrow-down" style="font-size:11px;"></i></a>
-    <a href="apps/AI/Wikimind_AI.html" class="btn-ghost" target="_blank">Ouvrir WikiMind AI <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;"></i></a>
+    <a href="#apps" class="btn-primary"><span data-i18n="hero_cta_explore">Explorer les apps</span> <i class="fa-solid fa-arrow-down" style="font-size:11px;"></i></a>
+    <a href="apps/AI/Wikimind_AI.html" class="btn-ghost" target="_blank"><span data-i18n="hero_cta_open">Ouvrir WikiMind AI</span> <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;"></i></a>
   </div>
   <button class="btn-pwa-hero reveal d4" id="btn-pwa-hero" style="display:none;" onclick="triggerPWAInstall()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-    Télécharger WikiMind
+    <span data-i18n="hero_cta_download">Télécharger WikiMind</span>
   </button>
 </div>
 
  
   <div class="hero-stats reveal d4" style="margin-bottom: 48px;">
-    <div class="hero-stat"><div class="hero-stat-num">20+</div><div class="hero-stat-label">Applications</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">37+</div><div class="hero-stat-label">Modèles IA</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">1,9M+</div><div class="hero-stat-label">Tokens générés</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">Gratuit</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">1 an</div><div class="hero-stat-label">D'existence</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">100<span style="font-size:18px;opacity:.7"> req/24h</span></div><div class="hero-stat-label">Requêtes par jour</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">20+</div><div class="hero-stat-label" data-i18n="stat_apps">Applications</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">37+</div><div class="hero-stat-label" data-i18n="stat_models">Modèles IA</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">1,9M+</div><div class="hero-stat-label" data-i18n="stat_tokens">Tokens générés</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label" data-i18n="stat_free">Gratuit</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">1 an</div><div class="hero-stat-label" data-i18n="stat_age">D'existence</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">100<span style="font-size:18px;opacity:.7"> req/24h</span></div><div class="hero-stat-label" data-i18n="stat_requests">Requêtes par jour</div></div>
     <div class="hero-stat hero-stat-france"><div class="hero-stat-num hero-stat-flag"><img src="exemples/frenchlogo.png" alt="🇫🇷" class="flag-img" onerror="this.outerHTML='🇫🇷'"> Made in France</div></div>
   </div>
 </div>
@@ -2656,6 +2663,64 @@ function showInstallBanner(promptEvent) {
 .pwa-btn:hover { opacity: .8; }
 @media (max-width: 400px) { #pwa-banner { right: 12px; left: 12px; max-width: none; } }
 </style>
+
+<!-- SITE I18N (nav + hero, connecté à auth.html) -->
+<script>
+(function(){
+  const SUPPORTED_LANGS = ['fr','en','de','it','es','zh','ru','hi'];
+  const LANG_NAMES = { fr:'Français', en:'English', de:'Deutsch', it:'Italiano', es:'Español', zh:'中文', ru:'Русский', hi:'हिन्दी' };
+  const LANG_TO_COUNTRY = { fr:'fr', en:'gb', de:'de', it:'it', es:'es', zh:'cn', ru:'ru', hi:'in' };
+  let lang = localStorage.getItem('wm_lang') || (navigator.language || 'fr').slice(0,2);
+  if (!SUPPORTED_LANGS.includes(lang)) lang = 'fr';
+  let DICT = {};
+
+  function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const val = (DICT[lang] && DICT[lang][key]) || (DICT.en && DICT.en[key]);
+      if (val) el.textContent = val;
+    });
+    const flagEl = document.getElementById('site-lang-flag');
+    const labelEl = document.getElementById('site-lang-label');
+    if (flagEl) flagEl.src = `https://flagcdn.com/w40/${LANG_TO_COUNTRY[lang]}.png`;
+    if (labelEl) labelEl.textContent = lang.toUpperCase();
+    document.documentElement.lang = lang;
+  }
+
+  function buildMenu() {
+    const menu = document.getElementById('site-lang-menu');
+    if (!menu) return;
+    menu.innerHTML = SUPPORTED_LANGS.map(l => `
+      <div data-lang="${l}" style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:${l===lang?'700':'500'};cursor:pointer;color:#fff;background:${l===lang?'rgba(255,255,255,0.08)':'transparent'}">
+        <img src="https://flagcdn.com/w40/${LANG_TO_COUNTRY[l]}.png" style="width:18px;height:13px;object-fit:cover;border-radius:2px" alt="">
+        <span>${LANG_NAMES[l]}</span>
+      </div>`).join('');
+    menu.querySelectorAll('[data-lang]').forEach(it => {
+      it.onmouseenter = () => it.style.background = 'rgba(255,255,255,0.08)';
+      it.onmouseleave = () => it.style.background = it.getAttribute('data-lang') === lang ? 'rgba(255,255,255,0.08)' : 'transparent';
+      it.onclick = () => {
+        lang = it.getAttribute('data-lang');
+        localStorage.setItem('wm_lang', lang);
+        applyI18n(); buildMenu();
+        menu.style.display = 'none';
+      };
+    });
+  }
+
+  const btn = document.getElementById('site-lang-btn');
+  const menu = document.getElementById('site-lang-menu');
+  if (btn && menu) {
+    btn.onclick = () => { menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; };
+    document.addEventListener('click', e => { if (!e.target.closest('.nav-lang-switch')) menu.style.display = 'none'; });
+  }
+
+  fetch('country/index.json').then(r => r.json()).then(data => {
+    DICT = data;
+    applyI18n();
+    buildMenu();
+  }).catch(() => {});
+})();
+</script>
 
 </body>
 </html>
