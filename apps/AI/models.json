@@ -1,24 +1,8 @@
 {
-  "version": "5.6",
+  "version": "5.7",
   "defaultModel": "wm-small-5.5",
-  "apiKeys": {
-    "mistral": "5lnrIIlTIjlETLxr4Xqv0lkZdk8tPigj",
-    "groq_p1": "gsk_wHXg87k3ELkt4D3b",
-    "groq_p2": "DP73WGdyb3FYGPxjnic",
-    "groq_p3": "bCl9eWCGO6aRhA8xs",
-    "pollinations": "pk_w6wnuGBObh7FeHwp",
-    "pollinations_app_key": "pk_k17pnl1BAXA1Lqsb",
-    "cerebras": "csk-y6n2np6j6y8r4j6yrmwp4yht39yf4f6c6jx4xv2e34vpdh55",
-    "cohere": "cohere_CMinuGuML8tVX9SjAmHqyGYZgXZjdOVx8ZPfA9As0WWhOW",
-    "openrouter_p1": "sk-or-v1-d9f6754a4",
-    "openrouter_p2": "d096d56904421ccfba",
-    "openrouter_p3": "d5ffff0e608c8d517e",
-    "openrouter_p4": "5bb42fd0abdc7450e7e",
-    "google_p1": "AQ.Ab8RN6LTojKwlg",
-    "google_p2": "GFj1Bhs5QmzQNvu6y",
-    "google_p3": "tFHll5tQzfFNgJp2gQQ",
-    "tavily": "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"
-  },
+  "proxyUrl": "https://wikimind-api.wikimind-ai.workers.dev",
+  "_securityNote": "Toutes les clés API ont été retirées de ce fichier le 02/08/2026. Elles vivent maintenant UNIQUEMENT dans les secrets du Cloudflare Worker (voir worker.js / README_DEPLOIEMENT.md). Remplace proxyUrl ci-dessus par l'URL réelle de ton Worker après déploiement. IMPORTANT : régénère toutes tes anciennes clés (Mistral, Groq, Cerebras, Cohere, OpenRouter, Google, Pollinations, Tavily) car elles étaient exposées en clair dans ce fichier ET codées en dur (obfusquées en XOR, trivialement réversible) dans Wikimind_AI.html — donc déjà potentiellement compromises si le site a été visité par quelqu'un d'autre.",
   "modelExpiry": {
     "removeDate": "2026-09-12T00:00:00Z",
     "note": "Tous les modèles ayant 'expiresAfterRemoveDate: true' sont automatiquement masqués après cette date. wm-flash-5.5 (gemini-2.5-flash) sera retiré par Google le 16/10/2026, à surveiller."
