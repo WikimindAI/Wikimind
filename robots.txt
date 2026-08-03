@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wikimindai.github.io/Wikimind/sitemap.xml
