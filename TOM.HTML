@@ -2833,8 +2833,6 @@ body.chat-empty-state #input-container {
     vision: 'pixtral-large-latest'    // requêtes avec image jointe
   };
 
-  const IMAGE_MODEL = 'gptimage'; // GPT Image 1 Mini via Pollinations
-
   // Effet d'affichage : la file de caractères reçus pendant une
   // fenêtre est "vidée" lettre par lettre pendant la fenêtre suivante,
   // au lieu d'un affichage brut par bloc (anti bug Mistral sur long stream).
@@ -3066,6 +3064,18 @@ body.chat-empty-state #input-container {
   // ============================================================
   // ROUTEUR — mistral-small choisit le modèle + détecte l'image
   // ============================================================
+  // Filet de sécurité : si la phrase contient clairement une demande
+  // d'image, on force image=true même si le routeur IA se trompe ou
+  // échoue (JSON invalide, timeout, oubli du modèle...). C'était la
+  // cause du bug "ça affiche du texte au lieu d'une image" : le
+  // catch() du routeur retombait toujours sur image:false, et même en
+  // cas de succès, mistral-small oublie parfois de mettre image:true.
+  const IMAGE_INTENT_RE = /\b(fais|fait|génère|genere|crée|cree|dessine|montre|donne|produis|réalise|realise)[- ]?(moi|nous)?\s+(une |un |des )?(image|illustration|photo|dessin|logo|icône|icone|affiche|poster|visuel)s?\b|\b(image|photo|illustration|dessin) de\b/i;
+
+  function detectImageIntent(text) {
+    return IMAGE_INTENT_RE.test(text);
+  }
+
   async function routeRequest(userText, signal) {
     const systemPrompt = `Tu es un routeur interne. Analyse la requête utilisateur et réponds UNIQUEMENT en JSON strict, sans texte autour, sans balises markdown, au format exact :
 {"model":"small|large|vision","image":true|false,"imagePrompt":"prompt anglais optimisé si image sinon vide"}
@@ -3103,7 +3113,9 @@ Règles :
       const parsed = JSON.parse(cleaned);
       return {
         model: hasImage ? 'vision' : (['small', 'large', 'vision'].includes(parsed.model) ? parsed.model : 'small'),
-        image: !!parsed.image,
+        // On force image=true dès que la détection regex reconnaît une
+        // demande explicite, même si le modèle routeur a mis image:false.
+        image: !!parsed.image || detectImageIntent(userText),
         imagePrompt: parsed.imagePrompt || userText
       };
     } catch (e) {
@@ -3111,16 +3123,64 @@ Règles :
       // pas être avalée par le fallback "small" ci-dessous.
       if (e.name === 'AbortError') throw e;
       console.error('Erreur routeur, fallback small :', e);
-      return { model: hasImage ? 'vision' : 'small', image: false, imagePrompt: userText };
+      // Même en cas d'échec total du routeur, la détection regex permet
+      // encore de déclencher une génération d'image correctement.
+      return { model: hasImage ? 'vision' : 'small', image: detectImageIntent(userText), imagePrompt: userText };
     }
   }
 
   // ============================================================
   // GÉNÉRATION D'IMAGE — Pollinations / GPT Image 1 Mini
   // ============================================================
+  // Liste de modèles Pollinations à essayer dans l'ordre. "gptimage"
+  // provoque une erreur de validation côté Pollinations ("Gen Sana
+  // request failed") sur certains prompts/paramètres — on retente
+  // automatiquement avec d'autres modèles connus pour être stables,
+  // puis en dernier recours avec le strict minimum de paramètres.
+  const IMAGE_MODEL_FALLBACKS = ['gptimage', 'flux', 'turbo'];
+
+  async function tryFetchImage(prompt, model, { minimal = false } = {}) {
+    let url = `${POLLINATIONS_URL}${encodeURIComponent(prompt)}`;
+    const params = new URLSearchParams();
+    if (model) params.set('model', model);
+    if (!minimal) {
+      params.set('width', '1024');
+      params.set('height', '1024');
+      params.set('nologo', 'true');
+    }
+    params.set('seed', String(Date.now()));
+    if (POLLINATIONS_KEY) params.set('token', POLLINATIONS_KEY);
+    url += `?${params.toString()}`;
+
+    const res = await fetch(url);
+    const contentType = res.headers.get('content-type') || '';
+    if (!res.ok || !contentType.startsWith('image/')) {
+      const bodyText = await res.text().catch(() => '');
+      const err = new Error(`statut ${res.status}, type "${contentType}" : ${bodyText.slice(0, 200)}`);
+      err.url = url;
+      throw err;
+    }
+    return url;
+  }
+
   async function generateImage(prompt) {
-    const url = `${POLLINATIONS_URL}${encodeURIComponent(prompt)}?model=${IMAGE_MODEL}&token=${POLLINATIONS_KEY}&nologo=true&width=1024&height=1024&seed=${Date.now()}`;
-    return url; // l'endpoint Pollinations renvoie directement l'image binaire, on l'utilise en src <img>
+    const errors = [];
+    // 1) On essaie chaque modèle de la liste avec les paramètres complets.
+    for (const model of IMAGE_MODEL_FALLBACKS) {
+      try {
+        return await tryFetchImage(prompt, model);
+      } catch (e) {
+        errors.push(`[${model}] ${e.message}`);
+      }
+    }
+    // 2) Dernier recours : aucun modèle précisé, paramètres minimaux
+    // (Pollinations choisit alors son modèle par défaut, le plus permissif).
+    try {
+      return await tryFetchImage(prompt, null, { minimal: true });
+    } catch (e) {
+      errors.push(`[défaut] ${e.message}`);
+    }
+    throw new Error(`Échec de la génération d'image après plusieurs tentatives :\n${errors.join('\n')}`);
   }
 
   // ============================================================
