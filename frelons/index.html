@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protocole VESPA — Piège à frelons asiatiques</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B0F0C;
+    --panel: #121810;
+    --panel-line: #263127;
+    --amber: #E8A33D;
+    --danger: #C24E2A;
+    --text: #EDEAE2;
+    --muted: #8B9284;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:auto;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk',sans-serif;
+    letter-spacing:-0.01em;
+  }
+  .mono{font-family:var(--mono); letter-spacing:0.02em;}
+
+  #scene-fixed{
+    position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1;
+  }
+  #canvas-wrap{width:100%; height:100%;}
+
+  .scroll-content{ position:relative; z-index:2; }
+
+  /* ---- Nav ---- */
+  nav{
+    position:fixed; top:0; left:0; width:100%; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:28px 5vw;
+    pointer-events:none;
+    mix-blend-mode:difference;
+  }
+  nav .brand{font-size:14px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;}
+  nav .tag{font-family:var(--mono); font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em;}
+
+  /* ---- Progress rail ---- */
+  #rail{
+    position:fixed; right:5vw; top:50%; transform:translateY(-50%);
+    z-index:50; display:flex; flex-direction:column; gap:22px;
+  }
+  #rail .stop{
+    display:flex; align-items:center; gap:10px; opacity:0.35; transition:opacity .4s;
+  }
+  #rail .stop.active{opacity:1;}
+  #rail .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);}
+  #rail .label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.08em; writing-mode:vertical-rl;}
+  @media (max-width:800px){ #rail{display:none;} }
+
+  /* ---- Sections ---- */
+  section{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+  }
+  .hero{ min-height:100vh; flex-direction:column; justify-content:center; align-items:flex-start; padding:0 6vw; }
+  .hero .eyebrow{
+    font-family:var(--mono); font-size:12px; color:var(--danger);
+    text-transform:uppercase; letter-spacing:0.15em; margin-bottom:22px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .hero .eyebrow::before{content:''; width:22px; height:1px; background:var(--danger);}
+  .hero h1{
+    font-size:clamp(48px, 9vw, 128px);
+    font-weight:700; line-height:0.98; color:var(--text);
+    max-width:14ch;
+  }
+  .hero h1 em{font-style:normal; color:var(--amber);}
+  .hero .sub{
+    margin-top:26px; max-width:520px; font-size:18px; line-height:1.6; color:var(--muted);
+  }
+  .hero .scrollcue{
+    position:absolute; bottom:48px; left:6vw;
+    font-family:var(--mono); font-size:11px; color:var(--muted);
+    text-transform:uppercase; letter-spacing:0.1em;
+    display:flex; align-items:center; gap:10px;
+  }
+  .scrollcue .bar{width:1px; height:34px; background:linear-gradient(to bottom, var(--amber), transparent); position:relative; overflow:hidden;}
+
+  .panel-col{
+    width:min(440px, 42vw);
+    padding:0 6vw;
+  }
+  .panel-col.right{ margin-left:auto; }
+
+  .stage-label{
+    font-family:var(--mono); font-size:12px; color:var(--amber);
+    text-transform:uppercase; letter-spacing:0.14em; margin-bottom:16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .stage-label .num{color:var(--muted);}
+
+  .stage h2{ font-size:clamp(28px,4vw,44px); font-weight:600; margin-bottom:18px; }
+  .stage p{ color:var(--muted); font-size:16px; line-height:1.7; margin-bottom:14px; }
+  .spec-list{ margin-top:26px; display:flex; flex-direction:column; gap:14px; }
+  .spec-list .row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    border-top:1px solid var(--panel-line); padding-top:10px;
+    font-family:var(--mono); font-size:13px;
+  }
+  .spec-list .row .k{color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; font-size:11px;}
+  .spec-list .row .v{color:var(--text); font-weight:500;}
+
+  .recipe-steps{ margin-top:24px; display:flex; flex-direction:column; gap:0; }
+  .recipe-steps .step{
+    display:grid; grid-template-columns:32px 1fr; gap:14px;
+    padding:16px 0; border-top:1px solid var(--panel-line);
+  }
+  .recipe-steps .step .n{font-family:var(--mono); color:var(--amber); font-size:13px;}
+  .recipe-steps .step .t{font-size:15px; color:var(--text); line-height:1.5;}
+  .recipe-steps .step .t small{display:block; color:var(--muted); font-size:13px; margin-top:2px;}
+
+  .intro-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:24px;
+    width:min(1000px,86vw);
+  }
+  .intro-grid .card{
+    border-top:1px solid var(--panel-line); padding-top:18px;
+  }
+  .intro-grid .card .idx{font-family:var(--mono); font-size:12px; color:var(--amber);}
+  .intro-grid .card h3{font-size:20px; margin:10px 0 8px; font-weight:600;}
+  .intro-grid .card p{font-size:14px; color:var(--muted); line-height:1.6;}
+  @media (max-width:800px){ .intro-grid{grid-template-columns:1fr;} }
+
+  .center-block{ width:100%; display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 6vw; }
+  .center-block h2{font-size:clamp(26px,4vw,40px); max-width:16ch; font-weight:600;}
+  .center-block .eyebrow{ font-family:var(--mono); font-size:12px; color:var(--danger); text-transform:uppercase; letter-spacing:0.14em; margin-bottom:18px;}
+
+  footer{
+    position:relative; z-index:2; padding:80px 6vw 40px; border-top:1px solid var(--panel-line);
+    display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px;
+  }
+  footer .mono{color:var(--muted); font-size:12px;}
+  footer h3{font-size:28px; max-width:20ch; font-weight:600; margin-bottom:8px;}
+
+  .callout{
+    position:absolute; font-family:var(--mono); font-size:11px; color:var(--amber);
+    text-transform:uppercase; letter-spacing:0.06em; opacity:0; pointer-events:none;
+    display:flex; align-items:center; gap:8px; white-space:nowrap;
+  }
+  .callout .line{width:40px; height:1px; background:var(--amber);}
+  .callout.left .line{order:2;}
+  .callout.left{flex-direction:row-reverse;}
+
+  #loading{
+    position:fixed; inset:0; background:var(--bg); z-index:100;
+    display:flex; align-items:center; justify-content:center;
+    transition:opacity .6s ease;
+  }
+  #loading .mono{color:var(--muted); font-size:12px; letter-spacing:0.1em; text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<div id="loading"><span class="mono">Chargement du modèle — 00%</span></div>
+
+<nav>
+  <div class="brand">PROTOCOLE VESPA</div>
+  <div class="tag">Piège sélectif — frelon asiatique</div>
+</nav>
+
+<div id="rail">
+  <div class="stop" data-stop="0"><span class="dot"></span><span class="label">Assemblage</span></div>
+  <div class="stop" data-stop="1"><span class="dot"></span><span class="label">Vue d'ensemble</span></div>
+  <div class="stop" data-stop="2"><span class="dot"></span><span class="label">Entonnoir</span></div>
+  <div class="stop" data-stop="3"><span class="dot"></span><span class="label">Cage</span></div>
+  <div class="stop" data-stop="4"><span class="dot"></span><span class="label">Réservoir</span></div>
+</div>
+
+<div id="scene-fixed"><div id="canvas-wrap"></div></div>
+
+<div class="scroll-content">
+
+  <section class="hero">
+    <div class="eyebrow">Vespa velutina — dispositif de piégeage</div>
+    <h1>Piéger le frelon.<br>Épargner <em>l'abeille.</em></h1>
+    <p class="sub">Trois pièces, un seul principe : laisser entrer, ne jamais laisser ressortir — sauf pour celles qu'on ne cible pas. Faites défiler pour démonter le dispositif, pièce par pièce.</p>
+    <div class="scrollcue"><span class="bar"></span>Défiler</div>
+  </section>
+
+  <section class="stage" id="stage-unscrew">
+    <div class="panel-col">
+      <div class="stage-label"><span class="num">00</span> Démontage</div>
+      <h2>Un déblocage à vis, quatre tours complets.</h2>
+      <p>L'entonnoir se solidarise à la cage par un filetage. Un quart de tour engagé quatre fois suffit à le libérer entièrement — assez de pas de vis pour un maintien étanche, assez peu pour un entretien rapide.</p>
+    </div>
+  </section>
+
+  <section class="stage" id="stage-intro">
+    <div class="center-block" style="align-items:center;">
+      <div class="eyebrow">Anatomie du piège</div>
+      <h2 style="margin-bottom:40px;">Trois pièces, trois fonctions</h2>
+    </div>
+  </section>
+
+  <section class="stage" style="justify-content:center;">
+    <div class="intro-grid">
+      <div class="card">
+        <div class="idx">01 — Réservoir</div>
+        <h3>La base liquide</h3>
+        <p>Contient le mélange attractif qui noie les frelons capturés et diffuse l'odeur qui les attire depuis l'extérieur.</p>
+      </div>
+      <div class="card">
+        <div class="idx">02 — Entonnoir</div>
+        <h3>L'entrée sans retour</h3>
+        <p>Un tube central guide la descente et empêche toute remontée. Des micro-perforations laissent l'odeur s'échapper vers l'extérieur.</p>
+      </div>
+      <div class="card">
+        <div class="idx">03 — Cage</div>
+        <h3>Le filtre sélectif</h3>
+        <p>Des perforations calibrées laissent s'échapper les abeilles, trop petites pour être la cible, tout en retenant les frelons.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="stage-entonnoir">
+    <div class="panel-col right">
+      <div class="stage-label"><span class="num">02</span> Entonnoir</div>
+      <h2>Descendre, oui. Remonter, jamais.</h2>
+      <p>Le tube central concentre les frelons vers l'unique voie de passage. Sa forme conique et son diamètre calibré empêchent tout retour en arrière : passé ce point, il n'y a plus qu'une direction.</p>
+      <p>Tout autour, un maillage de perforations fines laisse diffuser l'odeur du mélange attractif vers l'extérieur du piège, sans offrir de prise pour s'échapper.</p>
+      <div class="spec-list">
+        <div class="row"><span class="k">Fonction</span><span class="v">Entrée à sens unique</span></div>
+        <div class="row"><span class="k">Diamètre perforations</span><span class="v">Ø 3 mm</span></div>
+        <div class="row"><span class="k">Rôle des perforations</span><span class="v">Diffusion de l'odeur</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="stage-cage">
+    <div class="panel-col">
+      <div class="stage-label"><span class="num">03</span> Cage</div>
+      <h2>Un tamis pensé pour épargner les abeilles.</h2>
+      <p>La paroi de la cage est percée de trous calibrés à 5,5 mm — juste assez grand pour qu'une abeille prisonnière retrouve son chemin vers l'extérieur, trop petit pour laisser filer un frelon asiatique.</p>
+      <p>Au centre, une trame de <strong style="color:var(--text)">121 alvéoles hexagonales</strong> de 1,5 mm de rayon multiplie les surfaces d'échange avec l'air : l'odeur attractive se diffuse plus loin, plus vite.</p>
+      <div class="spec-list">
+        <div class="row"><span class="k">Fonction</span><span class="v">Filtre sélectif + diffusion</span></div>
+        <div class="row"><span class="k">Trous d'évasion</span><span class="v">Ø 5,5 mm — sortie abeilles</span></div>
+        <div class="row"><span class="k">Trame hexagonale</span><span class="v">121 alvéoles · rayon 1,5 mm</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="stage-reservoir">
+    <div class="panel-col right">
+      <div class="stage-label"><span class="num">01</span> Réservoir</div>
+      <h2>Le mélange qui fait tout le travail.</h2>
+      <p>Un attractif liquide simple, à préparer soi-même, verser dans le réservoir avant de refermer le piège.</p>
+      <div class="recipe-steps">
+        <div class="step"><div class="n">01</div><div class="t">Bière brune<small>1 volume — base fermentée, très attractive hors saison de reproduction</small></div></div>
+        <div class="step"><div class="n">02</div><div class="t">Vin blanc<small>1 volume — repousse en partie les abeilles, sensibles à l'alcool</small></div></div>
+        <div class="step"><div class="n">03</div><div class="t">Sirop de cassis (ou grenadine)<small>1 volume — sucre et couleur, renforce l'attractivité</small></div></div>
+        <div class="step"><div class="n">04</div><div class="t">Verser 2 à 3 cm dans le réservoir<small>Renouveler le mélange toutes les 1 à 2 semaines</small></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" style="justify-content:center;">
+    <div class="center-block">
+      <div class="eyebrow">Fin du protocole</div>
+      <h2>Un piège qui trie avant de retenir.</h2>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div>
+    <h3>Réservoir. Entonnoir. Cage.<br>Trois pièces, un seul objectif.</h3>
+    <span class="mono">Modélisation 3D — Tinkercad · Assemblage vis 4 tours</span>
+  </div>
+  <div class="mono">Projet piège à frelons asiatiques — 2026</div>
+</footer>
+
+<script src="parts_data.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
